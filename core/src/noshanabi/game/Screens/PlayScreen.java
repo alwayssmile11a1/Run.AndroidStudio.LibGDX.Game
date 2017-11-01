@@ -179,11 +179,11 @@ public class PlayScreen implements Screen{
         //update world
         world.step(1/60f * worldStepSpeed,6,2);
 
-        //update other players
-        server.updateOtherPlayers(delta);
-
         //update player
         player.update(delta);
+
+        //update other players
+        server.updateOtherPlayers(delta);
 
         server.updateServer(delta);
 

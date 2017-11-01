@@ -24,6 +24,8 @@ import noshanabi.game.Objects.Player;
 
 public class ServerCreator {
 
+    private boolean createServer = false;
+
     //multiplayer things
     private Socket socket;
     private HashMap<String,FriendPlayer> otherPlayers;
@@ -36,6 +38,7 @@ public class ServerCreator {
 
     public ServerCreator(World world, Player currentPlayer)
     {
+        if(!createServer) return;
         this.world = world;
         otherPlayers = new HashMap<String, FriendPlayer>();
         mainPlayer = currentPlayer;
@@ -43,6 +46,8 @@ public class ServerCreator {
 
     public void connectSocket()
     {
+        if(!createServer) return;
+
         try
         {
             //Connect to server (server is the index.js file)
@@ -59,6 +64,8 @@ public class ServerCreator {
     }
 
     public void configSocketEvents() {
+
+        if(!createServer) return;
 
         //when we start connecting
         socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
@@ -218,6 +225,7 @@ public class ServerCreator {
 
     public void updateServer(float dt)
     {
+        if(!createServer) return;
 
         if(disconnectedPlayerID !=null)
         {
@@ -251,6 +259,8 @@ public class ServerCreator {
 
     public void drawOtherPlayers(SpriteBatch batch)
     {
+        if(!createServer) return;
+
         for(HashMap.Entry<String,FriendPlayer> entry : otherPlayers.entrySet())
         {
             if(entry.getValue().getTexture()==null)
@@ -264,6 +274,8 @@ public class ServerCreator {
 
     public void updateOtherPlayers(float dt)
     {
+        if(!createServer) return;
+
         for(HashMap.Entry<String,FriendPlayer> entry : otherPlayers.entrySet())
         {
 
@@ -278,6 +290,7 @@ public class ServerCreator {
 
     public void dispose()
     {
+
         for(HashMap.Entry<String,FriendPlayer> entry : otherPlayers.entrySet())
         {
             entry.getValue().dispose();
