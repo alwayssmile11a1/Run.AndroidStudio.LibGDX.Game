@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -34,6 +35,9 @@ public class MapSelectionScreen implements Screen {
     //map count
     private int mapCount = 1;
 
+
+    private Sprite backGround;
+
     //the background image
     Array<Image> mapImages;
     Array<Texture> mapTextures;
@@ -44,6 +48,9 @@ public class MapSelectionScreen implements Screen {
         //set up constructor variables
         this.gameManager = _gameManager;
 
+        backGround = new Sprite(new Texture("images/BlueBackground.png"));
+        backGround.setSize(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+
         //-----------------VIEW RELATED VARIABLES-----------------//
         mapSelectionViewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
         stage = new Stage(mapSelectionViewport,gameManager.batch);
@@ -53,6 +60,7 @@ public class MapSelectionScreen implements Screen {
         Table table = new Table();
         table.center();
         table.setFillParent(true);
+
 
         mapTextures = new Array<Texture>();
         mapImages = new Array<Image>();
@@ -112,6 +120,14 @@ public class MapSelectionScreen implements Screen {
     @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        //draw sprite
+        gameManager.batch.begin();
+
+        backGround.draw(gameManager.batch);
+
+        gameManager.batch.end();
+
         stage.draw();
     }
 
