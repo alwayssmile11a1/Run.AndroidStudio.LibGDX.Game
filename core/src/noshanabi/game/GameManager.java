@@ -6,7 +6,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-import noshanabi.game.Screens.PlayScreen;
+import noshanabi.game.Screens.MenuScreen;
 
 //manage audio, sprite, world width, world height, etc.
 public class GameManager extends Game {
@@ -33,7 +33,7 @@ public class GameManager extends Game {
 
 		//set screen
 		//setScreen(new MenuScreen(this));
-		setScreen(new PlayScreen(this));
+		setScreen(new MenuScreen(this));
 		//setScreen(new GameOverScreen(this));
 
 

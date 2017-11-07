@@ -76,7 +76,7 @@ public class PlayScreen implements Screen{
     ServerCreator server;
 
 
-    public PlayScreen(GameManager gameManager) {
+    public PlayScreen(GameManager gameManager, String mapName) {
         //set up constructor variables
         this.gameManager = gameManager;
         this.worldWidth = gameManager.WORLDWIDTH / gameManager.PPM;
@@ -111,7 +111,7 @@ public class PlayScreen implements Screen{
 
         //----------------MAP RELATED VARIABLES------------//
         //create map
-        mapCreator = new MapCreator(world, "maps/Map.tmx");
+        mapCreator = new MapCreator(world, mapName);
 
         //rayHandler = new RayHandler(world);
         //pointLight1 = new PointLight(rayHandler, 500, Color.GRAY, 100, 4f, 4f);

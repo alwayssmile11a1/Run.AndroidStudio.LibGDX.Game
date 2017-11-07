@@ -30,10 +30,10 @@ public class GameOverScreen implements Screen{
     private GameManager gameManager;
 
 
-    public GameOverScreen(GameManager gameManager)
+    public GameOverScreen(GameManager _gameManager)
     {
         //set up constructor variables
-        this.gameManager = gameManager;
+        this.gameManager = _gameManager;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
         gameOverViewPort = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT, new OrthographicCamera());
@@ -103,10 +103,6 @@ public class GameOverScreen implements Screen{
         if(stage!=null)
         {
             stage.dispose();
-        }
-        if(gameManager!=null)
-        {
-            gameManager.dispose();
         }
     }
 }

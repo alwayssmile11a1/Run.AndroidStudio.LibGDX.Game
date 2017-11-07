@@ -1,11 +1,9 @@
 package noshanabi.game.ControllerSystem;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -38,9 +36,9 @@ public class MobileController {
         table.right().setSize(500,viewPort.getScreenHeight());
         table.setFillParent(true);
         //table.setSize(GameManager.WORLDWIDTH,GameManager.WORLDHEIGHT);
-        Image image = new Image(new Texture("images/bg.png"));
-        image.setSize(500,viewPort.getWorldHeight());
-        image.setColor(0f,0f,0f,0f);
+//        Image image = new Image(new Texture("images/bg.png"));
+//        image.setSize(500,viewPort.getWorldHeight());
+//        image.setColor(0f,0f,0f,0f);
 
         table.addListener(new InputListener()
         {
@@ -58,7 +56,7 @@ public class MobileController {
         });
 
         table.add();
-        table.add(image);
+        //table.add(image);
 
         stage.addActor(table);
 

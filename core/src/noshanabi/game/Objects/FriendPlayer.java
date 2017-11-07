@@ -56,8 +56,9 @@ public class FriendPlayer extends Sprite {
         //body definition
         BodyDef bDef = new BodyDef();
         bDef.position.set(this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2);
-        bDef.type = BodyDef.BodyType.KinematicBody;
+        bDef.type = BodyDef.BodyType.DynamicBody;
         body = world.createBody(bDef);
+        body.setGravityScale(0f);
 
         //create the shape of body
         FixtureDef fDef = new FixtureDef();
@@ -65,7 +66,7 @@ public class FriendPlayer extends Sprite {
         bodyShape.setAsBox(this.getWidth()/2,this.getHeight()/2);
         fDef.shape = bodyShape;
         fDef.filter.categoryBits = FRIEND_PLAYER_BIT;
-        fDef.filter.maskBits = Ground.GROUND_BIT|FRIEND_PLAYER_BIT;
+        fDef.filter.maskBits = FRIEND_PLAYER_BIT|Player.PLAYER_BIT|Player.FOOT;
         fDef.density = 2f;
         body.createFixture(fDef).setUserData(this);
 
