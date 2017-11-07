@@ -54,7 +54,7 @@ public class Ground extends Object {
         fDef.shape = bodyShape;
         fDef.friction = 1f;
         fDef.filter.categoryBits = GROUND_BIT;
-        fDef.filter.maskBits = Player.PLAYER_BIT;
+        fDef.filter.maskBits = Player.PLAYER_BIT|Player.FOOT;
         body.createFixture(fDef).setUserData(this);
     }
 

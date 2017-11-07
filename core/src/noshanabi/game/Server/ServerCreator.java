@@ -30,8 +30,6 @@ public class ServerCreator {
     private Socket socket;
     private HashMap<String,FriendPlayer> otherPlayers;
     private World world;
-    private float UPDATE_TIME = 1/60f;
-    float timer;
     private Player mainPlayer;
     private String disconnectedPlayerID;
 
@@ -50,7 +48,7 @@ public class ServerCreator {
 
         try
         {
-            //Connect to server (server is the index.js file)
+            //Connect to server (server is the index.js file, kind of ..)
             socket = IO.socket("https://runandroidstudiolibgdx.herokuapp.com");
             //socket = IO.socket("http://localhost:5000");
             socket.connect();
@@ -223,33 +221,37 @@ public class ServerCreator {
     }
 
 
-    public void updateServer(float dt)
-    {
-        if(!createServer) return;
+    public void updateServer(float dt) {
+        if (!createServer) return;
 
-        if(disconnectedPlayerID !=null)
-        {
+        if (disconnectedPlayerID != null) {
             otherPlayers.remove(disconnectedPlayerID).dispose();
             disconnectedPlayerID = null;
         }
 
-//        timer+=dt;
-//        if(timer>=UPDATE_TIME)
+        //send the position of main player to other players
+        JSONObject data = new JSONObject();
+        try {
+            data.put("x", mainPlayer.getX());
+            data.put("y", mainPlayer.getY());
+            data.put("rotation", mainPlayer.getRotation());
+            socket.emit("thisPlayerMoved", data);
+        } catch (JSONException e) {
+            Gdx.app.log("SOCKET.IO", "Error sending update data");
+        }
+
+//        //update body position of other players
+//        for(HashMap.Entry<String,FriendPlayer> entry : otherPlayers.entrySet())
 //        {
-            JSONObject data = new JSONObject();
-            try
-            {
-                data.put("x",mainPlayer.getX());
-                data.put("y",mainPlayer.getY());
-                data.put("rotation",mainPlayer.getRotation());
-                socket.emit("thisPlayerMoved",data);
-            }
-            catch (JSONException e)
-            {
-                Gdx.app.log("SOCKET.IO","Error sending update data");
-            }
-            timer = 0;
+//
+//            if(entry.getValue().getBody()==null)
+//            {
+//                entry.getValue().defineObject(world);
+//            }
+//
+//            entry.getValue().update(dt);
 //        }
+
     }
 
     public HashMap<String,FriendPlayer> getPlayers()
@@ -272,21 +274,6 @@ public class ServerCreator {
         }
     }
 
-    public void updateOtherPlayers(float dt)
-    {
-        if(!createServer) return;
-
-        for(HashMap.Entry<String,FriendPlayer> entry : otherPlayers.entrySet())
-        {
-
-            if(entry.getValue().getBody()==null)
-            {
-                entry.getValue().defineObject(world);
-            }
-
-            entry.getValue().update(dt);
-        }
-    }
 
     public void dispose()
     {

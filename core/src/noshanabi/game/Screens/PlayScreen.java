@@ -3,22 +3,21 @@ package noshanabi.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import box2dLight.PointLight;
-import box2dLight.RayHandler;
 import noshanabi.game.ControllerSystem.MobileController;
 import noshanabi.game.GameManager;
 import noshanabi.game.Objects.Player;
 import noshanabi.game.Server.ServerCreator;
 import noshanabi.game.WorldCreator.MapCreator;
+import noshanabi.game.WorldCreator.WorldListener;
 
 /**
  * Created by 2SMILE2 on 25/09/2017.
@@ -46,12 +45,13 @@ public class PlayScreen implements Screen{
     //----------------OBJECT RELATED VARIABLES------------//
     //world simulate collision, physics, etc.
     private World world;
+    private WorldListener worldListener;
 
     private Player player;
 
     //this variable helps us to see the virtual shape of our world (virtual shape of all objects for example)
     //this variable should be eliminated when public the game
-    //private Box2DDebugRenderer b2DebugRenderer;
+    private Box2DDebugRenderer b2DebugRenderer;
 
 
     //----------------WORLD RELATED VARIABLES------------//
@@ -99,15 +99,17 @@ public class PlayScreen implements Screen{
         //----------------OBJECT RELATED VARIABLES------------//
         //initialize world with the gravity of -9.8f
         world = new World(new Vector2(0f, -9.8f), true);
+        worldListener = new WorldListener();
+        world.setContactListener(worldListener);
 
         //initialize box2DDebugRenderer
-        //b2DebugRenderer = new Box2DDebugRenderer();
+        b2DebugRenderer = new Box2DDebugRenderer();
 
         //initialize player
         player = new Player(world);
 
 
-        //----------------WORLD RELATED VARIABLES------------//
+        //----------------MAP RELATED VARIABLES------------//
         //create map
         mapCreator = new MapCreator(world, "maps/Map.tmx");
 
@@ -145,6 +147,26 @@ public class PlayScreen implements Screen{
             player.getBody().setLinearVelocity(-1.5f,player.getBody().getLinearVelocity().y);
         }
 
+        //player.getBody().setLinearVelocity(1f,player.getBody().getLinearVelocity().y);
+
+        if(Gdx.input.justTouched())
+        {
+            if(player.isGrounded) {
+                player.getBody().setLinearVelocity(player.getBody().getLinearVelocity().x, 4f);
+                player.isGrounded = false;
+                player.isDoubleJumped = false;
+            }
+            else
+            {
+                if(!player.isDoubleJumped)
+                {
+                    player.getBody().setLinearVelocity(player.getBody().getLinearVelocity().x, 4f);
+                    player.isDoubleJumped = true;
+                }
+            }
+
+        }
+
         if(Gdx.input.isKeyPressed(Input.Keys.E)) {
             player.startRewinding();
         }
@@ -179,12 +201,11 @@ public class PlayScreen implements Screen{
         //update world
         world.step(1/60f * worldStepSpeed,6,2);
 
+
         //update player
         player.update(delta);
 
-        //update other players
-        server.updateOtherPlayers(delta);
-
+        //update server
         server.updateServer(delta);
 
         //update camera to follow thí player
@@ -215,7 +236,6 @@ public class PlayScreen implements Screen{
 
         server.drawOtherPlayers(gameManager.batch);
 
-        //backgroundSprite.draw(gameManager.batch);
         player.draw(gameManager.batch);
 
 
@@ -225,7 +245,7 @@ public class PlayScreen implements Screen{
         mobileController.draw();
 
         //render box2DDebug
-        //b2DebugRenderer.render(world,mainCamera.combined);
+        b2DebugRenderer.render(world,mainCamera.combined);
 
         //rayHandler.setCombinedMatrix(mainCamera);
         //rayHandler.updateAndRender();

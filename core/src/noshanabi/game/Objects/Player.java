@@ -3,6 +3,8 @@ package noshanabi.game.Objects;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -15,7 +17,11 @@ import com.badlogic.gdx.physics.box2d.World;
 public class Player extends Object {
 
     public static final short PLAYER_BIT = 2;
+    public static final short FOOT = 4;
 
+    private Body foot;
+    public boolean isGrounded = false;
+    public boolean isDoubleJumped = false;
 
     public Player(World world) {
         super(world);
@@ -25,7 +31,7 @@ public class Player extends Object {
         setColor(0f,0.4f,1f,1f);
 
         //set Position
-        setPosition(200,200);
+        setPosition(50,200);
 
         //set Size
         setSize(30f,30f);
@@ -42,7 +48,7 @@ public class Player extends Object {
 
     @Override
     protected void defineObject() {
-        //body definition
+        //Create a main body
         BodyDef bDef = new BodyDef();
         bDef.position.set(this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2);
         bDef.type = BodyDef.BodyType.DynamicBody;
@@ -54,10 +60,23 @@ public class Player extends Object {
         bodyShape.setAsBox(this.getWidth()/2,this.getHeight()/2);
         fDef.shape = bodyShape;
         fDef.filter.categoryBits = PLAYER_BIT;
-        fDef.filter.maskBits = Ground.GROUND_BIT|PLAYER_BIT;
+        fDef.filter.maskBits = Ground.GROUND_BIT|FriendPlayer.FRIEND_PLAYER_BIT;
         fDef.density = 2f;
         body.createFixture(fDef).setUserData(this);
 
+
+        //Create foot
+        bDef.position.set(this.getX()+this.getWidth()/2,this.getY()+this.getHeight());
+        bDef.type = BodyDef.BodyType.DynamicBody;
+        foot = world.createBody(bDef);
+        foot.setGravityScale(0);
+
+        bodyShape.setAsBox(this.getWidth()/2-0.01f,0.08f);
+        fDef.shape = bodyShape;
+        fDef.isSensor = true;
+        fDef.filter.categoryBits = FOOT;
+        fDef.filter.maskBits = Ground.GROUND_BIT|FriendPlayer.FRIEND_PLAYER_BIT;
+        foot.createFixture(fDef).setUserData(this);
     }
 
     @Override
@@ -70,6 +89,8 @@ public class Player extends Object {
 
         //rotate box2d
         body.setAngularVelocity(-body.getLinearVelocity().x * 3);
+
+        foot.setTransform(new Vector2(body.getPosition().x,body.getPosition().y-this.getHeight()/2),0);
 
         //rotate the texture corresponding to the body
         setRotation(body.getAngle() * MathUtils.radiansToDegrees);

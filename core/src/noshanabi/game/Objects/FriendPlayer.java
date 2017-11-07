@@ -1,6 +1,7 @@
 package noshanabi.game.Objects;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -15,7 +16,7 @@ import noshanabi.game.GameManager;
 
 public class FriendPlayer extends Sprite {
 
-    public static final short FRIEND_PLAYER_BIT = 2;
+    public static final short FRIEND_PLAYER_BIT = 8;
 
     private World world; //the world that this object is belonged to
 
@@ -55,7 +56,7 @@ public class FriendPlayer extends Sprite {
         //body definition
         BodyDef bDef = new BodyDef();
         bDef.position.set(this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2);
-        bDef.type = BodyDef.BodyType.DynamicBody;
+        bDef.type = BodyDef.BodyType.KinematicBody;
         body = world.createBody(bDef);
 
         //create the shape of body
@@ -75,7 +76,7 @@ public class FriendPlayer extends Sprite {
         if(body==null) return;
 
         //update texture position
-        body.setTransform(this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2,this.getRotation());
+        body.setTransform(this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2,this.getRotation()/ MathUtils.radiansToDegrees);
 
     }
 

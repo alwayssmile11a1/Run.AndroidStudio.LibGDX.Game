@@ -12,7 +12,7 @@ server.listen(app.get('port'), function(){
 
 io.on('connection',function(socket){
 	console.log("player Connected!");
-    setInterval(() => io.emit('time', new Date().toTimeString()), 0);
+    setInterval(() => io.emit('time', new Date().toTimeString()), 100);
 
 	socket.emit('socketID',{id: socket.id });
 	socket.emit('getPlayers' ,players);
@@ -23,6 +23,7 @@ io.on('connection',function(socket){
 
     socket.on('thisPlayerMoved',function(data){
         data.id = socket.id;
+
         socket.broadcast.emit('playerMoved',data);
 
         for(var i=0;i<players.length;i++)
