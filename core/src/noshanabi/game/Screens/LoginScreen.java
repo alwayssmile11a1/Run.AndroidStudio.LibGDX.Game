@@ -62,7 +62,9 @@ public class LoginScreen implements Screen {
         {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                gameManager.setScreen(new MapSelectionScreen(gameManager));
+
+                gameManager.facebookPlayerServices.signIn();
+                //gameManager.setScreen(new MapSelectionScreen(gameManager));
                 dispose();
                 return true;
             }
