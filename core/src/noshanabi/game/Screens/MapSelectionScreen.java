@@ -72,6 +72,7 @@ public class MapSelectionScreen implements Screen {
             mapTextures.add(new Texture(textureFileName));
         }
 
+        //load map images
         for(int i=0;i<mapCount;i++) {
             Image mapImage = new Image(mapTextures.get(i));
             final String mapName = "maps/map"+i+"/map.tmx";
@@ -90,7 +91,7 @@ public class MapSelectionScreen implements Screen {
             });
         }
 
-
+        //add to table
         for(int i=0;i<mapCount;i++)
         {
             if(i<5) {

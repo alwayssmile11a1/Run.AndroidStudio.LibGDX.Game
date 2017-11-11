@@ -16,37 +16,36 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import noshanabi.game.GameManager;
 
 /**
- * Created by 2SMILE2 on 25/09/2017.
+ * Created by 2SMILE2 on 11/11/2017.
  */
 
-public class MenuScreen implements Screen{
+public class LoginScreen implements Screen {
 
     //GameManager
     GameManager gameManager;
 
     //-----------------VIEW RELATED VARIABLES-----------------//
     //how well we want to see our map
-    private Viewport menuViewPort;
+    private Viewport viewPort;
 
     //stage manage UI on it
     private Stage stage;
 
     //----------------TEXTURE RELATED VARIABLES------------//
     //the background image
-    Image singlePlayerButton;
-    Image multiPlayerButton;
-    Texture singlePlayerTexture;
-    Texture multiPlayerTexture;
+    Image facebookLoginButton;
+    Texture facebookLoginTexture;
 
 
-    public MenuScreen(GameManager _gameManager)
+
+    public LoginScreen(GameManager _gameManager)
     {
         //set up constructor variables
         this.gameManager = _gameManager;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
-        menuViewPort = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
-        stage = new Stage(menuViewPort,gameManager.batch);
+        viewPort = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+        stage = new Stage(viewPort,gameManager.batch);
         Gdx.input.setInputProcessor(stage);
 
         //Table help us to easily arrange UI, such as labels, texts, etc.
@@ -55,11 +54,11 @@ public class MenuScreen implements Screen{
         table.setFillParent(true);
 
         //singleplayer Button
-        singlePlayerTexture = new Texture("images/playbutton.png");
-        singlePlayerButton = new Image(singlePlayerTexture);
-        singlePlayerButton.setBounds(0,0,singlePlayerTexture.getWidth(),singlePlayerButton.getHeight());
-        singlePlayerButton.setTouchable(Touchable.enabled);
-        singlePlayerButton.addListener(new InputListener()
+        facebookLoginTexture = new Texture("images/facebookloginbutton.png");
+        facebookLoginButton = new Image(facebookLoginTexture);
+        facebookLoginButton.setBounds(0,0, facebookLoginTexture.getWidth(), facebookLoginButton.getHeight());
+        facebookLoginButton.setTouchable(Touchable.enabled);
+        facebookLoginButton.addListener(new InputListener()
         {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -70,27 +69,10 @@ public class MenuScreen implements Screen{
 
         });
 
-        //multiplayer Button
-        multiPlayerTexture = new Texture("images/multiplaybutton.png");
-        multiPlayerButton = new Image(multiPlayerTexture);
-        multiPlayerButton.setBounds(0,0,multiPlayerTexture.getWidth(),multiPlayerTexture.getHeight());
-        multiPlayerButton.setTouchable(Touchable.enabled);
-        multiPlayerButton.addListener(new InputListener()
-        {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                gameManager.setScreen(new LoginScreen(gameManager));
-                dispose();
-                return true;
-            }
-
-        });
 
         //add to table
-        table.add(singlePlayerButton).expandX();
-        table.row();
-        table.add(multiPlayerButton).expandX().padTop(10f);
+        table.add(facebookLoginButton).size(300,100);
 
         //add to stage
         stage.addActor(table);
@@ -108,7 +90,7 @@ public class MenuScreen implements Screen{
 
     @Override
     public void resize(int width, int height) {
-        menuViewPort.update(width,height);
+        viewPort.update(width,height);
     }
 
     @Override
@@ -137,10 +119,10 @@ public class MenuScreen implements Screen{
             stage.dispose();
         }
 
-        if (singlePlayerTexture != null)
-            singlePlayerTexture.dispose();
+        if (facebookLoginTexture != null)
+            facebookLoginTexture.dispose();
 
-        if (multiPlayerTexture != null)
-            multiPlayerTexture.dispose();
+
     }
+
 }

@@ -2,5 +2,6 @@
 <resources>
 
     <string name="app_name">Run</string>
-
+    <string name="facebook_app_id">1776138079352527</string>
+    <string name="fb_login_protocol_scheme">fb1776138079352527</string>
 </resources>

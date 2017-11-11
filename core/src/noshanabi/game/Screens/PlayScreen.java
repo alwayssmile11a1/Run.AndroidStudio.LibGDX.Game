@@ -12,7 +12,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import noshanabi.game.ControllerSystem.MobileController;
 import noshanabi.game.GameManager;
 import noshanabi.game.Objects.Player;
 import noshanabi.game.Server.ServerCreator;
@@ -68,7 +67,7 @@ public class PlayScreen implements Screen{
 
 
     //----------------CONTROLLER RELATED VARIABLES------------//
-    MobileController mobileController;
+    //MobileController mobileController;
 
 
 
@@ -120,8 +119,11 @@ public class PlayScreen implements Screen{
 
 
         //----------------CONTROLLER RELATED VARIABLES------------//
-        mobileController = new MobileController(gameManager);
+        //mobileController = new MobileController(gameManager);
 
+
+
+        //----------------SERVER VARIABLES------------//
         server = new ServerCreator(world, player);
         server.connectSocket();
         server.configSocketEvents();
@@ -131,21 +133,21 @@ public class PlayScreen implements Screen{
     public void handleInput(float delta)
     {
 
-        //Jump
-        if(Gdx.input.isKeyJustPressed(Input.Keys.W))
-        {
-            player.getBody().setLinearVelocity(player.getBody().getLinearVelocity().x,4f);
-        }
-        //Right
-        if(Gdx.input.isKeyPressed(Input.Keys.D))
-        {
-            player.getBody().setLinearVelocity(1.5f,player.getBody().getLinearVelocity().y);
-        }
-        //Left
-        if(Gdx.input.isKeyPressed(Input.Keys.A))
-        {
-            player.getBody().setLinearVelocity(-1.5f,player.getBody().getLinearVelocity().y);
-        }
+//        //Jump
+//        if(Gdx.input.isKeyJustPressed(Input.Keys.W))
+//        {
+//            player.getBody().setLinearVelocity(player.getBody().getLinearVelocity().x,4f);
+//        }
+//        //Right
+//        if(Gdx.input.isKeyPressed(Input.Keys.D))
+//        {
+//            player.getBody().setLinearVelocity(1.5f,player.getBody().getLinearVelocity().y);
+//        }
+//        //Left
+//        if(Gdx.input.isKeyPressed(Input.Keys.A))
+//        {
+//            player.getBody().setLinearVelocity(-1.5f,player.getBody().getLinearVelocity().y);
+//        }
 
         //player.getBody().setLinearVelocity(1f,player.getBody().getLinearVelocity().y);
 
@@ -186,10 +188,10 @@ public class PlayScreen implements Screen{
             worldStepSpeed = MathUtils.clamp(worldStepSpeed,0f,1f);
         }
 
-        if(mobileController.isLeftScreenPressed())
-        {
-            player.getBody().setLinearVelocity(1.5f,player.getBody().getLinearVelocity().y);
-        }
+//        if(mobileController.isLeftScreenPressed())
+//        {
+//            player.getBody().setLinearVelocity(1.5f,player.getBody().getLinearVelocity().y);
+//        }
 
     }
 
@@ -242,7 +244,7 @@ public class PlayScreen implements Screen{
         //end of draw
         gameManager.batch.end();
 
-        mobileController.draw();
+        //mobileController.draw();
 
         //render box2DDebug
         b2DebugRenderer.render(world,mainCamera.combined);
@@ -255,7 +257,7 @@ public class PlayScreen implements Screen{
     public void resize(int width, int height) {
         //resize viewport if we resize our game world
         gameViewPort.update(width,height);
-        mobileController.resize(width,height);
+        //mobileController.resize(width,height);
     }
 
     @Override
@@ -298,8 +300,8 @@ public class PlayScreen implements Screen{
         //if(rayHandler!=null) {
         //    rayHandler.dispose();
         //}
-        if(mobileController!=null)
-            mobileController.dispose();
+//        if(mobileController!=null)
+//            mobileController.dispose();
 
         server.dispose();
 
