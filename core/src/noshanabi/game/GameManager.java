@@ -6,7 +6,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-import noshanabi.game.Extensions.FacebookPlayerServices;
+import noshanabi.game.Extensions.PlayerServices;
 import noshanabi.game.Screens.MenuScreen;
 
 //manage audio, sprite, world width, world height, etc.
@@ -25,11 +25,11 @@ public class GameManager extends Game {
 	public AssetManager audioManager;
 
 
-	public FacebookPlayerServices facebookPlayerServices;
+	public PlayerServices playerServices;
 
-	public GameManager(FacebookPlayerServices facebookPlayerServices)
+	public GameManager(PlayerServices playerServices)
 	{
-		this.facebookPlayerServices = facebookPlayerServices;
+		this.playerServices = playerServices;
 	}
 
 	@Override

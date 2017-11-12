@@ -32,9 +32,12 @@ public class LoginScreen implements Screen {
     private Stage stage;
 
     //----------------TEXTURE RELATED VARIABLES------------//
-    //the background image
     Image facebookLoginButton;
     Texture facebookLoginTexture;
+
+    //the background image
+    Image googleLoginButton;
+    Texture googleLoginTexture;
 
 
 
@@ -53,7 +56,7 @@ public class LoginScreen implements Screen {
         table.center();
         table.setFillParent(true);
 
-        //singleplayer Button
+        //facebook login Button
         facebookLoginTexture = new Texture("images/facebookloginbutton.png");
         facebookLoginButton = new Image(facebookLoginTexture);
         facebookLoginButton.setBounds(0,0, facebookLoginTexture.getWidth(), facebookLoginButton.getHeight());
@@ -63,7 +66,25 @@ public class LoginScreen implements Screen {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                gameManager.facebookPlayerServices.signIn();
+                gameManager.playerServices.signInToFacebook();
+                //gameManager.setScreen(new MapSelectionScreen(gameManager));
+                dispose();
+                return true;
+            }
+
+        });
+
+        //google login button
+        googleLoginTexture = new Texture("images/googleloginbutton.png");
+        googleLoginButton = new Image(googleLoginTexture);
+        googleLoginButton.setBounds(0,0, googleLoginTexture.getWidth(), googleLoginTexture.getHeight());
+        googleLoginButton.setTouchable(Touchable.enabled);
+        googleLoginButton.addListener(new InputListener()
+        {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+
+                gameManager.playerServices.signInToGoogle();
                 //gameManager.setScreen(new MapSelectionScreen(gameManager));
                 dispose();
                 return true;
@@ -75,6 +96,8 @@ public class LoginScreen implements Screen {
 
         //add to table
         table.add(facebookLoginButton).size(300,100);
+        table.row();
+        table.add(googleLoginButton).size(300,100);
 
         //add to stage
         stage.addActor(table);
