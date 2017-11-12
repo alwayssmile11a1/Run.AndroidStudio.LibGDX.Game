@@ -78,6 +78,11 @@ public class GameOverScreen implements Screen{
         gameOverViewPort.update(width,height);
     }
 
+
+    public Stage getStage() {
+        return stage;
+    }
+
     @Override
     public void show() {
 

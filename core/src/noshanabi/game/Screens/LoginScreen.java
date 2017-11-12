@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -39,12 +40,15 @@ public class LoginScreen implements Screen {
     Image googleLoginButton;
     Texture googleLoginTexture;
 
-
+    private Image returnImage;
+    private Texture returnTexture;
 
     public LoginScreen(GameManager _gameManager)
     {
         //set up constructor variables
         this.gameManager = _gameManager;
+        //color to clear this screen
+        Gdx.gl.glClearColor(0,0,0,1);
 
         //-----------------VIEW RELATED VARIABLES-----------------//
         viewPort = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
@@ -66,9 +70,12 @@ public class LoginScreen implements Screen {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                gameManager.playerServices.signInToFacebook();
-                //gameManager.setScreen(new MapSelectionScreen(gameManager));
-                dispose();
+                if(gameManager.playerServices!=null) {
+
+                    gameManager.playerServices.signInToFacebook();
+                    //gameManager.setScreen(new MapSelectionScreen(gameManager));
+                }
+
                 return true;
             }
 
@@ -84,9 +91,11 @@ public class LoginScreen implements Screen {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                gameManager.playerServices.signInToGoogle();
-                //gameManager.setScreen(new MapSelectionScreen(gameManager));
-                dispose();
+                if(gameManager.playerServices!=null) {
+                    gameManager.playerServices.signInToGoogle();
+                    //gameManager.setScreen(new MapSelectionScreen(gameManager));
+                }
+
                 return true;
             }
 
@@ -102,8 +111,34 @@ public class LoginScreen implements Screen {
         //add to stage
         stage.addActor(table);
 
-        //color to clear this screen
-        Gdx.gl.glClearColor(0,0,0,1);
+        //Group allow to place an actor wherever we want
+        Group group = new Group();
+
+        //the return button
+        returnTexture = new Texture("images/rightarrow.png");
+        returnImage = new Image(returnTexture);
+        returnImage.setBounds(0,0,returnTexture.getWidth(),returnTexture.getHeight());
+        returnImage.setTouchable(Touchable.enabled);
+        returnImage.addListener(new InputListener()
+        {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                Gdx.input.setInputProcessor(gameManager.getMenuScreen().getStage());
+                gameManager.setScreen(gameManager.getMenuScreen());
+                return true;
+            }
+
+        });
+
+        returnImage.setScaleX(-1);
+        returnImage.setPosition(70,gameManager.WORLDHEIGHT-70);
+        returnImage.setSize(50,50);
+        //add to group
+        group.addActor(returnImage);
+
+        //add to actor
+        stage.addActor(group);
+
     }
 
 
@@ -116,6 +151,10 @@ public class LoginScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         viewPort.update(width,height);
+    }
+
+    public Stage getStage() {
+        return stage;
     }
 
     @Override

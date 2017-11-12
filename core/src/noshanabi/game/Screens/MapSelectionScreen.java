@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -42,11 +43,17 @@ public class MapSelectionScreen implements Screen {
     Array<Image> mapImages;
     Array<Texture> mapTextures;
 
+    private Image returnImage;
+    private Texture returnTexture;
+
 
     public MapSelectionScreen(GameManager _gameManager)
     {
         //set up constructor variables
         this.gameManager = _gameManager;
+
+        //color to clear this screen
+        Gdx.gl.glClearColor(0,0,0,1);
 
         backGround = new Sprite(new Texture("images/BlueBackground.png"));
         backGround.setSize(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
@@ -60,7 +67,6 @@ public class MapSelectionScreen implements Screen {
         Table table = new Table();
         table.center();
         table.setFillParent(true);
-
 
         mapTextures = new Array<Texture>();
         mapImages = new Array<Image>();
@@ -84,7 +90,6 @@ public class MapSelectionScreen implements Screen {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                     gameManager.setScreen(new PlayScreen(gameManager,mapName));
-                    dispose();
                     return true;
                 }
 
@@ -112,9 +117,34 @@ public class MapSelectionScreen implements Screen {
         //add to stage
         stage.addActor(table);
 
-        //color to clear this screen
-        Gdx.gl.glClearColor(0,0,0,1);
 
+        //Group allow to place an actor wherever we want
+        Group group = new Group();
+
+        //the return button
+        returnTexture = new Texture("images/rightarrow.png");
+        returnImage = new Image(returnTexture);
+        returnImage.setBounds(0,0,returnTexture.getWidth(),returnTexture.getHeight());
+        returnImage.setTouchable(Touchable.enabled);
+        returnImage.addListener(new InputListener()
+        {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                Gdx.input.setInputProcessor(gameManager.getMenuScreen().getStage());
+               gameManager.setScreen(gameManager.getMenuScreen());
+                return true;
+            }
+
+        });
+
+        returnImage.setScaleX(-1);
+        returnImage.setPosition(70,gameManager.WORLDHEIGHT-70);
+        returnImage.setSize(50,50);
+        //add to group
+        group.addActor(returnImage);
+
+        //add to actor
+        stage.addActor(group);
 
     }
 
@@ -137,7 +167,9 @@ public class MapSelectionScreen implements Screen {
         mapSelectionViewport.update(width, height);
     }
 
-
+    public Stage getStage() {
+        return stage;
+    }
 
     @Override
     public void show() {
@@ -169,6 +201,11 @@ public class MapSelectionScreen implements Screen {
 
         for(int i=0;i<mapCount;i++) {
             mapTextures.get(i).dispose();
+        }
+
+        if(backGround.getTexture()!=null)
+        {
+            backGround.getTexture().dispose();
         }
 
     }

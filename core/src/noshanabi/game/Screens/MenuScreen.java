@@ -54,6 +54,8 @@ public class MenuScreen implements Screen{
         table.center();
         table.setFillParent(true);
 
+
+
         //singleplayer Button
         singlePlayerTexture = new Texture("images/playbutton.png");
         singlePlayerButton = new Image(singlePlayerTexture);
@@ -63,8 +65,8 @@ public class MenuScreen implements Screen{
         {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                gameManager.setScreen(new MapSelectionScreen(gameManager));
-                dispose();
+                Gdx.input.setInputProcessor(gameManager.getMapSelectionScreen().getStage());
+                gameManager.setScreen(gameManager.getMapSelectionScreen());
                 return true;
             }
 
@@ -79,9 +81,8 @@ public class MenuScreen implements Screen{
         {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-                gameManager.setScreen(new LoginScreen(gameManager));
-                dispose();
+                Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
+                gameManager.setScreen(gameManager.getLoginScreen());
                 return true;
             }
 
@@ -109,6 +110,10 @@ public class MenuScreen implements Screen{
     @Override
     public void resize(int width, int height) {
         menuViewPort.update(width,height);
+    }
+
+    public Stage getStage() {
+        return stage;
     }
 
     @Override
@@ -143,4 +148,6 @@ public class MenuScreen implements Screen{
         if (multiPlayerTexture != null)
             multiPlayerTexture.dispose();
     }
+
+
 }
