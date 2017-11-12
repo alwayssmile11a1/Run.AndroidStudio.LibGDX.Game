@@ -12,6 +12,7 @@ import noshanabi.game.Screens.GameOverScreen;
 import noshanabi.game.Screens.LoginScreen;
 import noshanabi.game.Screens.MapSelectionScreen;
 import noshanabi.game.Screens.MenuScreen;
+import noshanabi.game.Screens.ModeSelectionScreen;
 
 //manage audio, sprite, world width, world height, etc.
 public class GameManager extends Game {
@@ -34,11 +35,11 @@ public class GameManager extends Game {
 
 
 	//---ALL SCREENS----//
-	public MenuScreen menuScreen;
-	public MapSelectionScreen mapSelectionScreen;
-	public LoginScreen loginScreen;
-	public GameOverScreen gameOverScreen;
-
+	private MenuScreen menuScreen;
+	private MapSelectionScreen mapSelectionScreen;
+	private LoginScreen loginScreen;
+	private GameOverScreen gameOverScreen;
+	private ModeSelectionScreen modeSelectionScreen;
 
 	public GameManager(PlayerServices playerServices)
 	{
@@ -56,7 +57,7 @@ public class GameManager extends Game {
 		mapSelectionScreen = new MapSelectionScreen(this);
 		loginScreen = new LoginScreen(this);
 		gameOverScreen = new GameOverScreen(this);
-
+		modeSelectionScreen = new ModeSelectionScreen(this);
 
 		//initial audio
 		audioManager = new AssetManager();
@@ -98,6 +99,7 @@ public class GameManager extends Game {
 		mapSelectionScreen.dispose();
 		loginScreen.dispose();
 		gameOverScreen.dispose();
+		modeSelectionScreen.dispose();
 
 	}
 
@@ -114,8 +116,13 @@ public class GameManager extends Game {
 		return loginScreen;
 	}
 
+
 	public GameOverScreen getGameOverScreen() {
 		return gameOverScreen;
+	}
+
+	public ModeSelectionScreen getModeSelectionScreen() {
+		return modeSelectionScreen;
 	}
 
 }

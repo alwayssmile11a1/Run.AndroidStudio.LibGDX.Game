@@ -2,14 +2,17 @@ package noshanabi.game.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -17,104 +20,87 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import noshanabi.game.GameManager;
 
 /**
- * Created by 2SMILE2 on 11/11/2017.
+ * Created by 2SMILE2 on 12/11/2017.
  */
 
-public class LoginScreen implements Screen {
+public class ModeSelectionScreen implements Screen {
 
     //GameManager
     GameManager gameManager;
 
     //-----------------VIEW RELATED VARIABLES-----------------//
     //how well we want to see our map
-    private Viewport viewPort;
+    private Viewport viewport;
 
     //stage manage UI on it
     private Stage stage;
 
     //----------------TEXTURE RELATED VARIABLES------------//
-    Image facebookLoginButton;
-    Texture facebookLoginTexture;
-
-    //the background image
-    Image googleLoginButton;
-    Texture googleLoginTexture;
 
     private Image returnImage;
     private Texture returnTexture;
 
-    private boolean isNeedSwitchScreen;
+    private Image signOutImage;
+    private Texture signOutTexture;
 
-    public LoginScreen(GameManager _gameManager)
+    public ModeSelectionScreen(GameManager _gameManager)
     {
         //set up constructor variables
         this.gameManager = _gameManager;
+
         //color to clear this screen
         Gdx.gl.glClearColor(0,0,0,1);
 
-        isNeedSwitchScreen = false;
-
         //-----------------VIEW RELATED VARIABLES-----------------//
-        viewPort = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
-        stage = new Stage(viewPort,gameManager.batch);
+        viewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+        stage = new Stage(viewport,gameManager.batch);
+        Gdx.input.setInputProcessor(stage);
 
         //Table help us to easily arrange UI, such as labels, texts, etc.
         Table table = new Table();
         table.center();
         table.setFillParent(true);
 
-        //facebook login Button
-        facebookLoginTexture = new Texture("images/facebookloginbutton.png");
-        facebookLoginButton = new Image(facebookLoginTexture);
-        facebookLoginButton.setBounds(0,0, facebookLoginTexture.getWidth(), facebookLoginButton.getHeight());
-        facebookLoginButton.setTouchable(Touchable.enabled);
-        facebookLoginButton.addListener(new InputListener()
+
+
+        //example game over labels
+        Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
+        Label findRoomLabel = new Label("FIND ROOM",labelStyle);
+        Label createRoomLabel = new Label("CREATE ROOM",labelStyle);
+
+        findRoomLabel.setFontScale(2);
+        createRoomLabel.setFontScale(2);
+
+        //add listener
+        findRoomLabel.addListener(new InputListener()
         {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-                if(gameManager.playerServices!=null) {
-
-                    gameManager.playerServices.signInToFacebook();
-                    isNeedSwitchScreen = true;
-                }
-
+                Gdx.input.setInputProcessor(gameManager.getMapSelectionScreen().getStage());
+                gameManager.setScreen(gameManager.getMapSelectionScreen());
                 return true;
             }
 
         });
 
-        //google login button
-        googleLoginTexture = new Texture("images/googleloginbutton.png");
-        googleLoginButton = new Image(googleLoginTexture);
-        googleLoginButton.setBounds(0,0, googleLoginTexture.getWidth(), googleLoginTexture.getHeight());
-        googleLoginButton.setTouchable(Touchable.enabled);
-        googleLoginButton.addListener(new InputListener()
+        createRoomLabel.addListener(new InputListener()
         {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-                if(gameManager.playerServices!=null) {
-
-                    gameManager.playerServices.signInToGoogle();
-                    isNeedSwitchScreen = true;
-                }
-
+                Gdx.input.setInputProcessor(gameManager.getMapSelectionScreen().getStage());
+                gameManager.setScreen(gameManager.getMapSelectionScreen());
                 return true;
             }
 
         });
 
-
-
-        //add to table
-        table.add(facebookLoginButton).size(300,100);
+        table.add(findRoomLabel).expandX();
         table.row();
-        table.add(googleLoginButton).size(300,100);
+        table.add(createRoomLabel).expandX().padTop(20);
+
 
         //add to stage
         stage.addActor(table);
-
 
 
         //Group allow to place an actor wherever we want
@@ -135,18 +121,42 @@ public class LoginScreen implements Screen {
             }
 
         });
-
         //flip image
         returnImage.setScaleX(-1);
         //set position and size
         returnImage.setPosition(70,gameManager.WORLDHEIGHT-70);
         returnImage.setSize(50,50);
+
+
+        //sign out button
+        //the return button
+        signOutTexture = new Texture("images/signout.png");
+        signOutImage = new Image(signOutTexture);
+        signOutImage.setBounds(0,0,signOutTexture.getWidth(),signOutTexture.getHeight());
+        signOutImage.setTouchable(Touchable.enabled);
+        signOutImage.addListener(new InputListener()
+        {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                gameManager.playerServices.signOut();
+                Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
+                gameManager.setScreen(gameManager.getLoginScreen());
+                return true;
+            }
+
+        });
+        //set position and size
+        signOutImage.setPosition(gameManager.WORLDWIDTH-70,gameManager.WORLDHEIGHT-70);
+        signOutImage.setSize(50,50);
+
+
         //add to group
         group.addActor(returnImage);
+        group.addActor(signOutImage);
+
 
         //add to actor
         stage.addActor(group);
-
     }
 
 
@@ -154,19 +164,11 @@ public class LoginScreen implements Screen {
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
-
-        if(gameManager.playerServices.isSignedIn() && isNeedSwitchScreen)
-        {
-            Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
-            gameManager.setScreen(gameManager.getModeSelectionScreen());
-            isNeedSwitchScreen = false;
-        }
-
     }
 
     @Override
     public void resize(int width, int height) {
-        viewPort.update(width,height);
+        viewport.update(width,height);
     }
 
     public Stage getStage() {
@@ -199,14 +201,11 @@ public class LoginScreen implements Screen {
             stage.dispose();
         }
 
-        if (facebookLoginTexture != null)
-            facebookLoginTexture.dispose();
-
-        if (googleLoginTexture != null)
-            googleLoginTexture.dispose();
-
         if(returnTexture!=null)
             returnTexture.dispose();
+
+        if(signOutTexture!=null)
+            signOutTexture.dispose();
 
     }
 

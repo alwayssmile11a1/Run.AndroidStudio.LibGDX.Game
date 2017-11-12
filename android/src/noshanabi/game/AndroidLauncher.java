@@ -36,6 +36,8 @@ public class AndroidLauncher extends FragmentActivity implements AndroidFragment
 
 	private FirebaseAuth mAuth;
 	FirebaseAuth.AuthStateListener mAuthListener;
+	private boolean isSignedIn;
+
 
 	//GOOGLE SIGN IN VARIABLES
 	private static int RC_SIGN_IN = 1;
@@ -62,11 +64,11 @@ public class AndroidLauncher extends FragmentActivity implements AndroidFragment
 			public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 				if(firebaseAuth.getCurrentUser()!=null)
 				{
-
+					isSignedIn = true;
 				}
 				else
 				{
-
+					isSignedIn = false;
 				}
 			}
 		};
@@ -148,7 +150,9 @@ public class AndroidLauncher extends FragmentActivity implements AndroidFragment
 			return;
 		}
 
+
 	}
+
 
 	private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
 		Log.d("GOOGLE LOGIN", "firebaseAuthWithGoogle:" + acct.getId());
@@ -204,9 +208,12 @@ public class AndroidLauncher extends FragmentActivity implements AndroidFragment
 	}
 
 	@Override
-	public void signOutFromGoogle()
+	public void signOut()
 	{
+		Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+		LoginManager.getInstance().logOut();
 		FirebaseAuth.getInstance().signOut();
+		isSignedIn = false;
 	}
 
 	@Override
@@ -214,9 +221,11 @@ public class AndroidLauncher extends FragmentActivity implements AndroidFragment
 		LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "user_friends"));
 	}
 
+
 	@Override
-	public void signOutFromFacebook() {
-		FirebaseAuth.getInstance().signOut();
+	public boolean isSignedIn()
+	{
+		return isSignedIn;
 	}
 
 }

@@ -33,8 +33,8 @@ public class GameFragment extends AndroidFragmentApplication implements PlayerSe
     }
 
     @Override
-    public void signOutFromGoogle() {
-        androidLauncher.signOutFromGoogle();
+    public void signOut() {
+        androidLauncher.signOut();
     }
 
     @Override
@@ -42,10 +42,12 @@ public class GameFragment extends AndroidFragmentApplication implements PlayerSe
         androidLauncher.signInToFacebook();
     }
 
-    @Override
-    public void signOutFromFacebook() {
-        androidLauncher.signOutFromFacebook();
-    }
 
+
+    @Override
+    public boolean isSignedIn()
+    {
+        return androidLauncher.isSignedIn();
+    }
 
 }

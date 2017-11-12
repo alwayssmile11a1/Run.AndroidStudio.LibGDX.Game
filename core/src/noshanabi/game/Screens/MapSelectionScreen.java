@@ -39,7 +39,7 @@ public class MapSelectionScreen implements Screen {
 
     private Sprite backGround;
 
-    //the background image
+    //
     Array<Image> mapImages;
     Array<Texture> mapTextures;
 
@@ -61,7 +61,7 @@ public class MapSelectionScreen implements Screen {
         //-----------------VIEW RELATED VARIABLES-----------------//
         mapSelectionViewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
         stage = new Stage(mapSelectionViewport,gameManager.batch);
-        Gdx.input.setInputProcessor(stage);
+
 
         //Table help us to easily arrange UI, such as labels, texts, etc.
         Table table = new Table();
@@ -208,6 +208,8 @@ public class MapSelectionScreen implements Screen {
             backGround.getTexture().dispose();
         }
 
+        if(returnTexture!=null)
+            returnTexture.dispose();
     }
 
 }

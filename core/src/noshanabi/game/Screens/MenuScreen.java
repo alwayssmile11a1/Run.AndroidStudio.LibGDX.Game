@@ -32,7 +32,6 @@ public class MenuScreen implements Screen{
     private Stage stage;
 
     //----------------TEXTURE RELATED VARIABLES------------//
-    //the background image
     Image singlePlayerButton;
     Image multiPlayerButton;
     Texture singlePlayerTexture;
@@ -47,7 +46,7 @@ public class MenuScreen implements Screen{
         //-----------------VIEW RELATED VARIABLES-----------------//
         menuViewPort = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
         stage = new Stage(menuViewPort,gameManager.batch);
-        Gdx.input.setInputProcessor(stage);
+
 
         //Table help us to easily arrange UI, such as labels, texts, etc.
         Table table = new Table();
@@ -81,8 +80,18 @@ public class MenuScreen implements Screen{
         {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
-                gameManager.setScreen(gameManager.getLoginScreen());
+
+                if(gameManager.playerServices.isSignedIn()) {
+
+                    Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
+                    gameManager.setScreen(gameManager.getModeSelectionScreen());
+                }
+                else
+                {
+                    Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
+                    gameManager.setScreen(gameManager.getLoginScreen());
+                }
+
                 return true;
             }
 

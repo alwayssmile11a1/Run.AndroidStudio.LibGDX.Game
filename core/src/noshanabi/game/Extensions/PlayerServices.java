@@ -6,12 +6,9 @@ package noshanabi.game.Extensions;
 
 public interface PlayerServices {
     public void signInToGoogle();
-    public void signOutFromGoogle();
-
-
     public void signInToFacebook();
-    public void signOutFromFacebook();
 
+    public boolean isSignedIn();
 
-
+    public void signOut();
 }
