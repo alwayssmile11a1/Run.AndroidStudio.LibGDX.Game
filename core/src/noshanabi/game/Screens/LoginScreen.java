@@ -45,6 +45,8 @@ public class LoginScreen implements Screen {
 
     private boolean isNeedSwitchScreen;
 
+
+
     public LoginScreen(GameManager _gameManager)
     {
         //set up constructor variables
@@ -63,7 +65,7 @@ public class LoginScreen implements Screen {
         table.center();
         table.setFillParent(true);
 
-        //facebook login Button
+        //---------------- FACEBOOK LOGIN BUTTON ----------------
         facebookLoginTexture = new Texture("images/facebookloginbutton.png");
         facebookLoginButton = new Image(facebookLoginTexture);
         facebookLoginButton.setBounds(0,0, facebookLoginTexture.getWidth(), facebookLoginButton.getHeight());
@@ -84,7 +86,7 @@ public class LoginScreen implements Screen {
 
         });
 
-        //google login button
+        //------------------------- GOOGLE LOGIN BUTTON ------------------
         googleLoginTexture = new Texture("images/googleloginbutton.png");
         googleLoginButton = new Image(googleLoginTexture);
         googleLoginButton.setBounds(0,0, googleLoginTexture.getWidth(), googleLoginTexture.getHeight());
@@ -120,7 +122,7 @@ public class LoginScreen implements Screen {
         //Group allow to place an actor wherever we want
         Group group = new Group();
 
-        //the return button
+        //--------------------RETURN BUTTON--------------------
         returnTexture = new Texture("images/rightarrow.png");
         returnImage = new Image(returnTexture);
         returnImage.setBounds(0,0,returnTexture.getWidth(),returnTexture.getHeight());
@@ -136,13 +138,13 @@ public class LoginScreen implements Screen {
 
         });
 
-        //flip image
-        returnImage.setScaleX(-1);
-        //set position and size
-        returnImage.setPosition(70,gameManager.WORLDHEIGHT-70);
         returnImage.setSize(50,50);
+        returnImage.setOrigin(returnImage.getWidth()/2, returnImage.getHeight()/2);
+        returnImage.setScaleX(-1);
+        returnImage.setPosition(10,gameManager.WORLDHEIGHT-60);
         //add to group
         group.addActor(returnImage);
+
 
         //add to actor
         stage.addActor(group);
@@ -155,7 +157,7 @@ public class LoginScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
 
-        if(gameManager.playerServices.isSignedIn() && isNeedSwitchScreen)
+        if(gameManager.playerServices!=null && gameManager.playerServices.isSignedIn() && isNeedSwitchScreen)
         {
             Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
             gameManager.setScreen(gameManager.getModeSelectionScreen());

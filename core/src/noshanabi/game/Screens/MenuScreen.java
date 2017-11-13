@@ -81,6 +81,13 @@ public class MenuScreen implements Screen{
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
+                if(gameManager.playerServices == null)
+                {
+                    Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
+                    gameManager.setScreen(gameManager.getModeSelectionScreen());
+                    return true;
+                }
+
                 if(gameManager.playerServices.isSignedIn()) {
 
                     Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());

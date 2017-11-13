@@ -43,17 +43,16 @@ public class ModeSelectionScreen implements Screen {
     private Image signOutImage;
     private Texture signOutTexture;
 
-    public ModeSelectionScreen(GameManager _gameManager)
-    {
+    public ModeSelectionScreen(GameManager _gameManager) {
         //set up constructor variables
         this.gameManager = _gameManager;
 
         //color to clear this screen
-        Gdx.gl.glClearColor(0,0,0,1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
 
         //-----------------VIEW RELATED VARIABLES-----------------//
         viewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
-        stage = new Stage(viewport,gameManager.batch);
+        stage = new Stage(viewport, gameManager.batch);
         Gdx.input.setInputProcessor(stage);
 
         //Table help us to easily arrange UI, such as labels, texts, etc.
@@ -62,33 +61,30 @@ public class ModeSelectionScreen implements Screen {
         table.setFillParent(true);
 
 
-
-        //example game over labels
+        //---------------FIND ROOM AND CREATE ROOM LABEL --------------
         Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
-        Label findRoomLabel = new Label("FIND ROOM",labelStyle);
-        Label createRoomLabel = new Label("CREATE ROOM",labelStyle);
+        Label findRoomLabel = new Label("FIND ROOM", labelStyle);
+        Label createRoomLabel = new Label("CREATE ROOM", labelStyle);
 
         findRoomLabel.setFontScale(2);
         createRoomLabel.setFontScale(2);
 
         //add listener
-        findRoomLabel.addListener(new InputListener()
-        {
+        findRoomLabel.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.input.setInputProcessor(gameManager.getMapSelectionScreen().getStage());
-                gameManager.setScreen(gameManager.getMapSelectionScreen());
+                Gdx.input.setInputProcessor(gameManager.getCreateRoomScreen().getStage());
+                gameManager.setScreen(gameManager.getCreateRoomScreen());
                 return true;
             }
 
         });
 
-        createRoomLabel.addListener(new InputListener()
-        {
+        createRoomLabel.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.input.setInputProcessor(gameManager.getMapSelectionScreen().getStage());
-                gameManager.setScreen(gameManager.getMapSelectionScreen());
+                Gdx.input.setInputProcessor(gameManager.getCreateRoomScreen().getStage());
+                gameManager.setScreen(gameManager.getCreateRoomScreen());
                 return true;
             }
 
@@ -98,21 +94,19 @@ public class ModeSelectionScreen implements Screen {
         table.row();
         table.add(createRoomLabel).expandX().padTop(20);
 
-
         //add to stage
         stage.addActor(table);
 
 
+        //---------------------RETURN BUTTON -----------------
         //Group allow to place an actor wherever we want
         Group group = new Group();
 
-        //the return button
         returnTexture = new Texture("images/rightarrow.png");
         returnImage = new Image(returnTexture);
-        returnImage.setBounds(0,0,returnTexture.getWidth(),returnTexture.getHeight());
+        returnImage.setBounds(0, 0, returnTexture.getWidth(), returnTexture.getHeight());
         returnImage.setTouchable(Touchable.enabled);
-        returnImage.addListener(new InputListener()
-        {
+        returnImage.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 Gdx.input.setInputProcessor(gameManager.getMenuScreen().getStage());
@@ -121,24 +115,26 @@ public class ModeSelectionScreen implements Screen {
             }
 
         });
-        //flip image
+
+        returnImage.setSize(50, 50);
+        returnImage.setOrigin(returnImage.getWidth() / 2, returnImage.getHeight() / 2);
         returnImage.setScaleX(-1);
-        //set position and size
-        returnImage.setPosition(70,gameManager.WORLDHEIGHT-70);
-        returnImage.setSize(50,50);
+        returnImage.setPosition(10, gameManager.WORLDHEIGHT - 60);
 
+        group.addActor(returnImage);
 
-        //sign out button
-        //the return button
+        //------------------SIGN OUT BUTTON ------------------------
         signOutTexture = new Texture("images/signout.png");
         signOutImage = new Image(signOutTexture);
-        signOutImage.setBounds(0,0,signOutTexture.getWidth(),signOutTexture.getHeight());
+        signOutImage.setBounds(0, 0, signOutTexture.getWidth(), signOutTexture.getHeight());
         signOutImage.setTouchable(Touchable.enabled);
-        signOutImage.addListener(new InputListener()
-        {
+        signOutImage.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                gameManager.playerServices.signOut();
+
+                if (gameManager.playerServices != null) {
+                    gameManager.playerServices.signOut();
+                }
                 Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
                 gameManager.setScreen(gameManager.getLoginScreen());
                 return true;
@@ -146,13 +142,22 @@ public class ModeSelectionScreen implements Screen {
 
         });
         //set position and size
-        signOutImage.setPosition(gameManager.WORLDWIDTH-70,gameManager.WORLDHEIGHT-70);
-        signOutImage.setSize(50,50);
+        signOutImage.setPosition(gameManager.WORLDWIDTH - 60, gameManager.WORLDHEIGHT - 60);
+        signOutImage.setSize(50, 50);
 
 
         //add to group
-        group.addActor(returnImage);
         group.addActor(signOutImage);
+
+
+        //------------------USER INFORMATION ----------------------
+        Label userNameLabel = new Label("USER NAME", labelStyle);
+        if (gameManager.playerServices != null) {
+            userNameLabel.setText(gameManager.playerServices.getUserName());
+        }
+        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnImage.getY()+15);
+
+        group.addActor(userNameLabel);
 
 
         //add to actor

@@ -43,11 +43,16 @@ public class GameFragment extends AndroidFragmentApplication implements PlayerSe
     }
 
 
-
     @Override
     public boolean isSignedIn()
     {
         return androidLauncher.isSignedIn();
+    }
+
+    @Override
+    public String getUserName()
+    {
+        return androidLauncher.getUserName();
     }
 
 }

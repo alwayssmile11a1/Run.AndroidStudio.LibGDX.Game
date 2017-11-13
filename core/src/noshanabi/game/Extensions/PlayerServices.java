@@ -11,4 +11,7 @@ public interface PlayerServices {
     public boolean isSignedIn();
 
     public void signOut();
+
+    public String getUserName();
+
 }

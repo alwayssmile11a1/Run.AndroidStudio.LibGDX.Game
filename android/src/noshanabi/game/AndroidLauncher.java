@@ -69,6 +69,7 @@ public class AndroidLauncher extends FragmentActivity implements AndroidFragment
 				else
 				{
 					isSignedIn = false;
+
 				}
 			}
 		};
@@ -226,6 +227,12 @@ public class AndroidLauncher extends FragmentActivity implements AndroidFragment
 	public boolean isSignedIn()
 	{
 		return isSignedIn;
+	}
+
+	@Override
+	public String getUserName()
+	{
+		return FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
 	}
 
 }

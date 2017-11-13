@@ -8,6 +8,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import noshanabi.game.Extensions.PlayerServices;
+import noshanabi.game.Screens.CreateRoomScreen;
 import noshanabi.game.Screens.GameOverScreen;
 import noshanabi.game.Screens.LoginScreen;
 import noshanabi.game.Screens.MapSelectionScreen;
@@ -40,6 +41,8 @@ public class GameManager extends Game {
 	private LoginScreen loginScreen;
 	private GameOverScreen gameOverScreen;
 	private ModeSelectionScreen modeSelectionScreen;
+	private CreateRoomScreen createRoomScreen;
+
 
 	public GameManager(PlayerServices playerServices)
 	{
@@ -58,6 +61,7 @@ public class GameManager extends Game {
 		loginScreen = new LoginScreen(this);
 		gameOverScreen = new GameOverScreen(this);
 		modeSelectionScreen = new ModeSelectionScreen(this);
+		createRoomScreen = new CreateRoomScreen(this);
 
 		//initial audio
 		audioManager = new AssetManager();
@@ -125,4 +129,7 @@ public class GameManager extends Game {
 		return modeSelectionScreen;
 	}
 
+	public CreateRoomScreen getCreateRoomScreen() {
+		return createRoomScreen;
+	}
 }
