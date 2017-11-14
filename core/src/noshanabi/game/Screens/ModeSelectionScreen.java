@@ -83,8 +83,11 @@ public class ModeSelectionScreen implements Screen {
         createRoomLabel.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+
+                Gdx.input.getTextInput(gameManager.getCreateRoomScreen(), "Enter your room name:", "", "Room name ...");
                 Gdx.input.setInputProcessor(gameManager.getCreateRoomScreen().getStage());
                 gameManager.setScreen(gameManager.getCreateRoomScreen());
+
                 return true;
             }
 
@@ -132,8 +135,8 @@ public class ModeSelectionScreen implements Screen {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                if (gameManager.playerServices != null) {
-                    gameManager.playerServices.signOut();
+                if (gameManager.getPlayerServices() != null) {
+                    gameManager.getPlayerServices().signOut();
                 }
                 Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
                 gameManager.setScreen(gameManager.getLoginScreen());
@@ -152,8 +155,8 @@ public class ModeSelectionScreen implements Screen {
 
         //------------------USER INFORMATION ----------------------
         Label userNameLabel = new Label("USER NAME", labelStyle);
-        if (gameManager.playerServices != null && gameManager.playerServices.isSignedIn()) {
-            userNameLabel.setText(gameManager.playerServices.getUserName());
+        if (gameManager.getPlayerServices() != null && gameManager.getPlayerServices().isSignedIn()) {
+            userNameLabel.setText(gameManager.getPlayerServices().getUserName());
         }
         userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnImage.getY()+15);
 

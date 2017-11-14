@@ -122,12 +122,11 @@ public class PlayScreen implements Screen{
         //mobileController = new MobileController(gameManager);
 
 
+    }
 
-        //----------------SERVER VARIABLES------------//
-        server = new ServerCreator();
-        server.connectSocket();
-        server.configSocketEvents();
-
+    public void setServer(ServerCreator server)
+    {
+        this.server = server;
     }
 
     public void handleInput(float delta)
@@ -207,8 +206,10 @@ public class PlayScreen implements Screen{
         //update player
         player.update(delta);
 
-        //update server
-        server.updateServer(delta);
+        if(server!=null) {
+            //update server
+            server.updateServer(delta);
+        }
 
         //update camera to follow thí player
         mainCamera.position.x = MathUtils.clamp(player.getBody().getPosition().x + 1,gameViewPort.getWorldWidth()/2,100f);
@@ -236,7 +237,9 @@ public class PlayScreen implements Screen{
         //draw things to batch
         gameManager.batch.begin();
 
-        server.drawOtherPlayers(gameManager.batch);
+        if(server !=null) {
+            server.drawOtherPlayers(gameManager.batch);
+        }
 
         player.draw(gameManager.batch);
 
@@ -302,8 +305,6 @@ public class PlayScreen implements Screen{
         //}
 //        if(mobileController!=null)
 //            mobileController.dispose();
-
-        server.dispose();
 
     }
 }

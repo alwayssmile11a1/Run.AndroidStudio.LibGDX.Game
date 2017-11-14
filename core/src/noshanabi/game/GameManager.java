@@ -14,7 +14,6 @@ import noshanabi.game.Screens.LoginScreen;
 import noshanabi.game.Screens.MapSelectionScreen;
 import noshanabi.game.Screens.MenuScreen;
 import noshanabi.game.Screens.ModeSelectionScreen;
-import noshanabi.game.Screens.PlayScreen;
 import noshanabi.game.Server.ServerCreator;
 
 //manage audio, sprite, world width, world height, etc.
@@ -30,10 +29,10 @@ public class GameManager extends Game {
 	public SpriteBatch batch;
 
 	//Audio manager
-	public AssetManager audioManager;
+	private AssetManager audioManager;
 
 	//Login to facebook, login to google
-	public PlayerServices playerServices;
+	private PlayerServices playerServices;
 
 
 
@@ -70,7 +69,9 @@ public class GameManager extends Game {
 		createRoomScreen = new CreateRoomScreen(this);
 
 		//init server
-		server = new ServerCreator();
+		server = new ServerCreator(this);
+		server.connectSocket();
+		server.configSocketEvents();
 
 
 		//init audio
@@ -79,8 +80,8 @@ public class GameManager extends Game {
 
 		//set screen
 		Gdx.input.setInputProcessor(menuScreen.getStage());
-		setScreen(new PlayScreen(this, "maps/map0/map.tmx"));
-
+		//setScreen(new PlayScreen(this, "maps/map0/map.tmx"));
+		setScreen(menuScreen);
 
 	}
 
@@ -114,6 +115,7 @@ public class GameManager extends Game {
 		loginScreen.dispose();
 		gameOverScreen.dispose();
 		modeSelectionScreen.dispose();
+		server.dispose();
 
 	}
 
@@ -145,5 +147,13 @@ public class GameManager extends Game {
 
 	public ServerCreator getServer() {
 		return server;
+	}
+
+	public PlayerServices getPlayerServices() {
+		return playerServices;
+	}
+
+	public AssetManager getAudioManager() {
+		return audioManager;
 	}
 }

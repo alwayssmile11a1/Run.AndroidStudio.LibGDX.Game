@@ -75,9 +75,9 @@ public class LoginScreen implements Screen {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                if(gameManager.playerServices!=null) {
+                if(gameManager.getPlayerServices()!=null) {
 
-                    gameManager.playerServices.signInToFacebook();
+                    gameManager.getPlayerServices().signInToFacebook();
                     isNeedSwitchScreen = true;
                 }
 
@@ -96,9 +96,9 @@ public class LoginScreen implements Screen {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                if(gameManager.playerServices!=null) {
+                if(gameManager.getPlayerServices()!=null) {
 
-                    gameManager.playerServices.signInToGoogle();
+                    gameManager.getPlayerServices().signInToGoogle();
                     isNeedSwitchScreen = true;
                 }
 
@@ -158,7 +158,7 @@ public class LoginScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
 
-        if(gameManager.playerServices!=null && gameManager.playerServices.isSignedIn() && isNeedSwitchScreen)
+        if(gameManager.getPlayerServices()!=null && gameManager.getPlayerServices().isSignedIn() && isNeedSwitchScreen)
         {
             Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
             gameManager.setScreen(gameManager.getModeSelectionScreen());

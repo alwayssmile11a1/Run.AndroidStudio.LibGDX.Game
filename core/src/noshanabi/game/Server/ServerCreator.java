@@ -14,6 +14,7 @@ import java.util.Iterator;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
+import noshanabi.game.GameManager;
 import noshanabi.game.Objects.FriendPlayer;
 import noshanabi.game.Objects.Player;
 
@@ -25,17 +26,22 @@ public class ServerCreator {
 
     private boolean createServer = true;
 
+    private GameManager gameManager;
+
     //multiplayer things
     private Socket socket;
     private HashMap<String,FriendPlayer> otherPlayers;
     private Player mainPlayer;
     private String disconnectedPlayerID;
+    private boolean isRoomExisted;
 
 
-    public ServerCreator()
+    public ServerCreator(GameManager gameManager)
     {
+        this.gameManager = gameManager;
         if(!createServer) return;
         otherPlayers = new HashMap<String, FriendPlayer>();
+        isRoomExisted = true;
 
     }
 
@@ -51,8 +57,8 @@ public class ServerCreator {
         try
         {
             //Connect to server (server is the index.js file, kind of ..)
-            socket = IO.socket("https://runandroidstudiolibgdx.herokuapp.com");
-            //socket = IO.socket("http://localhost:5000");
+            //socket = IO.socket("https://runandroidstudiolibgdx.herokuapp.com");
+            socket = IO.socket("http://localhost:5000");
             socket.connect();
 
 
@@ -75,8 +81,10 @@ public class ServerCreator {
 
             }
 
-            //our ID
-        }).on("socketID", new Emitter.Listener() {
+        });
+
+        //just for testing
+        socket.on("connected", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 JSONObject data = (JSONObject) args[0];
@@ -92,42 +100,78 @@ public class ServerCreator {
 
             }
 
-            //new player connect event
-        }).on("newPlayer", new Emitter.Listener() {
+
+        });
+
+        //new player connect event
+        socket.on("newPlayer", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 handleNewPlayerEvent(args);
 
             }
+        });
 
-            //when a player disconnected
-        }).on("playerDisconnected", new Emitter.Listener() {
+        //when a player disconnected
+        socket.on("playerDisconnected", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
              handlePlayerDisconnectEvent(args);
 
             }
+        });
 
-            //get all players
-        }).on("getOtherPlayers", new Emitter.Listener() {
+        //get all other players
+        socket.on("getOtherPlayers", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
 
 				handleGetOtherPlayersEvent(args);
             }
-        }).on("playerMoved", new Emitter.Listener() {
+        });
+
+        //other player moved
+        socket.on("playerMoved", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
 
                 handlePlayerMovedEvent(args);
             }
         });
+
+        socket.on("roomCreated", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                isRoomExisted = false;
+            }
+        });
+
+        socket.on("roomExisted", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                isRoomExisted = true;
+            }
+        });
+
+        socket.on("roomJoined", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                JSONObject data = (JSONObject) args[0];
+
+                try {
+                    String roomName = data.getString("roomName");
+                    Gdx.app.log("SocketIO", "You joined room " + roomName );
+
+                } catch (JSONException e) {
+                    Gdx.app.log("SocketIO", "Error joining room");
+                    e.printStackTrace();
+                }
+            }
+        });
+
     }
 
     public void handlePlayerMovedEvent(Object... args) {
-
-
-
 //        //Since all of the ApplicationListener methods are called on the same thread.
 //        //This thread is the rendering thread on which OpenGL calls can be made
 //        //we need to use a runnable thread to be able to access to rendering thread
@@ -292,6 +336,9 @@ public class ServerCreator {
         }
     }
 
+    public Socket getSocket() {
+        return socket;
+    }
 
     public void dispose()
     {
@@ -300,5 +347,9 @@ public class ServerCreator {
         {
             entry.getValue().dispose();
         }
+    }
+
+    public boolean isRoomExisted() {
+        return isRoomExisted;
     }
 }

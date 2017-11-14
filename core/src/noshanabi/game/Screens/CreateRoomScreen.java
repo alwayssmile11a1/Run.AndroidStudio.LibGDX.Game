@@ -1,6 +1,7 @@
 package noshanabi.game.Screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -19,13 +20,16 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import noshanabi.game.GameManager;
 
 /**
  * Created by 2SMILE2 on 13/11/2017.
  */
 
-public class CreateRoomScreen implements Screen{
+public class CreateRoomScreen implements Screen, Input.TextInputListener{
     //viewport
     private Viewport viewport;
 
@@ -60,6 +64,9 @@ public class CreateRoomScreen implements Screen{
     private int transitionCount;
     private int transitionSpeed;
 
+    private boolean dialogShowed = true;
+    private boolean isCanceled = false;
+
     public CreateRoomScreen(GameManager _gameManager) {
         //set up constructor variables
         this.gameManager = _gameManager;
@@ -80,14 +87,44 @@ public class CreateRoomScreen implements Screen{
         stage = new Stage(viewport, gameManager.batch);
 
 
+//        //Room name text field
+//
+//        TextField.TextFieldStyle style = new TextField.TextFieldStyle();
+//        style.font = new BitmapFont();
+//
+//        TextField roomNameTextField = new TextField("ENTER YOUR ROOM NAME", style);
+//
+//        roomNameTextField.setOnscreenKeyboard(new TextField.OnscreenKeyboard() {
+//            @Override
+//            public void show(boolean visible) {
+//                //Gdx.input.setOnscreenKeyboardVisible(true);
+//
+//                Gdx.input.getTextInput(new Input.TextInputListener(){
+//                    @Override
+//                    public void input(String text){
+//
+//                    }
+//
+//                    @Override
+//                    public void canceled(){
+//                        System.out.println("Cancelled.");
+//                    }
+//                }, "Title", "Default text...", "Try it out.");
+//            }
+//        });
+//
+//        roomNameTextField.setPosition(100,100);
+//
+//        stage.addActor(roomNameTextField);
+
+        //-----LOAD MAP TEXTURES AND MAP IMAGES
         //Create group
         Group mapGroup = new Group();
 
         mapTextures = new Array<Texture>();
         mapImages = new Array<Image>();
 
-
-        //map texture
+        //load textures
         while (true) {
             String textureFileName = "maps/map" + mapCount + "/maptexture.png";
             try {
@@ -99,7 +136,6 @@ public class CreateRoomScreen implements Screen{
                 break;
             }
         }
-
         //load map images
         for (int i = 0; i < mapCount; i++) {
             Image mapImage = new Image(mapTextures.get(i));
@@ -123,7 +159,7 @@ public class CreateRoomScreen implements Screen{
         }
 
 
-        //Next map button
+        //--------------- NEXT MAP BUTTON --------------
         nextMapTexture = new Texture("images/nextarrow.png");
         nextMapButton = new Image(nextMapTexture);
         nextMapButton.setBounds(0, 0, nextMapTexture.getWidth(), nextMapTexture.getHeight());
@@ -150,8 +186,7 @@ public class CreateRoomScreen implements Screen{
         mapGroup.addActor(nextMapButton);
 
 
-        //Previous map button
-        //Next map button
+        //--------------------PREVIOUS MAP BUTTON --------------------------
         previousMapButton = new Image(nextMapTexture);
         previousMapButton.setBounds(0, 0, nextMapTexture.getWidth(), nextMapTexture.getHeight());
         previousMapButton.setTouchable(Touchable.enabled);
@@ -180,7 +215,7 @@ public class CreateRoomScreen implements Screen{
         stage.addActor(mapGroup);
 
 
-        //Group allow to place an actor wherever we want
+        //------------------RETURN BUTTON ----------------------
         Group group = new Group();
 
         //the return button
@@ -214,8 +249,8 @@ public class CreateRoomScreen implements Screen{
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                if (gameManager.playerServices != null) {
-                    gameManager.playerServices.signOut();
+                if (gameManager.getPlayerServices() != null) {
+                    gameManager.getPlayerServices().signOut();
                 }
                 Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
                 gameManager.setScreen(gameManager.getLoginScreen());
@@ -232,8 +267,8 @@ public class CreateRoomScreen implements Screen{
         //------------------USER INFORMATION ----------------------
         Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
         Label userNameLabel = new Label("USER NAME", labelStyle);
-        if (gameManager.playerServices != null && gameManager.playerServices.isSignedIn()) {
-            userNameLabel.setText(gameManager.playerServices.getUserName());
+        if (gameManager.getPlayerServices() != null && gameManager.getPlayerServices().isSignedIn()) {
+            userNameLabel.setText(gameManager.getPlayerServices().getUserName());
         }
         userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnImage.getY() + 15);
 
@@ -247,9 +282,45 @@ public class CreateRoomScreen implements Screen{
     }
 
     @Override
+    public void input (String text) {
+
+        JSONObject data = new JSONObject();
+        try {
+            data.put("roomName", text);
+            gameManager.getServer().getSocket().emit("roomCreating", data);
+        } catch (JSONException e) {
+            Gdx.app.log("SOCKET.IO", "Error sending room name data");
+        }
+
+        dialogShowed = false;
+
+    }
+
+    @Override
+    public void canceled () {
+
+        System.out.println("canceled");
+
+        isCanceled = true;
+
+    }
+
+
+    @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        if(isCanceled)
+        {
+            Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
+            gameManager.setScreen(gameManager.getModeSelectionScreen());
+            isCanceled = false;
+        }
+        if(gameManager.getServer().isRoomExisted() && !dialogShowed)
+        {
+            Gdx.input.getTextInput(this, "Your room is EXISTED, Enter another name:", "", "Room name ...");
+            dialogShowed = true;
+        }
 
         //transition map
         if (transitionUp !=-1) {

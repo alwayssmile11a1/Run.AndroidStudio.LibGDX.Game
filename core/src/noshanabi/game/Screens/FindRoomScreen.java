@@ -215,8 +215,8 @@ public class FindRoomScreen implements Screen{
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                if (gameManager.playerServices != null) {
-                    gameManager.playerServices.signOut();
+                if (gameManager.getPlayerServices() != null) {
+                    gameManager.getPlayerServices().signOut();
                 }
                 Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
                 gameManager.setScreen(gameManager.getLoginScreen());
@@ -231,8 +231,8 @@ public class FindRoomScreen implements Screen{
         //------------------USER INFORMATION ----------------------
         Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
         Label userNameLabel = new Label("USER NAME", labelStyle);
-        if (gameManager.playerServices != null) {
-            userNameLabel.setText(gameManager.playerServices.getUserName());
+        if (gameManager.getPlayerServices() != null) {
+            userNameLabel.setText(gameManager.getPlayerServices().getUserName());
         }
         userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnImage.getY() + 15);
 
