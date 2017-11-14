@@ -124,7 +124,7 @@ public class PlayScreen implements Screen{
 
 
         //----------------SERVER VARIABLES------------//
-        server = new ServerCreator(world, player);
+        server = new ServerCreator();
         server.connectSocket();
         server.configSocketEvents();
 

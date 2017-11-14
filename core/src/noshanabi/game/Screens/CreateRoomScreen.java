@@ -232,12 +232,13 @@ public class CreateRoomScreen implements Screen{
         //------------------USER INFORMATION ----------------------
         Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
         Label userNameLabel = new Label("USER NAME", labelStyle);
-        if (gameManager.playerServices != null) {
+        if (gameManager.playerServices != null && gameManager.playerServices.isSignedIn()) {
             userNameLabel.setText(gameManager.playerServices.getUserName());
         }
         userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnImage.getY() + 15);
 
         group.addActor(userNameLabel);
+
 
 
         //add to actor

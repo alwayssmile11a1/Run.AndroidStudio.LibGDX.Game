@@ -14,6 +14,8 @@ import noshanabi.game.Screens.LoginScreen;
 import noshanabi.game.Screens.MapSelectionScreen;
 import noshanabi.game.Screens.MenuScreen;
 import noshanabi.game.Screens.ModeSelectionScreen;
+import noshanabi.game.Screens.PlayScreen;
+import noshanabi.game.Server.ServerCreator;
 
 //manage audio, sprite, world width, world height, etc.
 public class GameManager extends Game {
@@ -44,6 +46,10 @@ public class GameManager extends Game {
 	private CreateRoomScreen createRoomScreen;
 
 
+	//--SERVER--//
+	private ServerCreator server;
+
+
 	public GameManager(PlayerServices playerServices)
 	{
 		this.playerServices = playerServices;
@@ -63,13 +69,17 @@ public class GameManager extends Game {
 		modeSelectionScreen = new ModeSelectionScreen(this);
 		createRoomScreen = new CreateRoomScreen(this);
 
-		//initial audio
+		//init server
+		server = new ServerCreator();
+
+
+		//init audio
 		audioManager = new AssetManager();
 		loadEssentialAudio();
 
 		//set screen
 		Gdx.input.setInputProcessor(menuScreen.getStage());
-		setScreen(menuScreen);
+		setScreen(new PlayScreen(this, "maps/map0/map.tmx"));
 
 
 	}
@@ -131,5 +141,9 @@ public class GameManager extends Game {
 
 	public CreateRoomScreen getCreateRoomScreen() {
 		return createRoomScreen;
+	}
+
+	public ServerCreator getServer() {
+		return server;
 	}
 }

@@ -152,7 +152,7 @@ public class ModeSelectionScreen implements Screen {
 
         //------------------USER INFORMATION ----------------------
         Label userNameLabel = new Label("USER NAME", labelStyle);
-        if (gameManager.playerServices != null) {
+        if (gameManager.playerServices != null && gameManager.playerServices.isSignedIn()) {
             userNameLabel.setText(gameManager.playerServices.getUserName());
         }
         userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnImage.getY()+15);

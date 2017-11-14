@@ -1,7 +1,9 @@
 var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-var players = [];
+
+//store all players
+var players = {};
 
 app.set('port',(process.env.PORT||5000));
 
@@ -9,55 +11,77 @@ server.listen(app.get('port'), function(){
 	console.log("Server is now running...");
 });
 
+var rooms = [];
+
+
 
 io.on('connection',function(socket){
-	console.log("player Connected!");
+
+    //player connected
+	console.log("Player Connected!");
     setInterval(() => io.emit('time', new Date().toTimeString()), 100);
 
-	socket.emit('socketID',{id: socket.id });
-	socket.emit('getPlayers' ,players);
+    //automatically turn on if a player disconnected
+    socket.on('disconnect',function(){
+        console.log("Player Disconnected!");
 
-    players.push(new player(socket.id,2,2,0));
+        //emit to all other players but the client's socket
+        socket.broadcast.emit('playerDisconnected',{id: socket.id});
 
-    socket.broadcast.emit('newPlayer', {id: socket.id});
-
-    socket.on('thisPlayerMoved',function(data){
-        data.id = socket.id;
-
-        socket.broadcast.emit('playerMoved',data);
-
-        for(var i=0;i<players.length;i++)
-        {
-            if(players[i].id == data.id)
-            {
-                players[i].x = data.x;
-                players[i].y = data.y;
-                players[i].rotation = data.rotation;
-                break;
-            }
-        }
+        //delete the client socket player from hash table
+        delete players[socket.id];
 
     });
 
-	socket.on('disconnect',function(){
-		console.log("player Disconnected!");
+    //emit the id to the client's socket only
+	socket.emit('socketID',{id: socket.id });
 
-        socket.broadcast.emit('playerDisconnected',{id: socket.id});
+	//emit all other players to client's socket only
+	socket.emit('getOtherPlayers' ,players);
 
-		for(var i=0;i<players.length;i++)
-		{
-		    if(players[i].id == socket.id)
-		    {
-		        players.splice(i,1);
-		        break;
-		    }
-		}
+    //push a new player to players hash table, so other new connected players can get all the connected players
+    players[socket.id] = new player(socket.id,2,2,0);
 
-	});
+    //emit new player event to everyone, but the client's socket
+    socket.broadcast.emit('newPlayer', {id: socket.id});
+
+    //when the client emits this event, emit the position, rotation,..etc.. to other players
+    socket.on('socketPlayerMoved',function(data){
+        //put the id in for the sake of quick searching
+        data.id = socket.id;
+
+        //emit to all other players but the client's socket
+        socket.broadcast.emit('playerMoved',data);
+
+        //update the position and ..etc.. in hash table
+        var socketPlayer = players[socket.id];
+        socketPlayer.x = data.x;
+        socketPlayer.y = data.y;
+        socketPlayer.rotation = data.rotation;
+
+
+    });
+
+    socket.on('roomCreated', function(data))
+    {
+        if(rooms.indexOf(data.roomName) >= 0)
+        {
+            rooms.push(data.roomName);
+        }
+        else
+        {
+            socket.emit('roomExisted');
+        }
+    });
+
+
+
+
 
 
 });
 
+//player struct
 function player(id,x,y,rotation){
     this.id = id;
     this.x= x;

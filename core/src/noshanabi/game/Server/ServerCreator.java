@@ -4,13 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.World;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -24,22 +23,25 @@ import noshanabi.game.Objects.Player;
 
 public class ServerCreator {
 
-    private boolean createServer = false;
+    private boolean createServer = true;
 
     //multiplayer things
     private Socket socket;
     private HashMap<String,FriendPlayer> otherPlayers;
-    private World world;
     private Player mainPlayer;
     private String disconnectedPlayerID;
 
 
-    public ServerCreator(World world, Player currentPlayer)
+    public ServerCreator()
     {
         if(!createServer) return;
-        this.world = world;
         otherPlayers = new HashMap<String, FriendPlayer>();
-        mainPlayer = currentPlayer;
+
+    }
+
+    public void SetMainPlayer(Player mainPlayer)
+    {
+        this.mainPlayer = mainPlayer;
     }
 
     public void connectSocket()
@@ -107,11 +109,11 @@ public class ServerCreator {
             }
 
             //get all players
-        }).on("getPlayers", new Emitter.Listener() {
+        }).on("getOtherPlayers", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
 
-				handleGetPlayerEvent(args);
+				handleGetOtherPlayersEvent(args);
             }
         }).on("playerMoved", new Emitter.Listener() {
             @Override
@@ -194,19 +196,32 @@ public class ServerCreator {
 
     }
 
-    public void handleGetPlayerEvent(Object... args) {
+    public void handleGetOtherPlayersEvent(Object... args) {
         try {
-            JSONArray objects = (JSONArray) args[0];
 
-            for (int i = 0; i < objects.length(); i++) {
+            //clear
+            otherPlayers.clear();
 
-                //get ID
-                String otherPlayerID = objects.getJSONObject(i).getString("id");
+            JSONObject objects = (JSONObject) args[0];
+
+            //get all the keys
+            Iterator<String> iter = objects.keys();
+
+            //loop through all
+            while (iter.hasNext()) {
+                String otherPlayerID = iter.next();
+
+                //get value
+                JSONObject value = new JSONObject(objects.get(otherPlayerID).toString());
+
+                //create a new friend player
                 FriendPlayer otherPlayer = new FriendPlayer();
                 Vector2 position = new Vector2();
-                position.x = ((Double) objects.getJSONObject(i).getDouble("x")).floatValue();
-                position.y = ((Double) objects.getJSONObject(i).getDouble("y")).floatValue();
-                float rotation = ((Double) objects.getJSONObject(i).getDouble("rotation")).floatValue();
+
+                //get position
+                position.x = ((Double) value.getDouble("x")).floatValue();
+                position.y = ((Double) value.getDouble("y")).floatValue();
+                float rotation = ((Double) value.getDouble("rotation")).floatValue();
 
                 otherPlayer.setPosition(position.x, position.y);
                 otherPlayer.setRotation(rotation);
@@ -214,6 +229,7 @@ public class ServerCreator {
                 otherPlayers.put(otherPlayerID, otherPlayer);
 
             }
+
         } catch (JSONException e) {
             Gdx.app.log("SocketIO", "Error handling get player event");
         }
@@ -229,13 +245,15 @@ public class ServerCreator {
             disconnectedPlayerID = null;
         }
 
+        if(mainPlayer==null) return;
+
         //send the position of main player to other players
         JSONObject data = new JSONObject();
         try {
             data.put("x", mainPlayer.getX());
             data.put("y", mainPlayer.getY());
             data.put("rotation", mainPlayer.getRotation());
-            socket.emit("thisPlayerMoved", data);
+            socket.emit("socketPlayerMoved", data);
         } catch (JSONException e) {
             Gdx.app.log("SOCKET.IO", "Error sending update data");
         }

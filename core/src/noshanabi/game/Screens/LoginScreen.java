@@ -133,6 +133,7 @@ public class LoginScreen implements Screen {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 Gdx.input.setInputProcessor(gameManager.getMenuScreen().getStage());
                 gameManager.setScreen(gameManager.getMenuScreen());
+
                 return true;
             }
 
