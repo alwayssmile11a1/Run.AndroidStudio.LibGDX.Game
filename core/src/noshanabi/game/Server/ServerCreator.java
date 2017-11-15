@@ -61,7 +61,6 @@ public class ServerCreator {
             socket = IO.socket("http://localhost:5000");
             socket.connect();
 
-
         }
         catch(Exception e)
         {
@@ -78,6 +77,16 @@ public class ServerCreator {
             @Override
             public void call(Object... args) {
                 Gdx.app.log("SocketIO", "Connected");
+
+            }
+
+        });
+
+        //disconnect
+        socket.on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Gdx.app.log("SocketIO", "Disconnected");
 
             }
 
@@ -102,6 +111,7 @@ public class ServerCreator {
 
 
         });
+
 
         //new player connect event
         socket.on("newPlayer", new Emitter.Listener() {
@@ -142,6 +152,38 @@ public class ServerCreator {
         socket.on("roomCreated", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
+
+                try {
+                    JSONObject data = (JSONObject) args[0];
+                    String roomName = data.getString("roomName");
+                    gameManager.getFindRoomScreen().addRoom(roomName);
+
+                } catch (JSONException e) {
+                    Gdx.app.log("SocketIO", "Error joining room");
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+        socket.on("roomRemoved", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                try {
+                    JSONObject data = (JSONObject) args[0];
+                    String roomName = data.getString("roomName");
+                    gameManager.getFindRoomScreen().removeRoom(roomName);
+
+                } catch (JSONException e) {
+                    Gdx.app.log("SocketIO", "Error joining room");
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        socket.on("socketRoomCreated", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
                 isRoomExisted = false;
             }
         });
@@ -164,6 +206,21 @@ public class ServerCreator {
 
                 } catch (JSONException e) {
                     Gdx.app.log("SocketIO", "Error joining room");
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        socket.on("roomLeaved", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                try {
+                    JSONObject data = (JSONObject) args[0];
+                    String roomName = data.getString("roomName");
+                    Gdx.app.log("SocketIO", "You leaved room " + roomName );
+
+                } catch (JSONException e) {
+                    Gdx.app.log("SocketIO", "Error leaving room");
                     e.printStackTrace();
                 }
             }

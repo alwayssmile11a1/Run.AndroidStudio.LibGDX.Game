@@ -11,14 +11,19 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+
+import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
+import noshanabi.game.ButtonPrefabs.SignOutButton;
 import noshanabi.game.GameManager;
 
 /**
@@ -36,30 +41,19 @@ public class FindRoomScreen implements Screen{
     //game manager
     private GameManager gameManager;
 
-    //map count
-    private int mapCount = 0;
-
-
     private Sprite backGround;
 
-    //map
-    Array<Image> mapImages;
-    Array<Texture> mapTextures;
+    private ReturnScreenButton returnScreenButton;
 
-    private Image returnImage;
-    private Texture returnTexture;
+    private SignOutButton signOutButton;
 
-    private Image signOutImage;
-    private Texture signOutTexture;
+    private Table roomTable;
 
-    private Texture nextMapTexture;
-    private Image nextMapButton;
-    private Image previousMapButton;
+    private HashMap<String, Label> roomList;
 
-    private int transitionUp;
-    private int transitionDistance;
-    private int transitionCount;
-    private int transitionSpeed;
+    private String roomToAdd;
+
+    private String roomToRemove;
 
     public FindRoomScreen(GameManager _gameManager) {
         //set up constructor variables
@@ -67,11 +61,6 @@ public class FindRoomScreen implements Screen{
 
         //color to clear this screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
-
-        transitionUp = -1;
-        transitionDistance = 0;
-        transitionCount = 0;
-        transitionSpeed = 20;
 
         backGround = new Sprite(new Texture("images/BlueBackground.png"));
         backGround.setSize(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
@@ -81,115 +70,12 @@ public class FindRoomScreen implements Screen{
         stage = new Stage(viewport, gameManager.batch);
 
 
-        //Create group
-        Group mapGroup = new Group();
-
-        mapTextures = new Array<Texture>();
-        mapImages = new Array<Image>();
-
-
-        //map texture
-        while (true) {
-            String textureFileName = "maps/map" + mapCount + "/maptexture.png";
-            try {
-                Texture mapTexture = new Texture(textureFileName);
-                mapTextures.add(mapTexture);
-                mapCount++;
-
-            } catch (GdxRuntimeException e) {
-                break;
-            }
-        }
-
-        //load map images
-        for (int i = 0; i < mapCount; i++) {
-            Image mapImage = new Image(mapTextures.get(i));
-            final String mapName = "maps/map" + i + "/map.tmx";
-            mapImages.add(mapImage);
-            mapImage.setBounds(0, 0, mapTextures.get(i).getWidth(), mapTextures.get(i).getHeight());
-            mapImage.setTouchable(Touchable.enabled);
-            mapImage.setPosition(250, 75 - gameManager.WORLDHEIGHT * i);
-            mapImage.setSize(gameManager.WORLDWIDTH - 300, gameManager.WORLDHEIGHT - 150);
-            mapImage.addListener(new InputListener() {
-                @Override
-                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                    gameManager.setScreen(new PlayScreen(gameManager, mapName));
-                    return true;
-                }
-
-            });
-
-            mapGroup.addActor(mapImages.get(i));
-
-        }
-
-
-        //Next map button
-        nextMapTexture = new Texture("images/nextarrow.png");
-        nextMapButton = new Image(nextMapTexture);
-        nextMapButton.setBounds(0, 0, nextMapTexture.getWidth(), nextMapTexture.getHeight());
-        nextMapButton.setTouchable(Touchable.enabled);
-        nextMapButton.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-                if (transitionDistance == 0 && transitionCount > 0) {
-                    transitionUp = 1;
-                    transitionCount--;
-                }
-                return true;
-            }
-
-        });
-
-        nextMapButton.setSize(50, 50);
-        nextMapButton.setOrigin(nextMapButton.getWidth() / 2, nextMapButton.getHeight() / 2);
-        nextMapButton.setRotation(90);
-        nextMapButton.setPosition(mapImages.get(0).getX() + mapImages.get(0).getWidth() / 2 - nextMapButton.getWidth() / 2, gameManager.WORLDHEIGHT - 70);
-
-        //add to group
-        mapGroup.addActor(nextMapButton);
-
-
-        //Previous map button
-        //Next map button
-        previousMapButton = new Image(nextMapTexture);
-        previousMapButton.setBounds(0, 0, nextMapTexture.getWidth(), nextMapTexture.getHeight());
-        previousMapButton.setTouchable(Touchable.enabled);
-        previousMapButton.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                if (transitionDistance == 0 && transitionCount < mapCount - 1) {
-                    transitionUp = 0;
-                    transitionCount++;
-                }
-                return true;
-            }
-
-        });
-
-        previousMapButton.setSize(50, 50);
-        previousMapButton.setOrigin(previousMapButton.getWidth() / 2, previousMapButton.getHeight() / 2);
-        previousMapButton.setRotation(-90);
-        previousMapButton.setPosition(nextMapButton.getX(), 20);
-
-        //add to group
-        mapGroup.addActor(previousMapButton);
-
-
-        //add to stage
-        stage.addActor(mapGroup);
-
-
+        //--------------------RETURN BUTTON -----------------------
         //Group allow to place an actor wherever we want
         Group group = new Group();
 
-        //the return button
-        returnTexture = new Texture("images/rightarrow.png");
-        returnImage = new Image(returnTexture);
-        returnImage.setBounds(0, 0, returnTexture.getWidth(), returnTexture.getHeight());
-        returnImage.setTouchable(Touchable.enabled);
-        returnImage.addListener(new InputListener() {
+        returnScreenButton = new ReturnScreenButton();
+        returnScreenButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
@@ -199,19 +85,12 @@ public class FindRoomScreen implements Screen{
 
         });
 
-        returnImage.setSize(50, 50);
-        returnImage.setOrigin(returnImage.getWidth() / 2, returnImage.getHeight() / 2);
-        returnImage.setScaleX(-1);
-        returnImage.setPosition(10, gameManager.WORLDHEIGHT - 60);
         //add to group
-        group.addActor(returnImage);
+        group.addActor(returnScreenButton);
 
         //------------------SIGN OUT BUTTON ------------------------
-        signOutTexture = new Texture("images/signout.png");
-        signOutImage = new Image(signOutTexture);
-        signOutImage.setBounds(0, 0, signOutTexture.getWidth(), signOutTexture.getHeight());
-        signOutImage.setTouchable(Touchable.enabled);
-        signOutImage.addListener(new InputListener() {
+        signOutButton = new SignOutButton();
+        signOutButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
@@ -224,9 +103,8 @@ public class FindRoomScreen implements Screen{
             }
 
         });
-        //set position and size
-        signOutImage.setPosition(gameManager.WORLDWIDTH - 60, gameManager.WORLDHEIGHT - 60);
-        signOutImage.setSize(50, 50);
+        //add to group
+        group.addActor(signOutButton);
 
         //------------------USER INFORMATION ----------------------
         Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
@@ -234,42 +112,88 @@ public class FindRoomScreen implements Screen{
         if (gameManager.getPlayerServices() != null) {
             userNameLabel.setText(gameManager.getPlayerServices().getUserName());
         }
-        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnImage.getY() + 15);
+        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnScreenButton.getY() + 15);
 
         group.addActor(userNameLabel);
 
 
-        //add to actor
+        //add to stage
         stage.addActor(group);
 
+
+        //---------------ROOM LIST----------------------------------
+        roomList = new HashMap<String, Label>();
+        roomTable = new Table();
+
+        ScrollPane scrollPane = new ScrollPane(roomTable);
+        scrollPane.setSize(gameManager.WORLDWIDTH/1.5f,gameManager.WORLDHEIGHT-100);
+        scrollPane.setPosition(gameManager.WORLDWIDTH/2-scrollPane.getWidth()/2,50);
+
+        stage.addActor(scrollPane);
+
+
+    }
+
+    public void addRoom(String roomName)
+    {
+        roomToAdd = roomName;
+    }
+
+    public void removeRoom(String roomName)
+    {
+        roomToRemove = roomName;
+    }
+
+    private void AddRoom(final String roomName)
+    {
+        Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
+        Label roomLabel = new Label(roomName, labelStyle);
+        roomLabel.setFontScale(1.5f);
+        roomLabel.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+
+                try {
+                    JSONObject data = new JSONObject();
+                    data.put("roomName", roomName);
+                    gameManager.getServer().getSocket().emit("joinRoom", data);
+                }
+                catch (JSONException e)
+                {
+                    Gdx.app.log("SOCKET.IO", "Error joining room");
+                }
+
+                return true;
+            }
+        });
+
+        roomTable.add(roomLabel).expandX();
+        roomTable.row();
+
+        //add ro list
+        roomList.put(roomName,roomLabel);
+    }
+
+    private void RemoveRoom(String roomName)
+    {
+        roomTable.removeActor(roomList.get(roomName));
+        roomList.remove(roomName);
     }
 
     @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        if(roomToAdd!=null)
+        {
+            AddRoom(roomToAdd);
+            roomToAdd = null;
+        }
 
-        //transition map
-        if (transitionUp !=-1) {
-            if (transitionUp == 0) {
-                for (Image map : mapImages) {
-                    map.setPosition(map.getX(), map.getY() + transitionSpeed);
-                }
-
-            } else {
-
-                for (Image map : mapImages) {
-                    map.setPosition(map.getX(), map.getY() - transitionSpeed);
-
-                }
-            }
-            transitionDistance += transitionSpeed;
-
-            if (transitionDistance >= gameManager.WORLDHEIGHT) {
-                transitionDistance = 0;
-                transitionUp = -1;
-            }
-
+        if(roomToRemove!=null)
+        {
+            RemoveRoom(roomToRemove);
+            roomToRemove = null;
         }
 
         //draw sprite
@@ -280,6 +204,8 @@ public class FindRoomScreen implements Screen{
         gameManager.batch.end();
 
         stage.draw();
+
+        stage.act();
     }
 
     @Override
@@ -291,21 +217,6 @@ public class FindRoomScreen implements Screen{
         return stage;
     }
 
-    private void transitionMap(int mode, int step) {
-
-
-        for (Image map: mapImages) {
-
-            if (mode == 0) //Up
-            {
-                map.setPosition(map.getX(), map.getY()+step);
-            } else //Down
-            {
-                map.setPosition(map.getX(), map.getY()-step);
-            }
-        }
-
-    }
 
     @Override
     public void show() {
@@ -335,23 +246,16 @@ public class FindRoomScreen implements Screen{
             stage.dispose();
         }
 
-        for(int i=0;i<mapCount;i++) {
-            mapTextures.get(i).dispose();
-        }
-
         if(backGround.getTexture()!=null)
         {
             backGround.getTexture().dispose();
         }
 
-        if(returnTexture!=null)
-            returnTexture.dispose();
+        if(returnScreenButton!=null)
+            returnScreenButton.dispose();
 
-        if(nextMapTexture!=null)
-            nextMapTexture.dispose();
-
-        if(signOutTexture!=null)
-            signOutTexture.dispose();
+        if(signOutButton!=null)
+            signOutButton.dispose();
 
     }
 

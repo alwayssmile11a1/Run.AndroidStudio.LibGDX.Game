@@ -23,6 +23,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
+import noshanabi.game.ButtonPrefabs.SignOutButton;
 import noshanabi.game.GameManager;
 
 /**
@@ -49,11 +51,9 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
     Array<Image> mapImages;
     Array<Texture> mapTextures;
 
-    private Image returnImage;
-    private Texture returnTexture;
+    private ReturnScreenButton returnScreenButton;
 
-    private Image signOutImage;
-    private Texture signOutTexture;
+    private SignOutButton signOutButton;
 
     private Texture nextMapTexture;
     private Image nextMapButton;
@@ -219,13 +219,13 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
         Group group = new Group();
 
         //the return button
-        returnTexture = new Texture("images/rightarrow.png");
-        returnImage = new Image(returnTexture);
-        returnImage.setBounds(0, 0, returnTexture.getWidth(), returnTexture.getHeight());
-        returnImage.setTouchable(Touchable.enabled);
-        returnImage.addListener(new InputListener() {
+        returnScreenButton = new ReturnScreenButton();
+        returnScreenButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+
+                gameManager.getServer().getSocket().emit("leaveRoom");
+
                 Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
                 gameManager.setScreen(gameManager.getModeSelectionScreen());
                 return true;
@@ -233,36 +233,27 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
 
         });
 
-        returnImage.setSize(50, 50);
-        returnImage.setOrigin(returnImage.getWidth() / 2, returnImage.getHeight() / 2);
-        returnImage.setScaleX(-1);
-        returnImage.setPosition(10, gameManager.WORLDHEIGHT - 60);
         //add to group
-        group.addActor(returnImage);
+        group.addActor(returnScreenButton);
 
         //------------------SIGN OUT BUTTON ------------------------
-        signOutTexture = new Texture("images/signout.png");
-        signOutImage = new Image(signOutTexture);
-        signOutImage.setBounds(0, 0, signOutTexture.getWidth(), signOutTexture.getHeight());
-        signOutImage.setTouchable(Touchable.enabled);
-        signOutImage.addListener(new InputListener() {
+        signOutButton = new SignOutButton();
+        signOutButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
                 if (gameManager.getPlayerServices() != null) {
                     gameManager.getPlayerServices().signOut();
                 }
+                gameManager.getServer().getSocket().disconnect();
                 Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
                 gameManager.setScreen(gameManager.getLoginScreen());
                 return true;
             }
 
         });
-        //set position and size
-        signOutImage.setPosition(gameManager.WORLDWIDTH - 60, gameManager.WORLDHEIGHT - 60);
-        signOutImage.setSize(50, 50);
 
-        group.addActor(signOutImage);
+        group.addActor(signOutButton);
 
         //------------------USER INFORMATION ----------------------
         Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
@@ -270,7 +261,7 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
         if (gameManager.getPlayerServices() != null && gameManager.getPlayerServices().isSignedIn()) {
             userNameLabel.setText(gameManager.getPlayerServices().getUserName());
         }
-        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnImage.getY() + 15);
+        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnScreenButton.getY() + 15);
 
         group.addActor(userNameLabel);
 
@@ -283,16 +274,21 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
 
     @Override
     public void input (String text) {
+        if(!text.equals("")) {
+            JSONObject data = new JSONObject();
+            try {
+                data.put("roomName", text);
+                gameManager.getServer().getSocket().emit("createRoom", data);
+            } catch (JSONException e) {
+                Gdx.app.log("SOCKET.IO", "Error sending room name data");
+            }
 
-        JSONObject data = new JSONObject();
-        try {
-            data.put("roomName", text);
-            gameManager.getServer().getSocket().emit("roomCreating", data);
-        } catch (JSONException e) {
-            Gdx.app.log("SOCKET.IO", "Error sending room name data");
+            dialogShowed = false;
         }
-
-        dialogShowed = false;
+        else
+        {
+            Gdx.input.getTextInput(this, "Your room is INVALID, Enter another name:", "", "Room name ...");
+        }
 
     }
 
@@ -316,6 +312,7 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
             gameManager.setScreen(gameManager.getModeSelectionScreen());
             isCanceled = false;
         }
+
         if(gameManager.getServer().isRoomExisted() && !dialogShowed)
         {
             Gdx.input.getTextInput(this, "Your room is EXISTED, Enter another name:", "", "Room name ...");
@@ -364,22 +361,6 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
         return stage;
     }
 
-    private void transitionMap(int mode, int step) {
-
-
-        for (Image map: mapImages) {
-
-            if (mode == 0) //Up
-            {
-                map.setPosition(map.getX(), map.getY()+step);
-            } else //Down
-            {
-                map.setPosition(map.getX(), map.getY()-step);
-            }
-        }
-
-    }
-
     @Override
     public void show() {
 
@@ -417,14 +398,14 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
             backGround.getTexture().dispose();
         }
 
-        if(returnTexture!=null)
-            returnTexture.dispose();
+        if(returnScreenButton!=null)
+            returnScreenButton.dispose();
 
         if(nextMapTexture!=null)
             nextMapTexture.dispose();
 
-        if(signOutTexture!=null)
-            signOutTexture.dispose();
+        if(signOutButton!=null)
+            signOutButton.dispose();
 
     }
 }

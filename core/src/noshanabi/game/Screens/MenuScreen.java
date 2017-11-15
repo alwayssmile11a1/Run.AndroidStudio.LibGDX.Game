@@ -81,10 +81,10 @@ public class MenuScreen implements Screen{
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                if(gameManager.getPlayerServices() == null)
+                if(gameManager.getPlayerServices() == null) //desktop test
                 {
-                    Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
-                    gameManager.setScreen(gameManager.getModeSelectionScreen());
+                    Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
+                    gameManager.setScreen(gameManager.getLoginScreen());
                     return true;
                 }
 

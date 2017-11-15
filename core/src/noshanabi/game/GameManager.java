@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import noshanabi.game.Extensions.PlayerServices;
 import noshanabi.game.Screens.CreateRoomScreen;
+import noshanabi.game.Screens.FindRoomScreen;
 import noshanabi.game.Screens.GameOverScreen;
 import noshanabi.game.Screens.LoginScreen;
 import noshanabi.game.Screens.MapSelectionScreen;
@@ -43,7 +44,7 @@ public class GameManager extends Game {
 	private GameOverScreen gameOverScreen;
 	private ModeSelectionScreen modeSelectionScreen;
 	private CreateRoomScreen createRoomScreen;
-
+	private FindRoomScreen findRoomScreen;
 
 	//--SERVER--//
 	private ServerCreator server;
@@ -67,12 +68,10 @@ public class GameManager extends Game {
 		gameOverScreen = new GameOverScreen(this);
 		modeSelectionScreen = new ModeSelectionScreen(this);
 		createRoomScreen = new CreateRoomScreen(this);
+		findRoomScreen = new FindRoomScreen(this);
 
 		//init server
 		server = new ServerCreator(this);
-		server.connectSocket();
-		server.configSocketEvents();
-
 
 		//init audio
 		audioManager = new AssetManager();
@@ -85,6 +84,11 @@ public class GameManager extends Game {
 
 	}
 
+	public void connectToServer()
+	{
+		server.connectSocket();
+		server.configSocketEvents();
+	}
 
 	//used for load essential audio
 	public void loadEssentialAudio()
@@ -115,7 +119,11 @@ public class GameManager extends Game {
 		loginScreen.dispose();
 		gameOverScreen.dispose();
 		modeSelectionScreen.dispose();
-		server.dispose();
+		findRoomScreen.dispose();
+
+		if(server!=null) {
+			server.dispose();
+		}
 
 	}
 
@@ -155,5 +163,9 @@ public class GameManager extends Game {
 
 	public AssetManager getAudioManager() {
 		return audioManager;
+	}
+
+	public FindRoomScreen getFindRoomScreen() {
+		return findRoomScreen;
 	}
 }

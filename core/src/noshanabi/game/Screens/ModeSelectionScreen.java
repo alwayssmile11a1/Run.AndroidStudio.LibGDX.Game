@@ -4,19 +4,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
+import noshanabi.game.ButtonPrefabs.SignOutButton;
 import noshanabi.game.GameManager;
 
 /**
@@ -37,11 +36,9 @@ public class ModeSelectionScreen implements Screen {
 
     //----------------TEXTURE RELATED VARIABLES------------//
 
-    private Image returnImage;
-    private Texture returnTexture;
+    private ReturnScreenButton returnScreenButton;
 
-    private Image signOutImage;
-    private Texture signOutTexture;
+    private SignOutButton signOutButton;
 
     public ModeSelectionScreen(GameManager _gameManager) {
         //set up constructor variables
@@ -73,8 +70,8 @@ public class ModeSelectionScreen implements Screen {
         findRoomLabel.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.input.setInputProcessor(gameManager.getCreateRoomScreen().getStage());
-                gameManager.setScreen(gameManager.getCreateRoomScreen());
+                Gdx.input.setInputProcessor(gameManager.getFindRoomScreen().getStage());
+                gameManager.setScreen(gameManager.getFindRoomScreen());
                 return true;
             }
 
@@ -105,11 +102,8 @@ public class ModeSelectionScreen implements Screen {
         //Group allow to place an actor wherever we want
         Group group = new Group();
 
-        returnTexture = new Texture("images/rightarrow.png");
-        returnImage = new Image(returnTexture);
-        returnImage.setBounds(0, 0, returnTexture.getWidth(), returnTexture.getHeight());
-        returnImage.setTouchable(Touchable.enabled);
-        returnImage.addListener(new InputListener() {
+        returnScreenButton = new ReturnScreenButton();
+        returnScreenButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 Gdx.input.setInputProcessor(gameManager.getMenuScreen().getStage());
@@ -119,38 +113,28 @@ public class ModeSelectionScreen implements Screen {
 
         });
 
-        returnImage.setSize(50, 50);
-        returnImage.setOrigin(returnImage.getWidth() / 2, returnImage.getHeight() / 2);
-        returnImage.setScaleX(-1);
-        returnImage.setPosition(10, gameManager.WORLDHEIGHT - 60);
+        group.addActor(returnScreenButton);
 
-        group.addActor(returnImage);
 
         //------------------SIGN OUT BUTTON ------------------------
-        signOutTexture = new Texture("images/signout.png");
-        signOutImage = new Image(signOutTexture);
-        signOutImage.setBounds(0, 0, signOutTexture.getWidth(), signOutTexture.getHeight());
-        signOutImage.setTouchable(Touchable.enabled);
-        signOutImage.addListener(new InputListener() {
+        signOutButton = new SignOutButton();
+        signOutButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
                 if (gameManager.getPlayerServices() != null) {
                     gameManager.getPlayerServices().signOut();
                 }
+                gameManager.getServer().getSocket().disconnect();
                 Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
                 gameManager.setScreen(gameManager.getLoginScreen());
                 return true;
             }
 
         });
-        //set position and size
-        signOutImage.setPosition(gameManager.WORLDWIDTH - 60, gameManager.WORLDHEIGHT - 60);
-        signOutImage.setSize(50, 50);
-
 
         //add to group
-        group.addActor(signOutImage);
+        group.addActor(signOutButton);
 
 
         //------------------USER INFORMATION ----------------------
@@ -158,7 +142,7 @@ public class ModeSelectionScreen implements Screen {
         if (gameManager.getPlayerServices() != null && gameManager.getPlayerServices().isSignedIn()) {
             userNameLabel.setText(gameManager.getPlayerServices().getUserName());
         }
-        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnImage.getY()+15);
+        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnScreenButton.getY()+15);
 
         group.addActor(userNameLabel);
 
@@ -209,11 +193,11 @@ public class ModeSelectionScreen implements Screen {
             stage.dispose();
         }
 
-        if(returnTexture!=null)
-            returnTexture.dispose();
+        if (returnScreenButton != null)
+            returnScreenButton.dispose();
 
-        if(signOutTexture!=null)
-            signOutTexture.dispose();
+        if (signOutButton != null)
+            signOutButton.dispose();
 
     }
 

@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
 import noshanabi.game.GameManager;
 
 /**
@@ -43,8 +44,7 @@ public class MapSelectionScreen implements Screen {
     Array<Image> mapImages;
     Array<Texture> mapTextures;
 
-    private Image returnImage;
-    private Texture returnTexture;
+    private ReturnScreenButton returnScreenButton;
 
     private Texture nextMapTexture;
     private Image nextMapButton;
@@ -176,15 +176,12 @@ public class MapSelectionScreen implements Screen {
         stage.addActor(mapGroup);
 
 
+        //------------RETURN SCREEN BUTTON ------------------
         //Group allow to place an actor wherever we want
         Group group = new Group();
 
-        //the return button
-        returnTexture = new Texture("images/rightarrow.png");
-        returnImage = new Image(returnTexture);
-        returnImage.setBounds(0,0,returnTexture.getWidth(),returnTexture.getHeight());
-        returnImage.setTouchable(Touchable.enabled);
-        returnImage.addListener(new InputListener()
+        returnScreenButton = new ReturnScreenButton();
+        returnScreenButton.addListener(new InputListener()
         {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -194,17 +191,13 @@ public class MapSelectionScreen implements Screen {
             }
 
         });
-
-        returnImage.setSize(50,50);
-        returnImage.setOrigin(returnImage.getWidth()/2, returnImage.getHeight()/2);
-        returnImage.setScaleX(-1);
-        returnImage.setPosition(10,gameManager.WORLDHEIGHT-60);
-
         //add to group
-        group.addActor(returnImage);
+        group.addActor(returnScreenButton);
+
 
         //add to actor
         stage.addActor(group);
+
 
     }
 
@@ -277,24 +270,22 @@ public class MapSelectionScreen implements Screen {
 
     @Override
     public void dispose() {
-        if(stage!=null)
-        {
+        if (stage != null) {
             stage.dispose();
         }
 
-        for(int i=0;i<mapCount;i++) {
+        for (int i = 0; i < mapCount; i++) {
             mapTextures.get(i).dispose();
         }
 
-        if(backGround.getTexture()!=null)
-        {
+        if (backGround.getTexture() != null) {
             backGround.getTexture().dispose();
         }
 
-        if(returnTexture!=null)
-            returnTexture.dispose();
+        if (returnScreenButton != null)
+            returnScreenButton.dispose();
 
-        if(nextMapTexture!=null)
+        if (nextMapTexture != null)
             nextMapTexture.dispose();
     }
 

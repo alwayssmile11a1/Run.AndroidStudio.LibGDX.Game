@@ -26,15 +26,18 @@ io.on('connection',function(socket){
     //emit the id to the client's socket only
     socket.emit('connected',{id: socket.id });
 
-    socket.on('roomCreating', function(data){
+    socket.on('createRoom', function(data){
 
         //if this room haven't existed, add to room list
         if(!rooms.hasOwnProperty(data.roomName))
         {
-            socket.emit('roomCreated');
 
             // store the room name in the socket session for this client
             socket.room = data.roomName;
+
+            socket.broadcast.emit('roomCreated', {roomName: data.roomName});
+
+            socket.emit('socketRoomCreated');
 
             //send the client the this room
             socket.join(data.roomName);
@@ -76,15 +79,40 @@ io.on('connection',function(socket){
 
     });
 
+    socket.on('leaveRoom', function(){
 
-//	//emit all other players to client's socket only
-//	socket.emit('getOtherPlayers' ,players);
+        //delete the client socket player from hash table
+        if(rooms.hasOwnProperty(socket.room))
+        {
 
-//    //push a new player to players hash table, so other new connected players can get all the connected players
-//    players[socket.id] = new player(socket.id,2,2,0);
+            delete rooms[socket.room][socket.id];
 
-//    //emit new player event to everyone, but the client's socket
-//    socket.broadcast.emit('newPlayer', {id: socket.id});
+            //get the length of hash table
+            var count = 0;
+            var i;
+            for (i in rooms[socket.room]) {
+            if (rooms[socket.room].hasOwnProperty(i)) {
+                    count++;
+                }
+            }
+
+            //if there is no one left in this room, delete it
+            if(count<=0)
+            {
+                delete rooms[socket.room];
+                console.log("Room "+ socket.room + " removed");
+
+                socket.broadcast.emit('roomRemoved', {roomName: socket.room});
+
+            }
+            //just for testing
+            socket.emit('roomLeaved', {roomName: socket.room});
+
+            //leave room
+            socket.leave(socket.room);
+        }
+
+    });
 
     //when the client emits this event, emit the position, rotation,..etc.. to other players
     socket.on('socketPlayerMoved',function(data){
@@ -115,16 +143,28 @@ io.on('connection',function(socket){
         {
             delete rooms[socket.room][socket.id];
 
-            //if there is no one left in this room, delete it
-            if(rooms[socket.room].length<=0)
-            {
-                delete rooms[socket.room];
+            //get the length of hash table
+            var count = 0;
+            var i;
+            for (i in rooms[socket.room]) {
+            if (rooms[socket.room].hasOwnProperty(i)) {
+                count++;
+                }
             }
 
-        }
+            //if there is no one left in this room, delete it
+            if(count<=0)
+            {
+                delete rooms[socket.room];
+                console.log("Room "+ socket.room + " removed");
 
-        //leave room
-        socket.leave(socket.room);
+                socket.broadcast.emit('roomRemoved', {roomName: socket.room});
+            }
+
+            //leave room
+            socket.leave(socket.room);
+
+        }
 
     });
 

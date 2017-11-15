@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
 import noshanabi.game.GameManager;
 
 /**
@@ -40,8 +41,7 @@ public class LoginScreen implements Screen {
     Image googleLoginButton;
     Texture googleLoginTexture;
 
-    private Image returnImage;
-    private Texture returnTexture;
+    private ReturnScreenButton returnScreenButton;
 
     private boolean isNeedSwitchScreen;
 
@@ -80,6 +80,12 @@ public class LoginScreen implements Screen {
                     gameManager.getPlayerServices().signInToFacebook();
                     isNeedSwitchScreen = true;
                 }
+                else //desktop test
+                {
+                    gameManager.connectToServer();
+                    Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
+                    gameManager.setScreen(gameManager.getModeSelectionScreen());
+                }
 
                 return true;
             }
@@ -100,6 +106,12 @@ public class LoginScreen implements Screen {
 
                     gameManager.getPlayerServices().signInToGoogle();
                     isNeedSwitchScreen = true;
+                }
+                else //desktop test
+                {
+                    gameManager.connectToServer();
+                    Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
+                    gameManager.setScreen(gameManager.getModeSelectionScreen());
                 }
 
                 return true;
@@ -123,11 +135,8 @@ public class LoginScreen implements Screen {
         Group group = new Group();
 
         //--------------------RETURN BUTTON--------------------
-        returnTexture = new Texture("images/rightarrow.png");
-        returnImage = new Image(returnTexture);
-        returnImage.setBounds(0,0,returnTexture.getWidth(),returnTexture.getHeight());
-        returnImage.setTouchable(Touchable.enabled);
-        returnImage.addListener(new InputListener()
+        returnScreenButton = new ReturnScreenButton();
+        returnScreenButton.addListener(new InputListener()
         {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -138,13 +147,8 @@ public class LoginScreen implements Screen {
             }
 
         });
-
-        returnImage.setSize(50,50);
-        returnImage.setOrigin(returnImage.getWidth()/2, returnImage.getHeight()/2);
-        returnImage.setScaleX(-1);
-        returnImage.setPosition(10,gameManager.WORLDHEIGHT-60);
         //add to group
-        group.addActor(returnImage);
+        group.addActor(returnScreenButton);
 
 
         //add to actor
@@ -160,6 +164,7 @@ public class LoginScreen implements Screen {
 
         if(gameManager.getPlayerServices()!=null && gameManager.getPlayerServices().isSignedIn() && isNeedSwitchScreen)
         {
+            gameManager.connectToServer();
             Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
             gameManager.setScreen(gameManager.getModeSelectionScreen());
             isNeedSwitchScreen = false;
@@ -208,8 +213,8 @@ public class LoginScreen implements Screen {
         if (googleLoginTexture != null)
             googleLoginTexture.dispose();
 
-        if(returnTexture!=null)
-            returnTexture.dispose();
+        if(returnScreenButton!=null)
+            returnScreenButton.dispose();
 
     }
 
