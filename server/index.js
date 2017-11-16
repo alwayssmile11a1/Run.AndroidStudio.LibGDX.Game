@@ -42,7 +42,7 @@ io.on('connection',function(socket){
             //send the client the this room
             socket.join(data.roomName);
 
-            socket.emit('roomJoined',{roomName: data.roomName});
+            socket.emit('socketRoomJoined',{roomName: data.roomName});
 
             //a room contain a hash table of players in that room
             rooms[data.roomName] = {};
@@ -66,7 +66,9 @@ io.on('connection',function(socket){
         //send the client the this room
         socket.join(data.roomName);
 
-        socket.emit('roomJoined',{roomName: data.roomName});
+        socket.emit('socketRoomJoined',{roomName: data.roomName});
+
+        socket.broadcast.to(data.roomName).emit('roomJoined',{roomName: data.roomName});
 
         //emit all other players in this room to client's socket only
         socket.emit('getOtherPlayers' ,rooms[data.roomName]);

@@ -127,6 +127,9 @@ public class PlayScreen implements Screen{
     public void setServer(ServerCreator server)
     {
         this.server = server;
+
+        server.setMainPlayer(player);
+
     }
 
     public void handleInput(float delta)

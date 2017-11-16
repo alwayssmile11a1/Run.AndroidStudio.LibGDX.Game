@@ -157,6 +157,10 @@ public class FindRoomScreen implements Screen{
                     JSONObject data = new JSONObject();
                     data.put("roomName", roomName);
                     gameManager.getServer().getSocket().emit("joinRoom", data);
+
+                    Gdx.input.setInputProcessor(gameManager.getCreateRoomScreen().getStage());
+                    gameManager.setScreen(gameManager.getCreateRoomScreen());
+
                 }
                 catch (JSONException e)
                 {

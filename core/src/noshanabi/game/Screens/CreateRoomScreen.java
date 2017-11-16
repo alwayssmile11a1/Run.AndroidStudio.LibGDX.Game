@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -67,6 +68,12 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
     private boolean dialogShowed = true;
     private boolean isCanceled = false;
 
+    private Table playersTable;
+
+    private Texture playerTexture;
+
+    private String playerToAdd;
+
     public CreateRoomScreen(GameManager _gameManager) {
         //set up constructor variables
         this.gameManager = _gameManager;
@@ -117,6 +124,80 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
 //
 //        stage.addActor(roomNameTextField);
 
+        //-----------------MAP GROUP ---------------------
+        setupMapGroup();
+
+        //-----------------all players group -------------
+        playersTable = new Table();
+
+        playersTable.setPosition(50,50);
+        playersTable.setSize(100,gameManager.WORLDHEIGHT-playersTable.getY()*2);
+
+        addPlayer();
+
+        stage.addActor(playersTable);
+
+
+
+        //------------------RETURN BUTTON ----------------------
+        Group group = new Group();
+
+        //the return button
+        returnScreenButton = new ReturnScreenButton();
+        returnScreenButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+
+                gameManager.getServer().getSocket().emit("leaveRoom");
+
+                Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
+                gameManager.setScreen(gameManager.getModeSelectionScreen());
+                return true;
+            }
+
+        });
+
+        //add to group
+        group.addActor(returnScreenButton);
+
+        //------------------SIGN OUT BUTTON ------------------------
+        signOutButton = new SignOutButton();
+        signOutButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+
+                if (gameManager.getPlayerServices() != null) {
+                    gameManager.getPlayerServices().signOut();
+                }
+                gameManager.getServer().getSocket().disconnect();
+                Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
+                gameManager.setScreen(gameManager.getLoginScreen());
+                return true;
+            }
+
+        });
+
+        group.addActor(signOutButton);
+
+        //------------------USER INFORMATION ----------------------
+        Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
+        Label userNameLabel = new Label("USER NAME", labelStyle);
+        if (gameManager.getPlayerServices() != null && gameManager.getPlayerServices().isSignedIn()) {
+            userNameLabel.setText(gameManager.getPlayerServices().getUserName());
+        }
+        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnScreenButton.getY() + 15);
+
+        group.addActor(userNameLabel);
+
+
+
+        //add to actor
+        stage.addActor(group);
+
+    }
+
+    private void setupMapGroup()
+    {
         //-----LOAD MAP TEXTURES AND MAP IMAGES
         //Create group
         Group mapGroup = new Group();
@@ -148,7 +229,12 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
             mapImage.addListener(new InputListener() {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                    gameManager.setScreen(new PlayScreen(gameManager, mapName));
+
+                    PlayScreen playScreen = new PlayScreen(gameManager, mapName);
+                    playScreen.setServer(gameManager.getServer());
+                    Gdx.input.setInputProcessor(null);
+                    gameManager.setScreen(playScreen);
+
                     return true;
                 }
 
@@ -213,62 +299,22 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
 
         //add to stage
         stage.addActor(mapGroup);
+    }
 
+    public void addPlayer(String playerName)
+    {
+        playerToAdd = playerName;
+    }
 
-        //------------------RETURN BUTTON ----------------------
-        Group group = new Group();
+    private void addPlayer()
+    {
+        playerTexture = new Texture("images/bird.png");
 
-        //the return button
-        returnScreenButton = new ReturnScreenButton();
-        returnScreenButton.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+        Image playerImage = new Image(playerTexture);
 
-                gameManager.getServer().getSocket().emit("leaveRoom");
+        playersTable.add(playerImage).size(50,50);
 
-                Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
-                gameManager.setScreen(gameManager.getModeSelectionScreen());
-                return true;
-            }
-
-        });
-
-        //add to group
-        group.addActor(returnScreenButton);
-
-        //------------------SIGN OUT BUTTON ------------------------
-        signOutButton = new SignOutButton();
-        signOutButton.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-                if (gameManager.getPlayerServices() != null) {
-                    gameManager.getPlayerServices().signOut();
-                }
-                gameManager.getServer().getSocket().disconnect();
-                Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
-                gameManager.setScreen(gameManager.getLoginScreen());
-                return true;
-            }
-
-        });
-
-        group.addActor(signOutButton);
-
-        //------------------USER INFORMATION ----------------------
-        Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
-        Label userNameLabel = new Label("USER NAME", labelStyle);
-        if (gameManager.getPlayerServices() != null && gameManager.getPlayerServices().isSignedIn()) {
-            userNameLabel.setText(gameManager.getPlayerServices().getUserName());
-        }
-        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnScreenButton.getY() + 15);
-
-        group.addActor(userNameLabel);
-
-
-
-        //add to actor
-        stage.addActor(group);
+        playersTable.row();
 
     }
 
@@ -305,6 +351,12 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
     @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        if(playerToAdd!=null)
+        {
+            addPlayer();
+            playerToAdd = null;
+        }
 
         if(isCanceled)
         {
@@ -406,6 +458,9 @@ public class CreateRoomScreen implements Screen, Input.TextInputListener{
 
         if(signOutButton!=null)
             signOutButton.dispose();
+
+        if(playerTexture!=null)
+            playerTexture.dispose();
 
     }
 }

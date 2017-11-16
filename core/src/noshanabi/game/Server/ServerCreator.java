@@ -144,7 +144,6 @@ public class ServerCreator {
         socket.on("playerMoved", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-
                 handlePlayerMovedEvent(args);
             }
         });
@@ -195,7 +194,7 @@ public class ServerCreator {
             }
         });
 
-        socket.on("roomJoined", new Emitter.Listener() {
+        socket.on("socketRoomJoined", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 JSONObject data = (JSONObject) args[0];
@@ -210,6 +209,14 @@ public class ServerCreator {
                 }
             }
         });
+
+        socket.on("roomJoined", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                gameManager.getCreateRoomScreen().addPlayer("player");
+            }
+        });
+
 
         socket.on("roomLeaved", new Emitter.Listener() {
             @Override
@@ -252,6 +259,7 @@ public class ServerCreator {
             FriendPlayer otherPlayer = otherPlayers.get(id);
 
             if (otherPlayer != null) {
+
                 otherPlayer.setPosition(x.floatValue(), y.floatValue());
                 otherPlayer.setRotation(rotation.floatValue());
             }
@@ -371,6 +379,11 @@ public class ServerCreator {
 //            entry.getValue().update(dt);
 //        }
 
+    }
+
+    public void setMainPlayer(Player player)
+    {
+        mainPlayer = player;
     }
 
     public HashMap<String,FriendPlayer> getPlayers()
