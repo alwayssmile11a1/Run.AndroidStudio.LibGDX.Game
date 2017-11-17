@@ -289,11 +289,6 @@ public class PlayScreen implements Screen{
     @Override
     public void dispose() {
 
-        if(gameManager!=null)
-        {
-            gameManager.dispose();
-        }
-
         if(player!=null)
         {
             player.dispose();

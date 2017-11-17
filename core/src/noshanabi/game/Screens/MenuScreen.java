@@ -89,7 +89,7 @@ public class MenuScreen implements Screen{
                 }
 
                 if(gameManager.getPlayerServices().isSignedIn()) {
-
+                    gameManager.connectToServer();
                     Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
                     gameManager.setScreen(gameManager.getModeSelectionScreen());
                 }

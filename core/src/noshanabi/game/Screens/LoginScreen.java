@@ -43,7 +43,7 @@ public class LoginScreen implements Screen {
 
     private ReturnScreenButton returnScreenButton;
 
-    private boolean isNeedSwitchScreen;
+    private boolean needSwitchScreen;
 
 
 
@@ -54,7 +54,7 @@ public class LoginScreen implements Screen {
         //color to clear this screen
         Gdx.gl.glClearColor(0,0,0,1);
 
-        isNeedSwitchScreen = false;
+        needSwitchScreen = false;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
         viewPort = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
@@ -78,7 +78,7 @@ public class LoginScreen implements Screen {
                 if(gameManager.getPlayerServices()!=null) {
 
                     gameManager.getPlayerServices().signInToFacebook();
-                    isNeedSwitchScreen = true;
+                    needSwitchScreen = true;
                 }
                 else //desktop test
                 {
@@ -105,7 +105,7 @@ public class LoginScreen implements Screen {
                 if(gameManager.getPlayerServices()!=null) {
 
                     gameManager.getPlayerServices().signInToGoogle();
-                    isNeedSwitchScreen = true;
+                    needSwitchScreen = true;
                 }
                 else //desktop test
                 {
@@ -162,12 +162,12 @@ public class LoginScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
 
-        if(gameManager.getPlayerServices()!=null && gameManager.getPlayerServices().isSignedIn() && isNeedSwitchScreen)
+        if(gameManager.getPlayerServices()!=null && gameManager.getPlayerServices().isSignedIn() && needSwitchScreen)
         {
             gameManager.connectToServer();
             Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
             gameManager.setScreen(gameManager.getModeSelectionScreen());
-            isNeedSwitchScreen = false;
+            needSwitchScreen = false;
         }
 
     }

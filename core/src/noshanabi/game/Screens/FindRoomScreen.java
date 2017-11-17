@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -21,16 +22,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
 import noshanabi.game.ButtonPrefabs.SignOutButton;
 import noshanabi.game.GameManager;
+import noshanabi.game.Server.ServerListener;
 
 /**
  * Created by 2SMILE2 on 13/11/2017.
  */
 
-public class FindRoomScreen implements Screen{
+public class FindRoomScreen implements Screen, ServerListener{
 
     //viewport
     private Viewport viewport;
@@ -51,9 +54,9 @@ public class FindRoomScreen implements Screen{
 
     private HashMap<String, Label> roomList;
 
-    private String roomToAdd;
+    private Array<String> roomsToAdd;
 
-    private String roomToRemove;
+    private Array<String> roomsToRemove;
 
     public FindRoomScreen(GameManager _gameManager) {
         //set up constructor variables
@@ -64,6 +67,9 @@ public class FindRoomScreen implements Screen{
 
         backGround = new Sprite(new Texture("images/BlueBackground.png"));
         backGround.setSize(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+
+        roomsToAdd = new Array<String>();
+        roomsToRemove = new Array<String>();
 
         //-----------------VIEW RELATED VARIABLES-----------------//
         viewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
@@ -134,14 +140,70 @@ public class FindRoomScreen implements Screen{
 
     }
 
+    @Override
+    public void OnSocketRoomCreated(Object... args) {
+
+    }
+
+    @Override
+    public void OnRoomExisted(Object... args) {
+
+    }
+
+    @Override
+    public void OnRoomJoined(Object... args) {
+
+    }
+
+    @Override
+    public void OnGetRooms(Object... args) {
+        JSONObject objects = (JSONObject) args[0];
+
+        //get all the keys
+        Iterator<String> iter = objects.keys();
+
+        //loop through all to get all room names
+        while (iter.hasNext()) {
+            String roomName = iter.next();
+            roomsToAdd.add(roomName);
+        }
+    }
+
+    @Override
+    public void OnRoomCreated(Object... args) {
+        try {
+
+            JSONObject data = (JSONObject) args[0];
+            String roomName = data.getString("roomName");
+            addRoom(roomName);
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error adding room");
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void OnRoomRemoved(Object... args) {
+        try {
+            JSONObject data = (JSONObject) args[0];
+            String roomName = data.getString("roomName");
+            removeRoom(roomName);
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error removing room");
+            e.printStackTrace();
+        }
+    }
+
     public void addRoom(String roomName)
     {
-        roomToAdd = roomName;
+        roomsToAdd.add(roomName);
     }
 
     public void removeRoom(String roomName)
     {
-        roomToRemove = roomName;
+        roomsToRemove.add(roomName);
     }
 
     private void AddRoom(final String roomName)
@@ -158,8 +220,8 @@ public class FindRoomScreen implements Screen{
                     data.put("roomName", roomName);
                     gameManager.getServer().getSocket().emit("joinRoom", data);
 
-                    Gdx.input.setInputProcessor(gameManager.getCreateRoomScreen().getStage());
-                    gameManager.setScreen(gameManager.getCreateRoomScreen());
+                    Gdx.input.setInputProcessor(gameManager.getRoomJoinedScreen().getStage());
+                    gameManager.setScreen(gameManager.getRoomJoinedScreen());
 
                 }
                 catch (JSONException e)
@@ -188,16 +250,20 @@ public class FindRoomScreen implements Screen{
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if(roomToAdd!=null)
+        if(roomsToAdd.size > 0)
         {
-            AddRoom(roomToAdd);
-            roomToAdd = null;
+            for(String roomName: roomsToAdd) {
+                AddRoom(roomName);
+            }
+            roomsToAdd.clear();
         }
 
-        if(roomToRemove!=null)
+        if(roomsToRemove.size>0)
         {
-            RemoveRoom(roomToRemove);
-            roomToRemove = null;
+            for(String roomName: roomsToRemove) {
+                RemoveRoom(roomName);
+            }
+            roomsToRemove.clear();
         }
 
         //draw sprite

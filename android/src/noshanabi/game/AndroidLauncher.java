@@ -230,9 +230,12 @@ public class AndroidLauncher extends FragmentActivity implements AndroidFragment
 	}
 
 	@Override
-	public String getUserName()
-	{
-		return FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+	public String getUserName() {
+		if (FirebaseAuth.getInstance().getCurrentUser() != null)
+			return FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+		else {
+			return null;
+		}
 	}
 
 }

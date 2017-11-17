@@ -6,6 +6,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.kotcrab.vis.ui.VisUI;
 
 import noshanabi.game.Extensions.PlayerServices;
 import noshanabi.game.Screens.CreateRoomScreen;
@@ -15,6 +16,7 @@ import noshanabi.game.Screens.LoginScreen;
 import noshanabi.game.Screens.MapSelectionScreen;
 import noshanabi.game.Screens.MenuScreen;
 import noshanabi.game.Screens.ModeSelectionScreen;
+import noshanabi.game.Screens.RoomJoinedScreen;
 import noshanabi.game.Server.ServerCreator;
 
 //manage audio, sprite, world width, world height, etc.
@@ -45,6 +47,7 @@ public class GameManager extends Game {
 	private ModeSelectionScreen modeSelectionScreen;
 	private CreateRoomScreen createRoomScreen;
 	private FindRoomScreen findRoomScreen;
+	private RoomJoinedScreen roomJoinedScreen;
 
 	//--SERVER--//
 	private ServerCreator server;
@@ -61,6 +64,8 @@ public class GameManager extends Game {
 
 		batch = new SpriteBatch();
 
+		VisUI.load(VisUI.SkinScale.X2);
+
 		//init screens
 		menuScreen = new MenuScreen(this);
 		mapSelectionScreen = new MapSelectionScreen(this);
@@ -69,9 +74,13 @@ public class GameManager extends Game {
 		modeSelectionScreen = new ModeSelectionScreen(this);
 		createRoomScreen = new CreateRoomScreen(this);
 		findRoomScreen = new FindRoomScreen(this);
+		roomJoinedScreen = new RoomJoinedScreen(this);
 
 		//init server
 		server = new ServerCreator(this);
+
+		//set this because we want find room screen to listen to getRooms event
+		server.setServerListener(findRoomScreen);
 
 		//init audio
 		audioManager = new AssetManager();
@@ -81,6 +90,7 @@ public class GameManager extends Game {
 		Gdx.input.setInputProcessor(menuScreen.getStage());
 		//setScreen(new PlayScreen(this, "maps/map0/map.tmx"));
 		setScreen(menuScreen);
+
 
 	}
 
@@ -120,10 +130,18 @@ public class GameManager extends Game {
 		gameOverScreen.dispose();
 		modeSelectionScreen.dispose();
 		findRoomScreen.dispose();
+		roomJoinedScreen.dispose();
+
+		if(getScreen()!=null)
+		{
+			getScreen().dispose();
+		}
 
 		if(server!=null) {
 			server.dispose();
 		}
+
+		VisUI.dispose();
 
 	}
 
@@ -167,5 +185,9 @@ public class GameManager extends Game {
 
 	public FindRoomScreen getFindRoomScreen() {
 		return findRoomScreen;
+	}
+
+	public RoomJoinedScreen getRoomJoinedScreen() {
+		return roomJoinedScreen;
 	}
 }

@@ -33,15 +33,14 @@ public class ServerCreator {
     private HashMap<String,FriendPlayer> otherPlayers;
     private Player mainPlayer;
     private String disconnectedPlayerID;
-    private boolean isRoomExisted;
 
+    private ServerListener serverListener;
 
     public ServerCreator(GameManager gameManager)
     {
         this.gameManager = gameManager;
         if(!createServer) return;
         otherPlayers = new HashMap<String, FriendPlayer>();
-        isRoomExisted = true;
 
     }
 
@@ -57,8 +56,8 @@ public class ServerCreator {
         try
         {
             //Connect to server (server is the index.js file, kind of ..)
-            //socket = IO.socket("https://runandroidstudiolibgdx.herokuapp.com");
-            socket = IO.socket("http://localhost:5000");
+            socket = IO.socket("https://runandroidstudiolibgdx.herokuapp.com");
+            //socket = IO.socket("http://localhost:5000");
             socket.connect();
 
         }
@@ -131,6 +130,13 @@ public class ServerCreator {
             }
         });
 
+        socket.on("getRooms", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                serverListener.OnGetRooms(args);
+            }
+        });
+
         //get all other players
         socket.on("getOtherPlayers", new Emitter.Listener() {
             @Override
@@ -152,15 +158,8 @@ public class ServerCreator {
             @Override
             public void call(Object... args) {
 
-                try {
-                    JSONObject data = (JSONObject) args[0];
-                    String roomName = data.getString("roomName");
-                    gameManager.getFindRoomScreen().addRoom(roomName);
+                serverListener.OnRoomCreated(args);
 
-                } catch (JSONException e) {
-                    Gdx.app.log("SocketIO", "Error joining room");
-                    e.printStackTrace();
-                }
 
             }
         });
@@ -168,29 +167,25 @@ public class ServerCreator {
         socket.on("roomRemoved", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                try {
-                    JSONObject data = (JSONObject) args[0];
-                    String roomName = data.getString("roomName");
-                    gameManager.getFindRoomScreen().removeRoom(roomName);
 
-                } catch (JSONException e) {
-                    Gdx.app.log("SocketIO", "Error joining room");
-                    e.printStackTrace();
-                }
+                serverListener.OnRoomRemoved(args);
+
             }
         });
 
         socket.on("socketRoomCreated", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                isRoomExisted = false;
+                Gdx.app.log("SocketIO", "You created a room ");
+                serverListener.OnSocketRoomCreated(args);
             }
         });
 
         socket.on("roomExisted", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                isRoomExisted = true;
+                Gdx.app.log("SocketIO", "this room is existed");
+                serverListener.OnRoomExisted(args);
             }
         });
 
@@ -213,7 +208,7 @@ public class ServerCreator {
         socket.on("roomJoined", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                gameManager.getCreateRoomScreen().addPlayer("player");
+                serverListener.OnRoomJoined(args);
             }
         });
 
@@ -287,6 +282,7 @@ public class ServerCreator {
             Gdx.app.log("SocketIO", "Error getting new player ID");
             e.printStackTrace();
         }
+
 
     }
 
@@ -419,7 +415,8 @@ public class ServerCreator {
         }
     }
 
-    public boolean isRoomExisted() {
-        return isRoomExisted;
+
+    public void setServerListener(ServerListener serverListener) {
+        this.serverListener = serverListener;
     }
 }

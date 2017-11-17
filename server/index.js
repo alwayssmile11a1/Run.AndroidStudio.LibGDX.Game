@@ -2,8 +2,6 @@ var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-var players = {};
-
 //store all the current rooms. In each room, store all the players
 var rooms = {};
 
@@ -25,6 +23,8 @@ io.on('connection',function(socket){
 
     //emit the id to the client's socket only
     socket.emit('connected',{id: socket.id });
+
+    socket.emit('getRooms', rooms);
 
     socket.on('createRoom', function(data){
 
@@ -60,25 +60,32 @@ io.on('connection',function(socket){
 
     socket.on('joinRoom', function(data){
 
-        // store the room name in the socket session for this client
-        socket.room = data.roomName;
+        if(getRoomLength(data.roomName)<4)
+        {
+            // store the room name in the socket session for this client
+            socket.room = data.roomName;
 
-        //send the client the this room
-        socket.join(data.roomName);
+            //send the client the this room
+            socket.join(data.roomName);
 
-        socket.emit('socketRoomJoined',{roomName: data.roomName});
+            socket.emit('socketRoomJoined',{roomName: data.roomName});
 
-        socket.broadcast.to(data.roomName).emit('roomJoined',{roomName: data.roomName});
+            socket.broadcast.to(data.roomName).emit('roomJoined',{roomName: data.roomName});
 
-        //emit all other players in this room to client's socket only
-        socket.emit('getOtherPlayers' ,rooms[data.roomName]);
+            //emit all other players in this room to client's socket only
+            socket.emit('getOtherPlayers' ,rooms[data.roomName]);
 
-        //push socket client player to players hash table, so other connected players know about socket client player
-        rooms[data.roomName][socket.id] = new player(socket.id,2,2,0);
+            //push socket client player to players hash table, so other connected players know about socket client player
+            rooms[data.roomName][socket.id] = new player(socket.id,2,2,0);
 
-        //emit new player event to everyone, but the client's socket
-        socket.broadcast.to(data.roomName).emit('newPlayer', {id: socket.id});
+            //emit new player event to everyone, but the client's socket
+            socket.broadcast.to(data.roomName).emit('newPlayer', {id: socket.id});
 
+        }
+        else
+        {
+            socket.emit('roomFull');
+        }
     });
 
     socket.on('leaveRoom', function(){
@@ -89,17 +96,8 @@ io.on('connection',function(socket){
 
             delete rooms[socket.room][socket.id];
 
-            //get the length of hash table
-            var count = 0;
-            var i;
-            for (i in rooms[socket.room]) {
-            if (rooms[socket.room].hasOwnProperty(i)) {
-                    count++;
-                }
-            }
-
             //if there is no one left in this room, delete it
-            if(count<=0)
+            if(getRoomLength(socket.room)<=0)
             {
                 delete rooms[socket.room];
                 console.log("Room "+ socket.room + " removed");
@@ -145,17 +143,8 @@ io.on('connection',function(socket){
         {
             delete rooms[socket.room][socket.id];
 
-            //get the length of hash table
-            var count = 0;
-            var i;
-            for (i in rooms[socket.room]) {
-            if (rooms[socket.room].hasOwnProperty(i)) {
-                count++;
-                }
-            }
-
             //if there is no one left in this room, delete it
-            if(count<=0)
+            if(getRoomLength(socket.room)<=0)
             {
                 delete rooms[socket.room];
                 console.log("Room "+ socket.room + " removed");
@@ -172,6 +161,22 @@ io.on('connection',function(socket){
 
 
 });
+
+function getRoomLength(roomName)
+{
+    //get the length of hash table
+    var count = 0;
+    var i;
+    var players = rooms[roomName];
+    for (i in players) {
+        if (players.hasOwnProperty(i)) {
+            count++;
+        }
+    }
+
+    return count;
+
+}
 
 //player struct
 function player(id,x,y,rotation){

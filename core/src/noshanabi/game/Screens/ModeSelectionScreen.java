@@ -70,6 +70,7 @@ public class ModeSelectionScreen implements Screen {
         findRoomLabel.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                gameManager.getServer().setServerListener(gameManager.getFindRoomScreen());
                 Gdx.input.setInputProcessor(gameManager.getFindRoomScreen().getStage());
                 gameManager.setScreen(gameManager.getFindRoomScreen());
                 return true;
@@ -80,8 +81,7 @@ public class ModeSelectionScreen implements Screen {
         createRoomLabel.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-                Gdx.input.getTextInput(gameManager.getCreateRoomScreen(), "Enter your room name:", "", "Room name ...");
+                gameManager.getServer().setServerListener(gameManager.getCreateRoomScreen());
                 Gdx.input.setInputProcessor(gameManager.getCreateRoomScreen().getStage());
                 gameManager.setScreen(gameManager.getCreateRoomScreen());
 
