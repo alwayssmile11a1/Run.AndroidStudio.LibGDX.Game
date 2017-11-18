@@ -57,6 +57,10 @@ public class FindRoomScreen implements Screen, ServerListener{
 
     private Array<String> roomsToRemove;
 
+    private boolean isRoomFull;
+
+    private boolean needSwitchScreen;
+
     public FindRoomScreen(GameManager _gameManager) {
         //set up constructor variables
         this.gameManager = _gameManager;
@@ -69,6 +73,9 @@ public class FindRoomScreen implements Screen, ServerListener{
 
         roomsToAdd = new Array<String>();
         roomsToRemove = new Array<String>();
+
+        isRoomFull = true;
+        needSwitchScreen = false;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
         viewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
@@ -170,7 +177,7 @@ public class FindRoomScreen implements Screen, ServerListener{
 
     @Override
     public void OnSocketRoomJoined(Object... args) {
-
+        isRoomFull = false;
     }
 
     @Override
@@ -193,7 +200,7 @@ public class FindRoomScreen implements Screen, ServerListener{
 
             JSONObject data = (JSONObject) args[0];
             String roomName = data.getString("roomName");
-            addRoom(roomName);
+            roomsToAdd.add(roomName);
 
         } catch (JSONException e) {
             Gdx.app.log("SocketIO", "Error adding room");
@@ -206,7 +213,7 @@ public class FindRoomScreen implements Screen, ServerListener{
         try {
             JSONObject data = (JSONObject) args[0];
             String roomName = data.getString("roomName");
-            removeRoom(roomName);
+            roomsToRemove.add(roomName);
 
         } catch (JSONException e) {
             Gdx.app.log("SocketIO", "Error removing room");
@@ -224,17 +231,17 @@ public class FindRoomScreen implements Screen, ServerListener{
 
     }
 
-    public void addRoom(String roomName)
-    {
-        roomsToAdd.add(roomName);
+    @Override
+    public void OnRoomFull(Object... args) {
+        isRoomFull = true;
     }
 
-    public void removeRoom(String roomName)
-    {
-        roomsToRemove.add(roomName);
+    @Override
+    public void OnGameJoined(Object... args) {
+
     }
 
-    private void AddRoom(final String roomName)
+    private void addRoom(final String roomName)
     {
         VisLabel roomLabel = new VisLabel(roomName);
         roomLabel.addListener(new InputListener() {
@@ -245,9 +252,7 @@ public class FindRoomScreen implements Screen, ServerListener{
                     JSONObject data = new JSONObject();
                     data.put("roomName", roomName);
                     gameManager.getServer().getSocket().emit("joinRoom", data);
-
-                    Gdx.input.setInputProcessor(gameManager.getRoomJoinedScreen().getStage());
-                    gameManager.setScreen(gameManager.getRoomJoinedScreen());
+                    needSwitchScreen = true;
 
                 }
                 catch (JSONException e)
@@ -266,7 +271,7 @@ public class FindRoomScreen implements Screen, ServerListener{
         roomList.put(roomName,roomLabel);
     }
 
-    private void RemoveRoom(String roomName)
+    private void removeRoom(String roomName)
     {
         roomTable.removeActor(roomList.get(roomName));
         roomList.remove(roomName);
@@ -279,7 +284,7 @@ public class FindRoomScreen implements Screen, ServerListener{
         if(roomsToAdd.size > 0)
         {
             for(String roomName: roomsToAdd) {
-                AddRoom(roomName);
+                addRoom(roomName);
             }
             roomsToAdd.clear();
         }
@@ -287,9 +292,18 @@ public class FindRoomScreen implements Screen, ServerListener{
         if(roomsToRemove.size>0)
         {
             for(String roomName: roomsToRemove) {
-                RemoveRoom(roomName);
+                removeRoom(roomName);
             }
             roomsToRemove.clear();
+        }
+
+        if(!isRoomFull && needSwitchScreen)
+        {
+            RoomJoinedScreen roomJoinedScreen = gameManager.getRoomJoinedScreen();
+            Gdx.input.setInputProcessor(roomJoinedScreen.getStage());
+            roomJoinedScreen.ownRoomMode(false);
+            gameManager.setScreen(roomJoinedScreen);
+            needSwitchScreen = false;
         }
 
         //draw sprite

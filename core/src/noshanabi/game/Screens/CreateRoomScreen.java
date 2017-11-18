@@ -97,7 +97,14 @@ public class CreateRoomScreen implements Screen, ServerListener{
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                if(!roomNameTextArea.getText().isEmpty() && gameManager.getServer()!=null) {
+                if(!gameManager.getServer().getSocket().connected())
+                {
+                    errorLabel.setText("Can not connect to server, try again");
+                    gameManager.connectToServer();
+                    return true;
+                }
+
+                if(!roomNameTextArea.getText().isEmpty()) {
                     JSONObject data = new JSONObject();
                     try {
                         data.put("roomName", roomNameTextArea.getText());
@@ -236,6 +243,16 @@ public class CreateRoomScreen implements Screen, ServerListener{
     }
 
     @Override
+    public void OnRoomFull(Object... args) {
+
+    }
+
+    @Override
+    public void OnGameJoined(Object... args) {
+
+    }
+
+    @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -244,8 +261,11 @@ public class CreateRoomScreen implements Screen, ServerListener{
         {
             errorLabel.setText("");
             isRoomExisted = true;
-            Gdx.input.setInputProcessor(gameManager.getRoomJoinedScreen().getStage());
-            gameManager.setScreen(gameManager.getRoomJoinedScreen());
+
+            RoomJoinedScreen roomJoinedScreen = gameManager.getRoomJoinedScreen();
+            Gdx.input.setInputProcessor(roomJoinedScreen.getStage());
+            roomJoinedScreen.ownRoomMode(true);
+            gameManager.setScreen(roomJoinedScreen);
         }
 
 

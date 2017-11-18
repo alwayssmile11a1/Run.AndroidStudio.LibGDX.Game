@@ -79,6 +79,11 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
     private HashMap<String, Image> players;
 
+    private Group mapGroup;
+
+    private boolean needSwitchScreen;
+
+
 
     public RoomJoinedScreen(GameManager _gameManager) {
         //set up constructor variables
@@ -101,6 +106,8 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         playerTexture = new Texture("images/bird.png");
 
         players = new HashMap<String, Image>();
+
+        needSwitchScreen = false;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
         viewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
@@ -181,7 +188,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
     {
         //-----LOAD MAP TEXTURES AND MAP IMAGES
         //Create group
-        Group mapGroup = new Group();
+        mapGroup = new Group();
 
         mapTextures = new Array<Texture>();
         mapImages = new Array<Image>();
@@ -214,6 +221,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
                     PlayScreen playScreen = new PlayScreen(gameManager, mapName);
                     playScreen.setServer(gameManager.getServer());
                     Gdx.input.setInputProcessor(null);
+                    gameManager.getServer().getSocket().emit("joinGame");
                     gameManager.setScreen(playScreen);
 
                     return true;
@@ -222,7 +230,6 @@ public class RoomJoinedScreen implements Screen, ServerListener {
             });
 
             mapGroup.addActor(mapImages.get(i));
-
         }
 
 
@@ -394,6 +401,32 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
     }
 
+    @Override
+    public void OnRoomFull(Object... args) {
+
+    }
+
+    @Override
+    public void OnGameJoined(Object... args) {
+        needSwitchScreen = true;
+    }
+
+
+    public void ownRoomMode(boolean ownRoom)
+    {
+        if(ownRoom)
+        {
+            mapGroup.setTouchable(Touchable.enabled);
+            nextMapButton.setVisible(true);
+            previousMapButton.setVisible(true);
+        }
+        else
+        {
+            mapGroup.setTouchable(Touchable.disabled);
+            nextMapButton.setVisible(false);
+            previousMapButton.setVisible(false);
+        }
+    }
 
     @Override
     public void render(float delta) {
@@ -415,6 +448,14 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
             }
             playersToRemove.clear();
+        }
+
+        if(needSwitchScreen==true) {
+            //perform touch down event
+            InputEvent event = new InputEvent();
+            event.setType(InputEvent.Type.touchDown);
+            mapImages.get(transitionCount).fire(event);
+            needSwitchScreen = false;
         }
 
 
@@ -450,6 +491,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
         stage.draw();
     }
+
 
     @Override
     public void resize(int width, int height) {

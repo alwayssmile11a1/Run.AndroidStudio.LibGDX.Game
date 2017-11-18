@@ -258,6 +258,26 @@ public class ServerCreator {
             }
         });
 
+        socket.on("roomFull", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Gdx.app.log("SocketIO", "Room is full");
+
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnRoomFull(args);
+                }
+            }
+        });
+
+        socket.on("gameJoined", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnGameJoined(args);
+                }
+            }
+        });
+
     }
 
     public void handlePlayerMovedEvent(Object... args) {

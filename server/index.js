@@ -117,6 +117,12 @@ io.on('connection',function(socket){
 
     });
 
+    socket.on('joinGame',function()
+    {
+       socket.broadcast.emit('gameJoined');
+
+    });
+
     //when the client emits this event, emit the position, rotation,..etc.. to other players
     socket.on('socketPlayerMoved',function(data){
         //put the id in for the sake of quick searching

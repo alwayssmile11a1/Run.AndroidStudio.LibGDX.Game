@@ -26,4 +26,8 @@ public interface ServerListener {
 
     public void OnRoomLeaved(Object... args);
 
+    public void OnRoomFull(Object... args);
+
+    public void OnGameJoined(Object... args);
+
 }
