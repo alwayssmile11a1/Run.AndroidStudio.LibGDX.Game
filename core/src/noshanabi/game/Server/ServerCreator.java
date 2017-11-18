@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,14 +35,14 @@ public class ServerCreator {
     private Player mainPlayer;
     private String disconnectedPlayerID;
 
-    private ServerListener serverListener;
+    private Array<ServerListener> serverListeners;
 
     public ServerCreator(GameManager gameManager)
     {
         this.gameManager = gameManager;
         if(!createServer) return;
         otherPlayers = new HashMap<String, FriendPlayer>();
-
+        serverListeners = new Array<ServerListener>();
     }
 
     public void SetMainPlayer(Player mainPlayer)
@@ -56,8 +57,8 @@ public class ServerCreator {
         try
         {
             //Connect to server (server is the index.js file, kind of ..)
-            socket = IO.socket("https://runandroidstudiolibgdx.herokuapp.com");
-            //socket = IO.socket("http://localhost:5000");
+            //socket = IO.socket("https://runandroidstudiolibgdx.herokuapp.com");
+            socket = IO.socket("http://localhost:5000");
             socket.connect();
 
         }
@@ -133,7 +134,10 @@ public class ServerCreator {
         socket.on("getRooms", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                serverListener.OnGetRooms(args);
+
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnGetRooms(args);
+                }
             }
         });
 
@@ -141,7 +145,9 @@ public class ServerCreator {
         socket.on("getOtherPlayers", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnGetOtherPlayers(args);
+                }
 				handleGetOtherPlayersEvent(args);
             }
         });
@@ -157,8 +163,9 @@ public class ServerCreator {
         socket.on("roomCreated", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-
-                serverListener.OnRoomCreated(args);
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnRoomCreated(args);
+                }
 
 
             }
@@ -167,8 +174,9 @@ public class ServerCreator {
         socket.on("roomRemoved", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-
-                serverListener.OnRoomRemoved(args);
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnRoomRemoved(args);
+                }
 
             }
         });
@@ -177,7 +185,9 @@ public class ServerCreator {
             @Override
             public void call(Object... args) {
                 Gdx.app.log("SocketIO", "You created a room ");
-                serverListener.OnSocketRoomCreated(args);
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnSocketRoomCreated(args);
+                }
             }
         });
 
@@ -185,16 +195,21 @@ public class ServerCreator {
             @Override
             public void call(Object... args) {
                 Gdx.app.log("SocketIO", "this room is existed");
-                serverListener.OnRoomExisted(args);
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnRoomExisted(args);
+                }
             }
         });
 
         socket.on("socketRoomJoined", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                JSONObject data = (JSONObject) args[0];
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnSocketRoomJoined(args);
+                }
 
                 try {
+                    JSONObject data = (JSONObject) args[0];
                     String roomName = data.getString("roomName");
                     Gdx.app.log("SocketIO", "You joined room " + roomName );
 
@@ -208,14 +223,20 @@ public class ServerCreator {
         socket.on("roomJoined", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                serverListener.OnRoomJoined(args);
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnRoomJoined(args);
+                }
             }
         });
 
 
-        socket.on("roomLeaved", new Emitter.Listener() {
+        socket.on("socketRoomLeaved", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnSocketRoomLeaved(args);
+                }
+
                 try {
                     JSONObject data = (JSONObject) args[0];
                     String roomName = data.getString("roomName");
@@ -224,6 +245,15 @@ public class ServerCreator {
                 } catch (JSONException e) {
                     Gdx.app.log("SocketIO", "Error leaving room");
                     e.printStackTrace();
+                }
+            }
+        });
+
+        socket.on("roomLeaved", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnRoomLeaved(args);
                 }
             }
         });
@@ -416,7 +446,7 @@ public class ServerCreator {
     }
 
 
-    public void setServerListener(ServerListener serverListener) {
-        this.serverListener = serverListener;
+    public void addServerListener(ServerListener serverListener) {
+        serverListeners.add(serverListener);
     }
 }

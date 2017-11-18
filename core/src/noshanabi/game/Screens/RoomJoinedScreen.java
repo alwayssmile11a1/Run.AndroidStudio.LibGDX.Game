@@ -14,14 +14,17 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kotcrab.vis.ui.widget.VisTable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Iterator;
 
 import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
 import noshanabi.game.ButtonPrefabs.SignOutButton;
@@ -66,11 +69,16 @@ public class RoomJoinedScreen implements Screen, ServerListener {
     private int transitionCount;
     private int transitionSpeed;
 
-    private Table playersTable;
+    private VisTable playersTable;
 
     private Texture playerTexture;
 
-    private String playerToAdd;
+    private Array<String> playersToAdd;
+
+    private Array<String> playersToRemove;
+
+    private HashMap<String, Image> players;
+
 
     public RoomJoinedScreen(GameManager _gameManager) {
         //set up constructor variables
@@ -79,6 +87,9 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         //color to clear this screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
 
+        playersToAdd = new Array<String>();
+        playersToRemove = new Array<String>();
+
         transitionUp = -1;
         transitionDistance = 0;
         transitionCount = 0;
@@ -86,6 +97,10 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
         backGround = new Sprite(new Texture("images/BlueBackground.png"));
         backGround.setSize(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+
+        playerTexture = new Texture("images/bird.png");
+
+        players = new HashMap<String, Image>();
 
         //-----------------VIEW RELATED VARIABLES-----------------//
         viewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
@@ -96,13 +111,10 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         setupMapGroup();
 
         //-----------------all players group -------------
-        playersTable = new Table();
+        playersTable = new VisTable();
 
         playersTable.setPosition(50,50);
         playersTable.setSize(100,gameManager.WORLDHEIGHT-playersTable.getY()*2);
-
-        addPlayer();
-
         stage.addActor(playersTable);
 
 
@@ -270,17 +282,6 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         stage.addActor(mapGroup);
     }
 
-    private void addPlayer()
-    {
-        playerTexture = new Texture("images/bird.png");
-
-        Image playerImage = new Image(playerTexture);
-
-        playersTable.add(playerImage).size(50,50);
-
-        playersTable.row();
-
-    }
 
     @Override
     public void OnSocketRoomCreated(Object... args) {
@@ -293,51 +294,129 @@ public class RoomJoinedScreen implements Screen, ServerListener {
     }
 
     @Override
-    public void OnRoomJoined(Object... args) {
-        playerToAdd = "player";
-    }
-
-    @Override
     public void OnGetRooms(Object... args) {
 
     }
 
     @Override
     public void OnRoomCreated(Object... args) {
-        try {
 
-            JSONObject data = (JSONObject) args[0];
-            String roomName = data.getString("roomName");
-            gameManager.getFindRoomScreen().addRoom(roomName);
-
-        } catch (JSONException e) {
-            Gdx.app.log("SocketIO", "Error adding room");
-            e.printStackTrace();
-        }
     }
 
     @Override
     public void OnRoomRemoved(Object... args) {
-        try {
-            JSONObject data = (JSONObject) args[0];
-            String roomName = data.getString("roomName");
-            gameManager.getFindRoomScreen().removeRoom(roomName);
 
-        } catch (JSONException e) {
-            Gdx.app.log("SocketIO", "Error removing room");
-            e.printStackTrace();
+    }
+
+    @Override
+    public void OnGetOtherPlayers(Object... args) {
+
+        JSONObject objects = (JSONObject) args[0];
+
+        //get all the keys
+        Iterator<String> iter = objects.keys();
+
+        //loop through all
+        while (iter.hasNext()) {
+            String otherPlayerID = iter.next();
+
+            playersToAdd.add(otherPlayerID);
+
         }
     }
+
+    private void addPlayer(String playerID)
+    {
+        Image playerImage = new Image(playerTexture);
+        players.put(playerID, playerImage);
+        playersTable.add(playerImage).padBottom(20f).size(50,50);
+        playersTable.row();
+
+    }
+
+    private void removePlayer(String playerID)
+    {
+        //clear table to add again
+        playersTable.clear();
+        players.remove(playerID);
+
+        for(HashMap.Entry<String,Image> entry : players.entrySet())
+        {
+            playersTable.add(entry.getValue()).padBottom(20f).size(50,50);
+            playersTable.row();
+
+        }
+    }
+
+    @Override
+    public void OnRoomJoined(Object... args) {
+
+        JSONObject data = (JSONObject) args[0];
+
+        try {
+            String id = data.getString("id");
+            playersToAdd.add(id);
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error getting ID");
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void OnSocketRoomJoined(Object... args) {
+        playersToAdd.add("mainPlayer");
+    }
+
+    @Override
+    public void OnSocketRoomLeaved(Object... args) {
+        playersTable.clear();
+        playersToRemove.clear();
+        playersToRemove.clear();
+        players.clear();
+    }
+
+    @Override
+    public void OnRoomLeaved(Object... args) {
+
+        JSONObject data = (JSONObject) args[0];
+
+        try {
+            String id = data.getString("id");
+            playersToRemove.add(id);
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error getting ID");
+            e.printStackTrace();
+        }
+
+
+    }
+
 
     @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if(playerToAdd!=null)
+        if(playersToAdd.size>0)
         {
-            addPlayer();
-            playerToAdd = null;
+            for(String player: playersToAdd) {
+                addPlayer(player);
+
+            }
+            playersToAdd.clear();
         }
+
+        if(playersToRemove.size>0)
+        {
+            for(String player: playersToRemove) {
+                removePlayer(player);
+
+            }
+            playersToRemove.clear();
+        }
+
 
         //transition map
         if (transitionUp !=-1) {

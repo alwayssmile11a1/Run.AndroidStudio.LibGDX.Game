@@ -2,17 +2,15 @@ package noshanabi.game.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kotcrab.vis.ui.widget.VisLabel;
 
 import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
 import noshanabi.game.ButtonPrefabs.SignOutButton;
@@ -59,18 +57,13 @@ public class ModeSelectionScreen implements Screen {
 
 
         //---------------FIND ROOM AND CREATE ROOM LABEL --------------
-        Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
-        Label findRoomLabel = new Label("FIND ROOM", labelStyle);
-        Label createRoomLabel = new Label("CREATE ROOM", labelStyle);
-
-        findRoomLabel.setFontScale(2);
-        createRoomLabel.setFontScale(2);
+        VisLabel findRoomLabel = new VisLabel("FIND ROOM");
+        VisLabel createRoomLabel = new VisLabel("CREATE ROOM");
 
         //add listener
         findRoomLabel.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                gameManager.getServer().setServerListener(gameManager.getFindRoomScreen());
                 Gdx.input.setInputProcessor(gameManager.getFindRoomScreen().getStage());
                 gameManager.setScreen(gameManager.getFindRoomScreen());
                 return true;
@@ -81,7 +74,6 @@ public class ModeSelectionScreen implements Screen {
         createRoomLabel.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                gameManager.getServer().setServerListener(gameManager.getCreateRoomScreen());
                 Gdx.input.setInputProcessor(gameManager.getCreateRoomScreen().getStage());
                 gameManager.setScreen(gameManager.getCreateRoomScreen());
 
@@ -138,16 +130,17 @@ public class ModeSelectionScreen implements Screen {
 
 
         //------------------USER INFORMATION ----------------------
-        Label userNameLabel = new Label("USER NAME", labelStyle);
-        if (gameManager.getPlayerServices() != null && gameManager.getPlayerServices().isSignedIn()) {
+        VisLabel userNameLabel = new VisLabel("USER NAME");
+        userNameLabel.setFontScale(0.5f);
+        if (gameManager.getPlayerServices() != null) {
             userNameLabel.setText(gameManager.getPlayerServices().getUserName());
         }
-        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnScreenButton.getY()+15);
+        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth(), returnScreenButton.getY() + 15);
 
         group.addActor(userNameLabel);
 
 
-        //add to actor
+        //add to stage
         stage.addActor(group);
     }
 

@@ -18,5 +18,12 @@ public interface ServerListener {
 
     public void OnRoomRemoved(Object... args);
 
+    public void OnGetOtherPlayers(Object... args);
+
+    public void OnSocketRoomJoined(Object... args);
+
+    public void OnSocketRoomLeaved(Object... args);
+
+    public void OnRoomLeaved(Object... args);
 
 }

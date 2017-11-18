@@ -2,21 +2,20 @@ package noshanabi.game.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisScrollPane;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -113,12 +112,12 @@ public class FindRoomScreen implements Screen, ServerListener{
         group.addActor(signOutButton);
 
         //------------------USER INFORMATION ----------------------
-        Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
-        Label userNameLabel = new Label("USER NAME", labelStyle);
+        VisLabel userNameLabel = new VisLabel("USER NAME");
+        userNameLabel.setFontScale(0.5f);
         if (gameManager.getPlayerServices() != null) {
             userNameLabel.setText(gameManager.getPlayerServices().getUserName());
         }
-        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnScreenButton.getY() + 15);
+        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth(), returnScreenButton.getY() + 15);
 
         group.addActor(userNameLabel);
 
@@ -131,7 +130,7 @@ public class FindRoomScreen implements Screen, ServerListener{
         roomList = new HashMap<String, Label>();
         roomTable = new Table();
 
-        ScrollPane scrollPane = new ScrollPane(roomTable);
+        VisScrollPane scrollPane = new VisScrollPane(roomTable);
         scrollPane.setSize(gameManager.WORLDWIDTH/1.5f,gameManager.WORLDHEIGHT-100);
         scrollPane.setPosition(gameManager.WORLDWIDTH/2-scrollPane.getWidth()/2,50);
 
@@ -142,7 +141,16 @@ public class FindRoomScreen implements Screen, ServerListener{
 
     @Override
     public void OnSocketRoomCreated(Object... args) {
+        try {
 
+            JSONObject data = (JSONObject) args[0];
+            String roomName = data.getString("roomName");
+            addRoom(roomName);
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error adding room");
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -152,6 +160,16 @@ public class FindRoomScreen implements Screen, ServerListener{
 
     @Override
     public void OnRoomJoined(Object... args) {
+
+    }
+
+    @Override
+    public void OnGetOtherPlayers(Object... args) {
+
+    }
+
+    @Override
+    public void OnSocketRoomJoined(Object... args) {
 
     }
 
@@ -196,6 +214,16 @@ public class FindRoomScreen implements Screen, ServerListener{
         }
     }
 
+    @Override
+    public void OnSocketRoomLeaved(Object... args) {
+
+    }
+
+    @Override
+    public void OnRoomLeaved(Object... args) {
+
+    }
+
     public void addRoom(String roomName)
     {
         roomsToAdd.add(roomName);
@@ -208,9 +236,7 @@ public class FindRoomScreen implements Screen, ServerListener{
 
     private void AddRoom(final String roomName)
     {
-        Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
-        Label roomLabel = new Label(roomName, labelStyle);
-        roomLabel.setFontScale(1.5f);
+        VisLabel roomLabel = new VisLabel(roomName);
         roomLabel.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {

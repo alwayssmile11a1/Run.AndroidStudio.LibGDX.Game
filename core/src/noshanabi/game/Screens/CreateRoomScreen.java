@@ -5,13 +5,11 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -31,7 +29,7 @@ import noshanabi.game.Server.ServerListener;
  * Created by 2SMILE2 on 13/11/2017.
  */
 
-        public class CreateRoomScreen implements Screen, ServerListener{
+public class CreateRoomScreen implements Screen, ServerListener{
 
     //viewport
     private Viewport viewport;
@@ -171,18 +169,17 @@ import noshanabi.game.Server.ServerListener;
         group.addActor(signOutButton);
 
         //------------------USER INFORMATION ----------------------
-        Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
-        Label userNameLabel = new Label("USER NAME", labelStyle);
-        if (gameManager.getPlayerServices() != null && gameManager.getPlayerServices().isSignedIn()) {
+        VisLabel userNameLabel = new VisLabel("USER NAME");
+        userNameLabel.setFontScale(0.5f);
+        if (gameManager.getPlayerServices() != null) {
             userNameLabel.setText(gameManager.getPlayerServices().getUserName());
         }
-        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnScreenButton.getY() + 15);
+        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth(), returnScreenButton.getY() + 15);
 
         group.addActor(userNameLabel);
 
 
-
-        //add to actor
+        //add to stage
         stage.addActor(group);
 
     }
@@ -210,29 +207,32 @@ import noshanabi.game.Server.ServerListener;
 
     @Override
     public void OnRoomCreated(Object... args) {
-        try {
 
-            JSONObject data = (JSONObject) args[0];
-            String roomName = data.getString("roomName");
-            gameManager.getFindRoomScreen().addRoom(roomName);
-
-        } catch (JSONException e) {
-            Gdx.app.log("SocketIO", "Error adding room");
-            e.printStackTrace();
-        }
     }
 
     @Override
     public void OnRoomRemoved(Object... args) {
-        try {
-            JSONObject data = (JSONObject) args[0];
-            String roomName = data.getString("roomName");
-            gameManager.getFindRoomScreen().removeRoom(roomName);
 
-        } catch (JSONException e) {
-            Gdx.app.log("SocketIO", "Error removing room");
-            e.printStackTrace();
-        }
+    }
+
+    @Override
+    public void OnGetOtherPlayers(Object... args) {
+
+    }
+
+    @Override
+    public void OnSocketRoomJoined(Object... args) {
+
+    }
+
+    @Override
+    public void OnSocketRoomLeaved(Object... args) {
+
+    }
+
+    @Override
+    public void OnRoomLeaved(Object... args) {
+
     }
 
     @Override
@@ -244,7 +244,6 @@ import noshanabi.game.Server.ServerListener;
         {
             errorLabel.setText("");
             isRoomExisted = true;
-            gameManager.getServer().setServerListener(gameManager.getRoomJoinedScreen());
             Gdx.input.setInputProcessor(gameManager.getRoomJoinedScreen().getStage());
             gameManager.setScreen(gameManager.getRoomJoinedScreen());
         }

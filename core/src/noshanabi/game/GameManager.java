@@ -79,8 +79,10 @@ public class GameManager extends Game {
 		//init server
 		server = new ServerCreator(this);
 
-		//set this because we want find room screen to listen to getRooms event
-		server.setServerListener(findRoomScreen);
+		//add server listener
+		server.addServerListener(findRoomScreen);
+		server.addServerListener(createRoomScreen);
+		server.addServerListener(roomJoinedScreen);
 
 		//init audio
 		audioManager = new AssetManager();

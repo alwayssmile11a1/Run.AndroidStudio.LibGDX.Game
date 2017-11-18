@@ -37,7 +37,7 @@ io.on('connection',function(socket){
 
             socket.broadcast.emit('roomCreated', {roomName: data.roomName});
 
-            socket.emit('socketRoomCreated');
+            socket.emit('socketRoomCreated', {roomName: data.roomName});
 
             //send the client the this room
             socket.join(data.roomName);
@@ -70,7 +70,7 @@ io.on('connection',function(socket){
 
             socket.emit('socketRoomJoined',{roomName: data.roomName});
 
-            socket.broadcast.to(data.roomName).emit('roomJoined',{roomName: data.roomName});
+            socket.broadcast.to(data.roomName).emit('roomJoined',{id: socket.id});
 
             //emit all other players in this room to client's socket only
             socket.emit('getOtherPlayers' ,rooms[data.roomName]);
@@ -96,17 +96,20 @@ io.on('connection',function(socket){
 
             delete rooms[socket.room][socket.id];
 
+            socket.emit('socketRoomLeaved', {roomName: socket.room});
+
+            socket.broadcast.to(socket.room).emit('roomLeaved',{id: socket.id});
+
             //if there is no one left in this room, delete it
             if(getRoomLength(socket.room)<=0)
             {
                 delete rooms[socket.room];
                 console.log("Room "+ socket.room + " removed");
 
-                socket.broadcast.emit('roomRemoved', {roomName: socket.room});
+                io.sockets.emit('roomRemoved', {roomName: socket.room});
 
             }
-            //just for testing
-            socket.emit('roomLeaved', {roomName: socket.room});
+
 
             //leave room
             socket.leave(socket.room);
@@ -143,13 +146,17 @@ io.on('connection',function(socket){
         {
             delete rooms[socket.room][socket.id];
 
+            socket.emit('socketRoomLeaved', {roomName: socket.room});
+
+            socket.broadcast.to(socket.room).emit('roomLeaved',{id: socket.id});
+
             //if there is no one left in this room, delete it
             if(getRoomLength(socket.room)<=0)
             {
                 delete rooms[socket.room];
                 console.log("Room "+ socket.room + " removed");
 
-                socket.broadcast.emit('roomRemoved', {roomName: socket.room});
+                io.sockets.emit('roomRemoved', {roomName: socket.room});
             }
 
             //leave room
