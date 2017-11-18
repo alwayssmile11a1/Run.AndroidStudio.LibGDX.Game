@@ -33,7 +33,7 @@ public class ServerCreator {
     private Socket socket;
     private HashMap<String,FriendPlayer> otherPlayers;
     private Player mainPlayer;
-    private String disconnectedPlayerID;
+    private Array<FriendPlayer> playersToDispose;
 
     private Array<ServerListener> serverListeners;
 
@@ -43,6 +43,7 @@ public class ServerCreator {
         if(!createServer) return;
         otherPlayers = new HashMap<String, FriendPlayer>();
         serverListeners = new Array<ServerListener>();
+        playersToDispose = new Array<FriendPlayer>();
     }
 
     public void SetMainPlayer(Player mainPlayer)
@@ -112,31 +113,21 @@ public class ServerCreator {
 
         });
 
-
-        //new player connect event
-        socket.on("newPlayer", new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                handleNewPlayerEvent(args);
-
-            }
-        });
-
-        //when a player disconnected
-        socket.on("playerDisconnected", new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-             handlePlayerDisconnectEvent(args);
-
-            }
-        });
-
         socket.on("getRooms", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
 
                 for(ServerListener serverListener:serverListeners) {
                     serverListener.OnGetRooms(args);
+                }
+            }
+        });
+
+        socket.on("getMaxPlayersInRoom", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnGetMaxPlayersInRoom(args);
                 }
             }
         });
@@ -226,6 +217,7 @@ public class ServerCreator {
                 for(ServerListener serverListener:serverListeners) {
                     serverListener.OnRoomJoined(args);
                 }
+                handleRoomJoinedEvent(args);
             }
         });
 
@@ -255,16 +247,19 @@ public class ServerCreator {
                 for(ServerListener serverListener:serverListeners) {
                     serverListener.OnRoomLeaved(args);
                 }
+
+                handleRoomLeavedEvent(args);
+
             }
         });
 
-        socket.on("roomFull", new Emitter.Listener() {
+        socket.on("unableToJoinRoom", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                Gdx.app.log("SocketIO", "Room is full");
+                Gdx.app.log("SocketIO", "Room is unable to join");
 
                 for(ServerListener serverListener:serverListeners) {
-                    serverListener.OnRoomFull(args);
+                    serverListener.OnUnableToJoinRoom(args);
                 }
             }
         });
@@ -277,6 +272,34 @@ public class ServerCreator {
                 }
             }
         });
+
+        socket.on("mapTransitioned", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnMapTransitioned(args);
+                }
+            }
+        });
+
+        socket.on("playersCountChanged", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnPlayersCountChanged(args);
+                }
+            }
+        });
+
+        socket.on("roomStateChanged", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                for(ServerListener serverListener:serverListeners) {
+                    serverListener.OnRoomStateChanged(args);
+                }
+            }
+        });
+
 
     }
 
@@ -319,37 +342,6 @@ public class ServerCreator {
 
     }
 
-    public void handleNewPlayerEvent(Object... args) {
-        try {
-            JSONObject data = (JSONObject) args[0];
-            String id = data.getString("id");
-            Gdx.app.log("SocketIO", "New Player Connected: " + id);
-
-
-            otherPlayers.put(id, new FriendPlayer());
-
-        } catch (JSONException e) {
-            Gdx.app.log("SocketIO", "Error getting new player ID");
-            e.printStackTrace();
-        }
-
-
-    }
-
-    public void handlePlayerDisconnectEvent(Object... args)
-    {
-
-        try {
-            JSONObject data = (JSONObject) args[0];
-
-            disconnectedPlayerID = data.getString("id");
-
-        } catch (JSONException e) {
-            Gdx.app.log("SocketIO", "Error getting disconnected player ID");
-            e.printStackTrace();
-        }
-
-    }
 
     public void handleGetOtherPlayersEvent(Object... args) {
         try {
@@ -391,14 +383,46 @@ public class ServerCreator {
 
     }
 
+    public void handleRoomJoinedEvent(Object... args) {
+        try {
+            JSONObject data = (JSONObject) args[0];
+            String id = data.getString("id");
+            Gdx.app.log("SocketIO", "New Player Connected: " + id);
+
+            otherPlayers.put(id, new FriendPlayer());
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error getting new player ID");
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public void handleRoomLeavedEvent(Object... args) {
+        try {
+            JSONObject data = (JSONObject) args[0];
+            String id = data.getString("id");
+            Gdx.app.log("SocketIO", "Player Leaved: " + id);
+            playersToDispose.add(otherPlayers.remove(id));
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error getting player ID");
+            e.printStackTrace();
+        }
+
+    }
+
 
     public void updateServer(float dt) {
         if (!createServer) return;
 
-        if (disconnectedPlayerID != null) {
-            otherPlayers.remove(disconnectedPlayerID).dispose();
-            disconnectedPlayerID = null;
-        }
+//        if (playersToRemove.size > 0) {
+//            for(String playerID:playersToRemove) {
+//                otherPlayers.remove(playerID).dispose();
+//            }
+//            playersToRemove.clear();
+//        }
 
         if(mainPlayer==null) return;
 
@@ -456,6 +480,10 @@ public class ServerCreator {
         return socket;
     }
 
+    public void addServerListener(ServerListener serverListener) {
+        serverListeners.add(serverListener);
+    }
+
     public void dispose()
     {
 
@@ -463,10 +491,11 @@ public class ServerCreator {
         {
             entry.getValue().dispose();
         }
+
+        for(FriendPlayer player:playersToDispose) {
+           player.dispose();
+        }
     }
 
 
-    public void addServerListener(ServerListener serverListener) {
-        serverListeners.add(serverListener);
-    }
 }

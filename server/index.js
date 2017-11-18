@@ -4,7 +4,7 @@ var io = require('socket.io')(server);
 
 //store all the current rooms. In each room, store all the players
 var rooms = {};
-
+var maxPlayersInRoom = 4;
 
 app.set('port',(process.env.PORT||5000));
 
@@ -26,6 +26,8 @@ io.on('connection',function(socket){
 
     socket.emit('getRooms', rooms);
 
+    socket.emit('getMaxPlayersInRoom', {max:maxPlayersInRoom});
+
     socket.on('createRoom', function(data){
 
         //if this room haven't existed, add to room list
@@ -45,10 +47,10 @@ io.on('connection',function(socket){
             socket.emit('socketRoomJoined',{roomName: data.roomName});
 
             //a room contain a hash table of players in that room
-            rooms[data.roomName] = {};
+            rooms[data.roomName] = new room({},"Waiting");
 
             //push socket client player to players hash table, so other new connected players know about socket client player
-            rooms[data.roomName][socket.id] = new player(socket.id,2,2,0);
+            rooms[data.roomName].players[socket.id] = new player(socket.id,2,2,0);
 
 
         }
@@ -60,7 +62,16 @@ io.on('connection',function(socket){
 
     socket.on('joinRoom', function(data){
 
-        if(getRoomLength(data.roomName)<4)
+        var room;
+        var playersCount;
+
+        if(rooms.hasOwnProperty(data.roomName))
+        {
+            room = rooms[data.roomName];
+            playersCount = getRoomLength(data.roomName);
+        }
+
+        if(room && room.state != "InGame" && playersCount < maxPlayersInRoom)
         {
             // store the room name in the socket session for this client
             socket.room = data.roomName;
@@ -73,18 +84,17 @@ io.on('connection',function(socket){
             socket.broadcast.to(data.roomName).emit('roomJoined',{id: socket.id});
 
             //emit all other players in this room to client's socket only
-            socket.emit('getOtherPlayers' ,rooms[data.roomName]);
+            socket.emit('getOtherPlayers' ,room.players);
 
             //push socket client player to players hash table, so other connected players know about socket client player
-            rooms[data.roomName][socket.id] = new player(socket.id,2,2,0);
+            room.players[socket.id] = new player(socket.id,2,2,0);
 
-            //emit new player event to everyone, but the client's socket
-            socket.broadcast.to(data.roomName).emit('newPlayer', {id: socket.id});
+            io.sockets.emit('playersCountChanged', {roomName: socket.room, playersCount: playersCount+1});
 
         }
         else
         {
-            socket.emit('roomFull');
+            socket.emit('unableToJoinRoom');
         }
     });
 
@@ -94,20 +104,26 @@ io.on('connection',function(socket){
         if(rooms.hasOwnProperty(socket.room))
         {
 
-            delete rooms[socket.room][socket.id];
+            delete rooms[socket.room].players[socket.id];
 
             socket.emit('socketRoomLeaved', {roomName: socket.room});
 
             socket.broadcast.to(socket.room).emit('roomLeaved',{id: socket.id});
 
+            var playersCount = getRoomLength(socket.room);
+
             //if there is no one left in this room, delete it
-            if(getRoomLength(socket.room)<=0)
+            if(playersCount<=0)
             {
                 delete rooms[socket.room];
                 console.log("Room "+ socket.room + " removed");
 
                 io.sockets.emit('roomRemoved', {roomName: socket.room});
 
+            }
+            else
+            {
+                io.sockets.emit('playersCountChanged', {roomName: socket.room, playersCount: playersCount});
             }
 
 
@@ -117,11 +133,16 @@ io.on('connection',function(socket){
 
     });
 
-    socket.on('joinGame',function()
-    {
-       socket.broadcast.emit('gameJoined');
-
+    socket.on('joinGame',function(){
+       socket.broadcast.to(socket.room).emit('gameJoined');
+       rooms[socket.room].state = "InGame";
+       io.sockets.emit('roomStateChanged', {roomName: socket.room, state: "InGame"});
     });
+
+    socket.on('transitionMap', function(data){
+        socket.broadcast.to(socket.room).emit('mapTransitioned', {transitionUp: data});
+    });
+
 
     //when the client emits this event, emit the position, rotation,..etc.. to other players
     socket.on('socketPlayerMoved',function(data){
@@ -132,7 +153,7 @@ io.on('connection',function(socket){
         socket.broadcast.to(socket.room).emit('playerMoved',data);
 
         //update the position and ..etc.. in hash table
-        var socketPlayer = rooms[socket.room][socket.id];
+        var socketPlayer = rooms[socket.room].players[socket.id];
         socketPlayer.x = data.x;
         socketPlayer.y = data.y;
         socketPlayer.rotation = data.rotation;
@@ -150,7 +171,7 @@ io.on('connection',function(socket){
         //delete the client socket player from hash table
         if(rooms.hasOwnProperty(socket.room))
         {
-            delete rooms[socket.room][socket.id];
+            delete rooms[socket.room].players[socket.id];
 
             socket.emit('socketRoomLeaved', {roomName: socket.room});
 
@@ -180,7 +201,7 @@ function getRoomLength(roomName)
     //get the length of hash table
     var count = 0;
     var i;
-    var players = rooms[roomName];
+    var players = rooms[roomName].players;
     for (i in players) {
         if (players.hasOwnProperty(i)) {
             count++;
@@ -197,4 +218,10 @@ function player(id,x,y,rotation){
     this.x= x;
     this.y= y;
     this.rotation = rotation;
+}
+
+//room struct
+function room(players, state){
+    this.players = players;
+    this.state = state;
 }

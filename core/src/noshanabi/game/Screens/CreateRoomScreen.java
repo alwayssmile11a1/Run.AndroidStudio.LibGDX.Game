@@ -243,12 +243,35 @@ public class CreateRoomScreen implements Screen, ServerListener{
     }
 
     @Override
-    public void OnRoomFull(Object... args) {
+    public void OnUnableToJoinRoom(Object... args) {
+
+    }
+
+    @Override
+    public void OnPlayersCountChanged(Object ...args)
+    {
+
+    }
+
+    @Override
+    public void OnRoomStateChanged(Object... args) {
 
     }
 
     @Override
     public void OnGameJoined(Object... args) {
+
+    }
+
+    @Override
+    public void OnMapTransitioned(Object... args)
+    {
+
+    }
+
+    @Override
+    public void OnGetMaxPlayersInRoom(Object ...args)
+    {
 
     }
 

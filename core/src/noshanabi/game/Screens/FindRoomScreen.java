@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -51,15 +52,17 @@ public class FindRoomScreen implements Screen, ServerListener{
 
     private Table roomTable;
 
-    private HashMap<String, Label> roomList;
+    private HashMap<String, Array<Label>> roomList;
 
-    private Array<String> roomsToAdd;
+    private Array<Array<String>> roomsToAdd;
 
     private Array<String> roomsToRemove;
 
-    private boolean isRoomFull;
+    private boolean unableToJoinRoom;
 
     private boolean needSwitchScreen;
+
+    private int maxPlayersInRoom;
 
     public FindRoomScreen(GameManager _gameManager) {
         //set up constructor variables
@@ -71,10 +74,10 @@ public class FindRoomScreen implements Screen, ServerListener{
         backGround = new Sprite(new Texture("images/BlueBackground.png"));
         backGround.setSize(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
 
-        roomsToAdd = new Array<String>();
+        roomsToAdd = new Array<Array<String>>();
         roomsToRemove = new Array<String>();
 
-        isRoomFull = true;
+        unableToJoinRoom = true;
         needSwitchScreen = false;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
@@ -134,12 +137,17 @@ public class FindRoomScreen implements Screen, ServerListener{
 
 
         //---------------ROOM LIST----------------------------------
-        roomList = new HashMap<String, Label>();
+        roomList = new HashMap<String, Array<Label>>();
         roomTable = new Table();
+        roomTable.align(Align.top);
+        roomTable.add(new VisLabel("Room name")).expandX();
+        roomTable.add(new VisLabel("State")).expandX();
+        roomTable.add(new VisLabel("Players")).expandX();
+        roomTable.row();
 
         VisScrollPane scrollPane = new VisScrollPane(roomTable);
         scrollPane.setSize(gameManager.WORLDWIDTH/1.5f,gameManager.WORLDHEIGHT-100);
-        scrollPane.setPosition(gameManager.WORLDWIDTH/2-scrollPane.getWidth()/2,50);
+        scrollPane.setPosition(125,50);
 
         stage.addActor(scrollPane);
 
@@ -152,7 +160,7 @@ public class FindRoomScreen implements Screen, ServerListener{
 
             JSONObject data = (JSONObject) args[0];
             String roomName = data.getString("roomName");
-            addRoom(roomName);
+            addRoom(roomName,"Waiting", "1");
 
         } catch (JSONException e) {
             Gdx.app.log("SocketIO", "Error adding room");
@@ -176,21 +184,54 @@ public class FindRoomScreen implements Screen, ServerListener{
     }
 
     @Override
+    public void OnGetMaxPlayersInRoom(Object ...args)
+    {
+        try {
+
+            JSONObject data = (JSONObject) args[0];
+            maxPlayersInRoom = data.getInt("max");
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error getting max players in a room");
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
     public void OnSocketRoomJoined(Object... args) {
-        isRoomFull = false;
+        unableToJoinRoom = false;
     }
 
     @Override
     public void OnGetRooms(Object... args) {
-        JSONObject objects = (JSONObject) args[0];
+        try {
+            JSONObject objects = (JSONObject) args[0];
 
-        //get all the keys
-        Iterator<String> iter = objects.keys();
+            //get all the keys
+            Iterator<String> iter = objects.keys();
 
-        //loop through all to get all room names
-        while (iter.hasNext()) {
-            String roomName = iter.next();
-            roomsToAdd.add(roomName);
+            //loop through all to get all room names
+            while (iter.hasNext()) {
+                String roomName = iter.next();
+                //get room
+                JSONObject room = new JSONObject(objects.get(roomName).toString());
+
+                //get the number of players in this room
+                int playersCount = ((JSONObject)room.getJSONObject("players")).length();
+                String roomState = room.getString("state");
+
+                //room information
+                Array<String> roomInfo = new Array<String>();
+                roomInfo.add(roomName);
+                roomInfo.add(roomState);
+                roomInfo.add(""+playersCount);
+
+                roomsToAdd.add(roomInfo);
+            }
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error handling get rooms event");
         }
     }
 
@@ -200,7 +241,14 @@ public class FindRoomScreen implements Screen, ServerListener{
 
             JSONObject data = (JSONObject) args[0];
             String roomName = data.getString("roomName");
-            roomsToAdd.add(roomName);
+
+            //room information
+            Array<String> roomInfo = new Array<String>();
+            roomInfo.add(roomName);
+            roomInfo.add("Waiting");
+            roomInfo.add("1");
+
+            roomsToAdd.add(roomInfo);
 
         } catch (JSONException e) {
             Gdx.app.log("SocketIO", "Error adding room");
@@ -232,8 +280,8 @@ public class FindRoomScreen implements Screen, ServerListener{
     }
 
     @Override
-    public void OnRoomFull(Object... args) {
-        isRoomFull = true;
+    public void OnUnableToJoinRoom(Object... args) {
+        unableToJoinRoom = true;
     }
 
     @Override
@@ -241,10 +289,49 @@ public class FindRoomScreen implements Screen, ServerListener{
 
     }
 
-    private void addRoom(final String roomName)
+    @Override
+    public void OnMapTransitioned(Object... args)
     {
-        VisLabel roomLabel = new VisLabel(roomName);
-        roomLabel.addListener(new InputListener() {
+
+    }
+
+    @Override
+    public void OnRoomStateChanged(Object... args) {
+        try {
+            JSONObject data = (JSONObject) args[0];
+            String roomName = data.getString("roomName");
+            String roomState = data.getString("state");
+            roomList.get(roomName).get(1).setText(roomState);
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error getting room state");
+            e.printStackTrace();
+        }
+    }
+
+
+    @Override
+    public void OnPlayersCountChanged(Object ...args)
+    {
+        try {
+            JSONObject data = (JSONObject) args[0];
+            String roomName = data.getString("roomName");
+            int playersCount = data.getInt("playersCount");
+            roomList.get(roomName).get(2).setText(playersCount+"/"+maxPlayersInRoom);
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error getting players count");
+            e.printStackTrace();
+        }
+    }
+
+    private void addRoom(final String roomName, String roomState, String playersCount)
+    {
+        VisLabel roomNameLabel = new VisLabel(roomName);
+        VisLabel roomStateLabel = new VisLabel(roomState);
+        VisLabel playersCountLabel = new VisLabel(playersCount + "/" + maxPlayersInRoom);
+
+        roomNameLabel.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
@@ -264,16 +351,26 @@ public class FindRoomScreen implements Screen, ServerListener{
             }
         });
 
-        roomTable.add(roomLabel).expandX();
+        roomTable.add(roomNameLabel).expandX();
+        roomTable.add(roomStateLabel).expandX();
+        roomTable.add(playersCountLabel).expandX();
         roomTable.row();
 
+        Array<Label> roomInfoLabels = new Array<Label>();
+        roomInfoLabels.add(roomNameLabel);
+        roomInfoLabels.add(roomStateLabel);
+        roomInfoLabels.add(playersCountLabel);
+
         //add ro list
-        roomList.put(roomName,roomLabel);
+        roomList.put(roomName,roomInfoLabels);
     }
 
     private void removeRoom(String roomName)
     {
-        roomTable.removeActor(roomList.get(roomName));
+        Array<Label> room = roomList.get(roomName);
+        for(Label label: room) {
+            roomTable.removeActor(label);
+        }
         roomList.remove(roomName);
     }
 
@@ -283,8 +380,8 @@ public class FindRoomScreen implements Screen, ServerListener{
 
         if(roomsToAdd.size > 0)
         {
-            for(String roomName: roomsToAdd) {
-                addRoom(roomName);
+            for(Array<String> room: roomsToAdd) {
+                addRoom(room.get(0),room.get(1),room.get(2));
             }
             roomsToAdd.clear();
         }
@@ -297,7 +394,7 @@ public class FindRoomScreen implements Screen, ServerListener{
             roomsToRemove.clear();
         }
 
-        if(!isRoomFull && needSwitchScreen)
+        if(!unableToJoinRoom && needSwitchScreen)
         {
             RoomJoinedScreen roomJoinedScreen = gameManager.getRoomJoinedScreen();
             Gdx.input.setInputProcessor(roomJoinedScreen.getStage());

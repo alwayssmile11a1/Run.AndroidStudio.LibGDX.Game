@@ -84,7 +84,6 @@ public class RoomJoinedScreen implements Screen, ServerListener {
     private boolean needSwitchScreen;
 
 
-
     public RoomJoinedScreen(GameManager _gameManager) {
         //set up constructor variables
         this.gameManager = _gameManager;
@@ -245,6 +244,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
                 if (transitionDistance == 0 && transitionCount > 0) {
                     transitionUp = 1;
                     transitionCount--;
+                    gameManager.getServer().getSocket().emit("transitionMap",1);
                 }
                 return true;
             }
@@ -270,6 +270,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
                 if (transitionDistance == 0 && transitionCount < mapCount - 1) {
                     transitionUp = 0;
                     transitionCount++;
+                    gameManager.getServer().getSocket().emit("transitionMap",0);
                 }
                 return true;
             }
@@ -314,6 +315,18 @@ public class RoomJoinedScreen implements Screen, ServerListener {
     public void OnRoomRemoved(Object... args) {
 
     }
+
+    @Override
+    public void OnGetMaxPlayersInRoom(Object ...args)
+    {
+
+    }
+
+    @Override
+    public void OnRoomStateChanged(Object... args) {
+
+    }
+
 
     @Override
     public void OnGetOtherPlayers(Object... args) {
@@ -387,9 +400,8 @@ public class RoomJoinedScreen implements Screen, ServerListener {
     @Override
     public void OnRoomLeaved(Object... args) {
 
-        JSONObject data = (JSONObject) args[0];
-
         try {
+            JSONObject data = (JSONObject) args[0];
             String id = data.getString("id");
             playersToRemove.add(id);
 
@@ -402,13 +414,33 @@ public class RoomJoinedScreen implements Screen, ServerListener {
     }
 
     @Override
-    public void OnRoomFull(Object... args) {
+    public void OnUnableToJoinRoom(Object... args) {
+
+    }
+
+    @Override
+    public void OnPlayersCountChanged(Object ...args)
+    {
 
     }
 
     @Override
     public void OnGameJoined(Object... args) {
         needSwitchScreen = true;
+    }
+
+    @Override
+    public void OnMapTransitioned(Object... args)
+    {
+        try {
+            JSONObject data = (JSONObject) args[0];
+            transitionUp = data.getInt("transitionUp");
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error transitioning map");
+            e.printStackTrace();
+        }
+
     }
 
 

@@ -26,8 +26,16 @@ public interface ServerListener {
 
     public void OnRoomLeaved(Object... args);
 
-    public void OnRoomFull(Object... args);
+    public void OnUnableToJoinRoom(Object... args);
 
     public void OnGameJoined(Object... args);
+
+    public void OnMapTransitioned(Object... args);
+
+    public void OnGetMaxPlayersInRoom(Object ...args);
+
+    public void OnPlayersCountChanged(Object ...args);
+
+    public void OnRoomStateChanged(Object ...args);
 
 }
