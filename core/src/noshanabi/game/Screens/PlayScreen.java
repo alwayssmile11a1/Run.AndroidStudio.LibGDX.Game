@@ -12,6 +12,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import noshanabi.game.PlayScreenUI.PlayScreenUI;
 import noshanabi.game.GameManager;
 import noshanabi.game.Objects.Player;
 import noshanabi.game.Server.ServerCreator;
@@ -67,12 +68,16 @@ public class PlayScreen implements Screen{
 
 
     //----------------CONTROLLER RELATED VARIABLES------------//
-    //MobileController mobileController;
+    PlayScreenUI playScreenUI;
 
 
 
     //----------------SERVER RELATED VARIABLES------------//
     ServerCreator server;
+
+
+
+
 
 
     public PlayScreen(GameManager gameManager, String mapName) {
@@ -119,7 +124,11 @@ public class PlayScreen implements Screen{
 
 
         //----------------CONTROLLER RELATED VARIABLES------------//
-        //mobileController = new MobileController(gameManager);
+        playScreenUI = new PlayScreenUI(gameManager);
+        Gdx.input.setInputProcessor(playScreenUI.getStage());
+
+
+        //--------------------------UI -----------------------------
 
 
     }
@@ -153,8 +162,10 @@ public class PlayScreen implements Screen{
 
         //player.getBody().setLinearVelocity(1f,player.getBody().getLinearVelocity().y);
 
-        if(Gdx.input.justTouched())
+        //if(Gdx.input.justTouched())
+        if(playScreenUI.isScreenPressed())
         {
+            Gdx.app.log("","JUMP");
             if(player.isGrounded) {
                 player.getBody().setLinearVelocity(player.getBody().getLinearVelocity().x, 4f);
                 player.isGrounded = false;
@@ -190,7 +201,7 @@ public class PlayScreen implements Screen{
             worldStepSpeed = MathUtils.clamp(worldStepSpeed,0f,1f);
         }
 
-//        if(mobileController.isLeftScreenPressed())
+//        if(playScreenUI.isScreenPressed())
 //        {
 //            player.getBody().setLinearVelocity(1.5f,player.getBody().getLinearVelocity().y);
 //        }
@@ -246,11 +257,10 @@ public class PlayScreen implements Screen{
 
         player.draw(gameManager.batch);
 
-
         //end of draw
         gameManager.batch.end();
 
-        //mobileController.draw();
+        playScreenUI.draw();
 
         //render box2DDebug
         b2DebugRenderer.render(world,mainCamera.combined);
@@ -263,7 +273,7 @@ public class PlayScreen implements Screen{
     public void resize(int width, int height) {
         //resize viewport if we resize our game world
         gameViewPort.update(width,height);
-        //mobileController.resize(width,height);
+        playScreenUI.resize(width,height);
     }
 
     @Override
@@ -289,20 +299,21 @@ public class PlayScreen implements Screen{
     @Override
     public void dispose() {
 
-        if(player!=null)
-        {
+        if (player != null) {
             player.dispose();
         }
 
-        if(mapCreator!=null)
-        {
+        if (mapCreator != null) {
             mapCreator.dispose();
         }
+
         //if(rayHandler!=null) {
         //    rayHandler.dispose();
         //}
-//        if(mobileController!=null)
-//            mobileController.dispose();
+        if(playScreenUI !=null)
+            playScreenUI.dispose();
+
+        Gdx.app.log("DISPOSE","Play Screen");
 
     }
 }

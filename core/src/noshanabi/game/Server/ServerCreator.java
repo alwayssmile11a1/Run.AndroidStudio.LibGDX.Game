@@ -58,8 +58,8 @@ public class ServerCreator {
         try
         {
             //Connect to server (server is the index.js file, kind of ..)
-            //socket = IO.socket("https://runandroidstudiolibgdx.herokuapp.com");
-            socket = IO.socket("http://localhost:5000");
+            socket = IO.socket("https://runandroidstudiolibgdx.herokuapp.com");
+            //socket = IO.socket("http://localhost:5000");
             socket.connect();
 
         }
