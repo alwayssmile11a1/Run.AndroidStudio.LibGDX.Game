@@ -57,7 +57,6 @@ public class GameOverScreen implements Screen{
         //add to stage
         stage.addActor(table);
 
-        Gdx.gl.glClearColor(0,0,0,1);
     }
 
     //handle the UI that is interacted
@@ -68,6 +67,8 @@ public class GameOverScreen implements Screen{
 
     @Override
     public void render(float delta) {
+        //color to clear this screen
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
         handleInput(delta);

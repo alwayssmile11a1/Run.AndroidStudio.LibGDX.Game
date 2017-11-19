@@ -9,12 +9,15 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisTable;
 
-import noshanabi.game.PlayScreenUI.PlayScreenUI;
 import noshanabi.game.GameManager;
 import noshanabi.game.Objects.Player;
+import noshanabi.game.PlayScreenUI.PlayScreenUI;
 import noshanabi.game.Server.ServerCreator;
 import noshanabi.game.WorldCreator.MapCreator;
 import noshanabi.game.WorldCreator.WorldListener;
@@ -56,9 +59,9 @@ public class PlayScreen implements Screen{
 
     //----------------WORLD RELATED VARIABLES------------//
     //manipulate world step - the bigger the worldStepSpeed, the faster the game simulates its physics
-    float worldStepSpeed = 1f;
+    private float worldStepSpeed = 1f;
     //the length of time that the world have to take to be able to get back to its normal speed if it's being slowed down
-    float slowdownLength = 5f;
+    private float slowdownLength = 5f;
 
     //map related variables
     private MapCreator mapCreator;
@@ -68,16 +71,19 @@ public class PlayScreen implements Screen{
 
 
     //----------------CONTROLLER RELATED VARIABLES------------//
-    PlayScreenUI playScreenUI;
-
-
+    private PlayScreenUI playScreenUI;
+    private boolean gamePaused = false;
+    private float previousWorldStepSpeed;
 
     //----------------SERVER RELATED VARIABLES------------//
     ServerCreator server;
 
 
-
-
+    //-------------------OTHERS------------------------
+    Stage stage;
+    VisLabel countDownLabel;
+    float countDownTime = 3;
+    Viewport stageViewport;
 
 
     public PlayScreen(GameManager gameManager, String mapName) {
@@ -85,10 +91,6 @@ public class PlayScreen implements Screen{
         this.gameManager = gameManager;
         this.worldWidth = gameManager.WORLDWIDTH / gameManager.PPM;
         this.worldHeight = gameManager.WORLDHEIGHT / gameManager.PPM;
-
-        //clear background color to a specified color
-        //Gdx.gl.glClearColor(0,0,0,1f);
-        Gdx.gl.glClearColor(0.85f, 0.85f, 0.85f, 0);
 
         //-----------------VIEW RELATED VARIABLES-----------------//
         //initialize a new camera
@@ -123,13 +125,22 @@ public class PlayScreen implements Screen{
         //System.out.print(pointLight.getSoftShadowLength());
 
 
-        //----------------CONTROLLER RELATED VARIABLES------------//
-        playScreenUI = new PlayScreenUI(gameManager);
-        Gdx.input.setInputProcessor(playScreenUI.getStage());
-
-
         //--------------------------UI -----------------------------
+        playScreenUI = new PlayScreenUI(gameManager);
+        Gdx.input.setInputProcessor(playScreenUI.getInGameStage());
 
+
+
+        //-------------------------OTHERS------------------------------
+        stageViewport = new StretchViewport(gameManager.WORLDWIDTH,gameManager.WORLDHEIGHT);
+        stage = new Stage(stageViewport,gameManager.batch);
+        VisTable table = new VisTable();
+        table.setFillParent(true);
+        table.top();
+
+        countDownLabel = new VisLabel(""+(int)countDownTime);
+        table.add(countDownLabel).padTop(100f);
+        stage.addActor(table);
 
     }
 
@@ -141,10 +152,32 @@ public class PlayScreen implements Screen{
 
     }
 
-    public void handleInput(float delta)
-    {
+    public void handleInput(float delta) {
 
-//        //Jump
+        if (playScreenUI.isPauseButtonPressed() && !gamePaused) {
+            previousWorldStepSpeed = worldStepSpeed;
+            worldStepSpeed = 0;
+            gamePaused = true;
+        }
+
+        if (playScreenUI.isContinueButtonPressed() && gamePaused) {
+            worldStepSpeed = previousWorldStepSpeed;
+            gamePaused = false;
+            return;
+        }
+
+        if (gamePaused) return;
+
+        if (countDownTime > 0) {
+            countDownLabel.setText("" + (int) countDownTime);
+            countDownTime -= 0.02f;
+            return;
+        } else {
+            countDownTime = 0;
+            countDownLabel.setVisible(false);
+        }
+
+        //        //Jump
 //        if(Gdx.input.isKeyJustPressed(Input.Keys.W))
 //        {
 //            player.getBody().setLinearVelocity(player.getBody().getLinearVelocity().x,4f);
@@ -162,19 +195,14 @@ public class PlayScreen implements Screen{
 
         //player.getBody().setLinearVelocity(1f,player.getBody().getLinearVelocity().y);
 
-        //if(Gdx.input.justTouched())
-        if(playScreenUI.isScreenPressed())
-        {
-            Gdx.app.log("","JUMP");
-            if(player.isGrounded) {
+
+        if (Gdx.input.justTouched()) {
+            if (player.isGrounded) {
                 player.getBody().setLinearVelocity(player.getBody().getLinearVelocity().x, 4f);
                 player.isGrounded = false;
                 player.isDoubleJumped = false;
-            }
-            else
-            {
-                if(!player.isDoubleJumped)
-                {
+            } else {
+                if (!player.isDoubleJumped) {
                     player.getBody().setLinearVelocity(player.getBody().getLinearVelocity().x, 4f);
                     player.isDoubleJumped = true;
                 }
@@ -182,40 +210,36 @@ public class PlayScreen implements Screen{
 
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.E)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.E)) {
             player.startRewinding();
-        }
-        else
-        {
+        } else {
             player.stopRewinding();
         }
 
         //slow down the time
-        if(Gdx.input.isKeyJustPressed(Input.Keys.Q))
-        {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
             worldStepSpeed = 0.05f;
-        }
-        else
-        {
-            worldStepSpeed = worldStepSpeed + 1/(slowdownLength/delta);
-            worldStepSpeed = MathUtils.clamp(worldStepSpeed,0f,1f);
+        } else {
+            worldStepSpeed = worldStepSpeed + 1 / (slowdownLength / delta);
+            worldStepSpeed = MathUtils.clamp(worldStepSpeed, 0f, 1f);
         }
 
-//        if(playScreenUI.isScreenPressed())
+//        if(playScreenUI.isPauseButtonPressed())
 //        {
 //            player.getBody().setLinearVelocity(1.5f,player.getBody().getLinearVelocity().y);
 //        }
 
     }
 
-    //update things related physics
+
     public void update(float delta)
     {
         handleInput(delta);
 
-        //update world
-        world.step(1/60f * worldStepSpeed,6,2);
-
+        if(countDownTime==0) {
+            //update world
+            world.step(1 / 60f * worldStepSpeed, 6, 2);
+        }
 
         //update player
         player.update(delta);
@@ -225,7 +249,7 @@ public class PlayScreen implements Screen{
             server.updateServer(delta);
         }
 
-        //update camera to follow thí player
+        //update camera to follow this player
         mainCamera.position.x = MathUtils.clamp(player.getBody().getPosition().x + 1,gameViewPort.getWorldWidth()/2,100f);
         mainCamera.update();
 
@@ -238,6 +262,10 @@ public class PlayScreen implements Screen{
     public void render(float delta) {
         //call update
         update(delta);
+
+        //clear background color to a specified color
+        //Gdx.gl.glClearColor(0,0,0,1f);
+        Gdx.gl.glClearColor(0.85f, 0.85f, 0.85f, 0);
 
         //clear background color
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -262,6 +290,10 @@ public class PlayScreen implements Screen{
 
         playScreenUI.draw();
 
+        if(countDownTime!=0) {
+            stage.draw();
+        }
+
         //render box2DDebug
         b2DebugRenderer.render(world,mainCamera.combined);
 
@@ -274,6 +306,7 @@ public class PlayScreen implements Screen{
         //resize viewport if we resize our game world
         gameViewPort.update(width,height);
         playScreenUI.resize(width,height);
+        stageViewport.update(width,height);
     }
 
     @Override
@@ -312,6 +345,8 @@ public class PlayScreen implements Screen{
         //}
         if(playScreenUI !=null)
             playScreenUI.dispose();
+
+        stage.dispose();
 
         Gdx.app.log("DISPOSE","Play Screen");
 

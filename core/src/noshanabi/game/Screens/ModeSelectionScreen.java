@@ -42,9 +42,6 @@ public class ModeSelectionScreen implements Screen {
         //set up constructor variables
         this.gameManager = _gameManager;
 
-        //color to clear this screen
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-
         //-----------------VIEW RELATED VARIABLES-----------------//
         viewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
         stage = new Stage(viewport, gameManager.batch);
@@ -147,6 +144,8 @@ public class ModeSelectionScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        //color to clear this screen
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
     }

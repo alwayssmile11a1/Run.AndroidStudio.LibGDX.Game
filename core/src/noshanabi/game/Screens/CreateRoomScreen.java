@@ -59,8 +59,6 @@ public class CreateRoomScreen implements Screen, ServerListener{
         //set up constructor variables
         this.gameManager = _gameManager;
 
-        //color to clear this screen
-        Gdx.gl.glClearColor(0, 0, 0, 1);
 
         backGround = new Sprite(new Texture("images/BlueBackground.png"));
         backGround.setSize(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
@@ -277,6 +275,8 @@ public class CreateRoomScreen implements Screen, ServerListener{
 
     @Override
     public void render(float delta) {
+        //color to clear this screen
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
