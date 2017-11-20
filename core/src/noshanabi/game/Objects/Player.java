@@ -2,6 +2,7 @@ package noshanabi.game.Objects;
 
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -26,15 +27,17 @@ public class Player extends Object {
     public Player(World world) {
         super(world);
 
+        Texture playerTexture= new Texture("images/alienYellow_square.png");
+        set(new Sprite(playerTexture));
+
         //set Texture
-        setTexture(new Texture("images/WhiteRectangle.png"));
-        setColor(0f,0.4f,1f,1f);
+        //setColor(0f,0.4f,1f,1f);
 
         //set Position
         setPosition(50,200);
 
         //set Size
-        setSize(30f,30f);
+        setSize(40f,40f);
 
         usePixelPerMeter();
 
@@ -62,6 +65,7 @@ public class Player extends Object {
         fDef.filter.categoryBits = PLAYER_BIT;
         fDef.filter.maskBits = Ground.GROUND_BIT|FriendPlayer.FRIEND_PLAYER_BIT;
         fDef.density = 2f;
+        fDef.friction = 0.1f;
         body.createFixture(fDef).setUserData(this);
 
 

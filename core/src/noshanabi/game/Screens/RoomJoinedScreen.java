@@ -216,7 +216,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
                     PlayScreen playScreen = new PlayScreen(gameManager, mapName);
                     playScreen.setServer(gameManager.getServer());
-                    Gdx.input.setInputProcessor(null);
+                    Gdx.input.setInputProcessor(playScreen.getStage());
                     gameManager.getServer().getSocket().emit("joinGame");
                     gameManager.setScreen(playScreen);
 

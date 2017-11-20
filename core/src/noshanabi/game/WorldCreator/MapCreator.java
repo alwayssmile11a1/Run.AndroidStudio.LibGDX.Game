@@ -31,27 +31,11 @@ public class MapCreator {
         mapRenderer = new OrthogonalTiledMapRenderer(map, 1/ GameManager.PPM);
 
 
-        //these variables are used for loop below. Since the BodyDef, fDef, Shape and Body can be safely reused, this will optimize our game a little more
-//        BodyDef bodyDef = new BodyDef();
-//        PolygonShape shape = new PolygonShape();
-//        FixtureDef fDef = new FixtureDef();
-//        Body body;
-
         //create objects given in the map
-        for(MapObject mapObject:map.getLayers().get("StaticObjects").getObjects().getByType(RectangleMapObject.class))
+        for(MapObject mapObject:map.getLayers().get("Platforms").getObjects().getByType(RectangleMapObject.class))
         {
             //create rigid body
             Rectangle rectangle = ((RectangleMapObject) mapObject).getRectangle();
-//            bodyDef.type = BodyDef.BodyType.StaticBody;
-//            bodyDef.position.set((rectangle.getX()+rectangle.getWidth()/2)/GameManager.PPM,(rectangle.getY()+rectangle.getHeight()/2)/GameManager.PPM);
-//            body = world.createBody(bodyDef);
-//
-//            //create the shape of body
-//            shape.setAsBox(rectangle.getWidth()/2/GameManager.PPM,rectangle.getHeight()/2/GameManager.PPM);
-//            fDef.shape = shape;
-//            fDef.filter.categoryBits = Ground.GROUND_BIT;
-//            fDef.filter.maskBits = Player.PLAYER_BIT;
-//            body.createFixture(fDef);
             Ground ground = new Ground(world,
                     rectangle.getX(),
                     rectangle.getY(),

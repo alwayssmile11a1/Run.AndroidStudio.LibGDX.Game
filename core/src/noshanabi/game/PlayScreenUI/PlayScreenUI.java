@@ -43,7 +43,7 @@ public class PlayScreenUI {
     Texture menuButtonTexture;
     VisImage menuButton;
 
-    private boolean switchToMenuScreen=false;
+    private boolean menuButtonPressed =false;
 
 
     public PlayScreenUI(GameManager gameManager) {
@@ -122,9 +122,15 @@ public class PlayScreenUI {
         menuButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                switchToMenuScreen = true;
+                menuButtonPressed = true;
                 return true;
             }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                menuButtonPressed = false;
+            }
+
         });
         //add to table
         pauseGameGroup.addActor(menuButton);
@@ -148,14 +154,8 @@ public class PlayScreenUI {
         //and furthermore, we want the result to be justTouched-like event, setting these variable to false after one frame is necessary
         continueButtonPressed = false;
         pauseButtonPressed = false;
+        menuButtonPressed = false;
 
-        if(switchToMenuScreen)
-        {
-            gameManager.getScreen().dispose();
-            Gdx.input.setInputProcessor(gameManager.getMenuScreen().getStage());
-            gameManager.setScreen(gameManager.getMenuScreen());
-            switchToMenuScreen=false;
-        }
 
     }
 
@@ -203,4 +203,7 @@ public class PlayScreenUI {
     }
 
 
+    public boolean isMenuButtonPressed() {
+        return menuButtonPressed;
+    }
 }

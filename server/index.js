@@ -89,6 +89,7 @@ io.on('connection',function(socket){
             //push socket client player to players hash table, so other connected players know about socket client player
             room.players[socket.id] = new player(socket.id,2,2,0);
 
+            //players count changed
             io.sockets.emit('playersCountChanged', {roomName: socket.room, playersCount: playersCount+1});
 
         }

@@ -142,6 +142,7 @@ public class PlayScreen implements Screen{
         table.add(countDownLabel).padTop(100f);
         stage.addActor(table);
 
+
     }
 
     public void setServer(ServerCreator server)
@@ -153,7 +154,6 @@ public class PlayScreen implements Screen{
     }
 
     public void handleInput(float delta) {
-
         if (playScreenUI.isPauseButtonPressed() && !gamePaused) {
             previousWorldStepSpeed = worldStepSpeed;
             worldStepSpeed = 0;
@@ -163,6 +163,7 @@ public class PlayScreen implements Screen{
         if (playScreenUI.isContinueButtonPressed() && gamePaused) {
             worldStepSpeed = previousWorldStepSpeed;
             gamePaused = false;
+            countDownTime = 2f;
             return;
         }
 
@@ -174,27 +175,13 @@ public class PlayScreen implements Screen{
             return;
         } else {
             countDownTime = 0;
-            countDownLabel.setVisible(false);
+            countDownLabel.setText("");
         }
 
-        //        //Jump
-//        if(Gdx.input.isKeyJustPressed(Input.Keys.W))
-//        {
-//            player.getBody().setLinearVelocity(player.getBody().getLinearVelocity().x,4f);
-//        }
-//        //Right
-//        if(Gdx.input.isKeyPressed(Input.Keys.D))
-//        {
-//            player.getBody().setLinearVelocity(1.5f,player.getBody().getLinearVelocity().y);
-//        }
-//        //Left
-//        if(Gdx.input.isKeyPressed(Input.Keys.A))
-//        {
-//            player.getBody().setLinearVelocity(-1.5f,player.getBody().getLinearVelocity().y);
-//        }
-
-        //player.getBody().setLinearVelocity(1f,player.getBody().getLinearVelocity().y);
-
+        //player.getBody().setLinearVelocity(1.5f,player.getBody().getLinearVelocity().y);
+        if(player.getBody().getLinearVelocity().x <1.5f) {
+            player.getBody().applyLinearImpulse(0.1f, 0f, player.getBody().getPosition().x, player.getBody().getPosition().y, true);
+        }
 
         if (Gdx.input.justTouched()) {
             if (player.isGrounded) {
@@ -251,21 +238,48 @@ public class PlayScreen implements Screen{
 
         //update camera to follow this player
         mainCamera.position.x = MathUtils.clamp(player.getBody().getPosition().x + 1,gameViewPort.getWorldWidth()/2,100f);
+        mainCamera.position.y = MathUtils.clamp(player.getBody().getPosition().y ,gameViewPort.getWorldHeight()/2,gameViewPort.getWorldHeight()/2+3f);
         mainCamera.update();
 
         mapCreator.update(mainCamera);
 
     }
 
+    public Stage getStage()
+    {
+        return playScreenUI.getInGameStage();
+    }
+
     //render textures, maps, etc..
     @Override
     public void render(float delta) {
+
+        if (playScreenUI.isMenuButtonPressed()) {
+            gameManager.addToDisposeScreens(this);
+
+            if (server == null) {
+                Gdx.input.setInputProcessor(gameManager.getMapSelectionScreen().getStage());
+                gameManager.setScreen(gameManager.getMapSelectionScreen());
+
+            } else {
+                if (server != null) {
+                    server.getSocket().emit("leaveRoom");
+                    Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
+                    gameManager.setScreen(gameManager.getModeSelectionScreen());
+                }
+
+            }
+
+            return;
+        }
+
+
         //call update
         update(delta);
 
         //clear background color to a specified color
-        //Gdx.gl.glClearColor(0,0,0,1f);
-        Gdx.gl.glClearColor(0.85f, 0.85f, 0.85f, 0);
+        Gdx.gl.glClearColor(0,0,0,1f);
+        //Gdx.gl.glClearColor(0.85f, 0.85f, 0.85f, 0);
 
         //clear background color
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);

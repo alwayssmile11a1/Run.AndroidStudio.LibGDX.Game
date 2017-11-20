@@ -2,10 +2,12 @@ package noshanabi.game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Array;
 import com.kotcrab.vis.ui.VisUI;
 
 import noshanabi.game.Extensions.PlayerServices;
@@ -53,6 +55,10 @@ public class GameManager extends Game {
 	private ServerCreator server;
 
 
+	//==OTHERS--//
+	private Array<Screen> disposeScreens;
+
+
 	public GameManager(PlayerServices playerServices)
 	{
 		this.playerServices = playerServices;
@@ -63,6 +69,7 @@ public class GameManager extends Game {
 	public void create() {
 
 		batch = new SpriteBatch();
+		disposeScreens = new Array<Screen>();
 
 		VisUI.load(VisUI.SkinScale.X2);
 
@@ -111,11 +118,27 @@ public class GameManager extends Game {
 
 	}
 
+	public void addToDisposeScreens(Screen screen)
+	{
+		disposeScreens.add(screen);
+	}
+
 	@Override
 	public void render () {
 		super.render();
 		audioManager.update();
+
+		if(disposeScreens.size>0)
+		{
+			for (Screen screen:disposeScreens)
+			{
+				screen.dispose();
+			}
+			disposeScreens.clear();
+		}
+
 	}
+
 
 	@Override
 	public void dispose () {

@@ -58,8 +58,8 @@ public class ServerCreator {
         try
         {
             //Connect to server (server is the index.js file, kind of ..)
-            socket = IO.socket("https://runandroidstudiolibgdx.herokuapp.com");
-            //socket = IO.socket("http://localhost:5000");
+            //socket = IO.socket("https://runandroidstudiolibgdx.herokuapp.com");
+            socket = IO.socket("http://localhost:5000");
             socket.connect();
 
         }
@@ -417,12 +417,9 @@ public class ServerCreator {
     public void updateServer(float dt) {
         if (!createServer) return;
 
-//        if (playersToRemove.size > 0) {
-//            for(String playerID:playersToRemove) {
-//                otherPlayers.remove(playerID).dispose();
-//            }
-//            playersToRemove.clear();
-//        }
+        for(FriendPlayer player:playersToDispose) {
+            player.dispose();
+        }
 
         if(mainPlayer==null) return;
 
@@ -490,10 +487,6 @@ public class ServerCreator {
         for(HashMap.Entry<String,FriendPlayer> entry : otherPlayers.entrySet())
         {
             entry.getValue().dispose();
-        }
-
-        for(FriendPlayer player:playersToDispose) {
-           player.dispose();
         }
     }
 
