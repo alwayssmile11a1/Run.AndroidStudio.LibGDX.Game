@@ -29,7 +29,7 @@ public class ModeSelectionScreen implements Screen {
     //how well we want to see our map
     private Viewport viewport;
 
-    //stage manage UI on it
+    //gameStage manage UI on it
     private Stage stage;
 
     //----------------TEXTURE RELATED VARIABLES------------//
@@ -83,7 +83,7 @@ public class ModeSelectionScreen implements Screen {
         table.row();
         table.add(createRoomLabel).expandX().padTop(20);
 
-        //add to stage
+        //add to gameStage
         stage.addActor(table);
 
 
@@ -137,7 +137,7 @@ public class ModeSelectionScreen implements Screen {
         group.addActor(userNameLabel);
 
 
-        //add to stage
+        //add to gameStage
         stage.addActor(group);
     }
 

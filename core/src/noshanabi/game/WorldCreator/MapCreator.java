@@ -12,8 +12,9 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
 import noshanabi.game.GameManager;
-import noshanabi.game.Objects.Checkpoint;
+import noshanabi.game.Objects.CheckPoint;
 import noshanabi.game.Objects.DeadGround;
+import noshanabi.game.Objects.FinishPoint;
 import noshanabi.game.Objects.Ground;
 
 /**
@@ -39,11 +40,13 @@ public class MapCreator {
 
         //get init Position
         Rectangle instantiateRect = map.getLayers().get("InstantiatePosition").getObjects().getByType(RectangleMapObject.class).first().getRectangle();
-        instantiatePosition =  new Vector2(instantiateRect.getX()/GameManager.PPM,instantiateRect.getY()/GameManager.PPM);
+        instantiatePosition =  new Vector2((instantiateRect.getX()+instantiateRect.getWidth()/2)/GameManager.PPM,
+                                            (instantiateRect.getY()+instantiateRect.getHeight()/2)/GameManager.PPM);
 
         //get finish Position
         Rectangle finishRect = map.getLayers().get("FinishPosition").getObjects().getByType(RectangleMapObject.class).first().getRectangle();
-        finishPosition =  new Vector2(finishRect.getX()/GameManager.PPM,finishRect.getY()/GameManager.PPM);
+        finishPosition =  new Vector2((finishRect.getX()+finishRect.getWidth()/2)/GameManager.PPM,
+                                        (finishRect.getY()+finishRect.getHeight()/2)/GameManager.PPM);
 
 
         //create Platforms
@@ -53,10 +56,10 @@ public class MapCreator {
             //create rigid body
             Rectangle rectangle = ((RectangleMapObject) mapObject).getRectangle();
             Ground ground = new Ground(world,
-                    rectangle.getX(),
-                    rectangle.getY(),
-                    rectangle.getWidth(),
-                    rectangle.getHeight());
+                    rectangle.getX()/GameManager.PPM,
+                    rectangle.getY()/GameManager.PPM,
+                    rectangle.getWidth()/GameManager.PPM,
+                    rectangle.getHeight()/GameManager.PPM);
 
             grounds.add(ground);
 
@@ -69,10 +72,10 @@ public class MapCreator {
             //create rigid body
             Rectangle rectangle = ((RectangleMapObject) mapObject).getRectangle();
             DeadGround deadGround = new DeadGround(world,
-                    rectangle.getX(),
-                    rectangle.getY(),
-                    rectangle.getWidth(),
-                    rectangle.getHeight());
+                    rectangle.getX()/GameManager.PPM,
+                    rectangle.getY()/GameManager.PPM,
+                    rectangle.getWidth()/GameManager.PPM,
+                    rectangle.getHeight()/GameManager.PPM);
 
             deadGrounds.add(deadGround);
 
@@ -84,14 +87,17 @@ public class MapCreator {
         {
             //create rigid body
             Rectangle rectangle = ((RectangleMapObject) mapObject).getRectangle();
-            Checkpoint checkpoint = new Checkpoint(world,
-                    rectangle.getX(),
-                    rectangle.getY(),
-                    rectangle.getWidth(),
-                    rectangle.getHeight());
-
-
+            CheckPoint checkpoint = new CheckPoint(world,
+                    rectangle.getX()/GameManager.PPM,
+                    rectangle.getY()/GameManager.PPM,
+                    rectangle.getWidth()/GameManager.PPM,
+                    rectangle.getHeight()/GameManager.PPM);
         }
+
+        //create finish position
+        FinishPoint finishPoint = new FinishPoint(world, finishRect.getX()/GameManager.PPM, finishRect.getY()/GameManager.PPM,
+                                                            finishRect.getWidth()/GameManager.PPM,finishRect.getHeight()/GameManager.PPM);
+
 
     }
 

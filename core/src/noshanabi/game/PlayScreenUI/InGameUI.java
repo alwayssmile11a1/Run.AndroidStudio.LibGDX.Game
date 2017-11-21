@@ -10,6 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kotcrab.vis.ui.widget.VisImage;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisTable;
 
 import noshanabi.game.GameManager;
 
@@ -17,9 +19,7 @@ import noshanabi.game.GameManager;
  * Created by 2SMILE2 on 02/10/2017.
  */
 
-public class PlayScreenUI {
-
-    private GameManager gameManager;
+public class InGameUI {
 
     //manage on-screen buttons
     Stage inGameStage;
@@ -32,13 +32,13 @@ public class PlayScreenUI {
     VisImage pauseButton;
 
     //Pause game stage
-    Stage pauseGameStage;
+    Stage gamePausedStage;
     VisImage continueButton;
     Texture continueButtonTexture;
     boolean continueButtonPressed = false;
     private boolean drawPauseGameStage = false;
-    VisImage pauseGameBackground;
-    Texture pauseGameTexture;
+    VisImage gamePausedBackground;
+    Texture gamePausedBackgroundTexture;
 
     Texture menuButtonTexture;
     VisImage menuButton;
@@ -46,12 +46,14 @@ public class PlayScreenUI {
     private boolean menuButtonPressed =false;
 
 
-    public PlayScreenUI(GameManager gameManager) {
+    //just for holding count down label
+    VisLabel countDownLabel;
+    float countDownTime = 3;
+
+    public InGameUI(GameManager gameManager) {
         //set up
         viewPort = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
         inGameStage = new Stage(viewPort, gameManager.batch);
-
-        this.gameManager = gameManager;
 
         //--------------PAUSE BUTTON ------------------------
         pauseButtonTexture = new Texture("images/pausebutton.png");
@@ -64,7 +66,7 @@ public class PlayScreenUI {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 pauseButtonPressed = true;
                 drawPauseGameStage = true;
-                Gdx.input.setInputProcessor(pauseGameStage);
+                Gdx.input.setInputProcessor(gamePausedStage);
                 return true;
             }
 
@@ -76,19 +78,17 @@ public class PlayScreenUI {
         inGameStage.addActor(pauseButton);
 
 
-        //-------------PAUSE GAME STAGE ------------------
-        pauseGameStage = new Stage(viewPort, gameManager.batch);
-        Group pauseGameGroup = new Group();
-//        pauseGameGroup.setFillParent(true);
-//        pauseGameGroup.center();
+        //------------- GAME PAUSED STAGE ------------------
+        gamePausedStage = new Stage(viewPort, gameManager.batch);
+        Group gamePausedGroup = new Group();
 
         //pause game background
-        pauseGameTexture = new Texture("images/WhiteRectangle.png");
-        pauseGameBackground = new VisImage(pauseGameTexture);
-        pauseGameBackground.setSize(gameManager.WORLDWIDTH-25,gameManager.WORLDHEIGHT-25);
-        pauseGameBackground.setPosition(gameManager.WORLDWIDTH/2-pauseGameBackground.getWidth()/2,gameManager.WORLDHEIGHT/2-pauseGameBackground.getHeight()/2);
-        pauseGameBackground.setColor(0, 0, 0, 0.5f);
-        pauseGameStage.addActor(pauseGameBackground);
+        gamePausedBackgroundTexture = new Texture("images/WhiteRectangle.png");
+        gamePausedBackground = new VisImage(gamePausedBackgroundTexture);
+        gamePausedBackground.setSize(gameManager.WORLDWIDTH-25,gameManager.WORLDHEIGHT-25);
+        gamePausedBackground.setPosition(gameManager.WORLDWIDTH/2- gamePausedBackground.getWidth()/2,gameManager.WORLDHEIGHT/2- gamePausedBackground.getHeight()/2);
+        gamePausedBackground.setColor(0, 0, 0, 0.5f);
+        gamePausedStage.addActor(gamePausedBackground);
 
         //continue button
         continueButtonTexture = new Texture("images/continuebutton.png");
@@ -110,7 +110,7 @@ public class PlayScreenUI {
             }
         });
         //add to table
-        pauseGameGroup.addActor(continueButton);
+        gamePausedGroup.addActor(continueButton);
 
 
         //menu button
@@ -133,8 +133,34 @@ public class PlayScreenUI {
 
         });
         //add to table
-        pauseGameGroup.addActor(menuButton);
-        pauseGameStage.addActor(pauseGameGroup);
+        gamePausedGroup.addActor(menuButton);
+        gamePausedStage.addActor(gamePausedGroup);
+
+
+        //------COUNT DOWN LABEL --------------------
+        VisTable table = new VisTable();
+        table.setFillParent(true);
+        table.top();
+
+        countDownLabel = new VisLabel(""+(int)countDownTime);
+        table.add(countDownLabel).padTop(100f);
+        inGameStage.addActor(table);
+
+    }
+
+    public float getCountDownTime()
+    {
+        return countDownTime;
+    }
+
+    public void setCountDownTime(float countDownTime)
+    {
+        this.countDownTime = countDownTime;
+    }
+
+    public void setCountDownText(String text)
+    {
+        countDownLabel.setText(text);
     }
 
 
@@ -146,11 +172,11 @@ public class PlayScreenUI {
 
         if(drawPauseGameStage)
         {
-            pauseGameStage.draw();
-            pauseGameStage.act();
+            gamePausedStage.draw();
+            gamePausedStage.act();
         }
 
-        //since the frame is so fast that the continueButtonPressed and pauseButtonPressed is not returned to false in 2-3 frames
+        //since the frame is so fast that the replayButtonPressed and pauseButtonPressed is not returned to false in 2-3 frames
         //and furthermore, we want the result to be justTouched-like event, setting these variable to false after one frame is necessary
         continueButtonPressed = false;
         pauseButtonPressed = false;
@@ -177,8 +203,8 @@ public class PlayScreenUI {
         return continueButtonPressed;
     }
 
-    public Stage getPauseGameStage() {
-        return pauseGameStage;
+    public Stage getGamePausedStage() {
+        return gamePausedStage;
     }
 
     public void dispose() {
@@ -191,11 +217,11 @@ public class PlayScreenUI {
         if(continueButtonTexture!=null)
             continueButtonTexture.dispose();
 
-        if(pauseGameStage!=null)
-            pauseGameStage.dispose();
+        if(gamePausedStage !=null)
+            gamePausedStage.dispose();
 
-        if(pauseGameTexture!=null)
-            pauseGameTexture.dispose();
+        if(gamePausedBackgroundTexture !=null)
+            gamePausedBackgroundTexture.dispose();
 
         if(menuButtonTexture!=null)
             menuButtonTexture.dispose();

@@ -38,7 +38,7 @@ public class FindRoomScreen implements Screen, ServerListener{
     //viewport
     private Viewport viewport;
 
-    //stage manage UI on it
+    //gameStage manage UI on it
     private Stage stage;
 
     //game manager
@@ -129,7 +129,7 @@ public class FindRoomScreen implements Screen, ServerListener{
         group.addActor(userNameLabel);
 
 
-        //add to stage
+        //add to gameStage
         stage.addActor(group);
 
 

@@ -7,8 +7,9 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 
-import noshanabi.game.Objects.Checkpoint;
+import noshanabi.game.Objects.CheckPoint;
 import noshanabi.game.Objects.DeadGround;
+import noshanabi.game.Objects.FinishPoint;
 import noshanabi.game.Objects.Ground;
 import noshanabi.game.Objects.Player;
 
@@ -29,7 +30,6 @@ public class WorldListener implements ContactListener {
         }
 
         beginContactPlayerHandler(fixtureA,fixtureB);
-
 
     }
 
@@ -56,20 +56,20 @@ public class WorldListener implements ContactListener {
                 }
                 break;
 
-            case Player.PLAYER_BIT * Checkpoint.CHECKPOINT_BIT:
+            case Player.PLAYER_BIT * CheckPoint.CHECKPOINT_BIT:
 
                 Gdx.app.log("CheckPoint","");
 
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
                 {
-                    Checkpoint checkPoint = ((Checkpoint)fixtureB.getUserData());
+                    CheckPoint checkPoint = ((CheckPoint)fixtureB.getUserData());
                     ((Player)fixtureA.getUserData()).setCheckPoint(checkPoint.getX(),checkPoint.getY());
                 }
                 else
                 {
                     if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
                     {
-                        Checkpoint checkPoint = ((Checkpoint)fixtureA.getUserData());
+                        CheckPoint checkPoint = ((CheckPoint)fixtureA.getUserData());
                         ((Player)fixtureB.getUserData()).setCheckPoint(checkPoint.getX(),checkPoint.getY());
                     }
                 }
@@ -87,6 +87,22 @@ public class WorldListener implements ContactListener {
                     if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
                     {
                         ((Player)fixtureB.getUserData()).returnToCheckPoint();
+                    }
+                }
+                break;
+
+            case Player.PLAYER_BIT* FinishPoint.FINISHPOINT_BIT:
+
+                Gdx.app.log("Finish","");
+                if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
+                {
+                    ((Player)fixtureA.getUserData()).setFinish(true);
+                }
+                else
+                {
+                    if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
+                    {
+                        ((Player)fixtureB.getUserData()).setFinish(true);
                     }
                 }
                 break;

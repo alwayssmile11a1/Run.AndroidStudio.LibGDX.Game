@@ -9,7 +9,9 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 
 import noshanabi.game.GameManager;
 
@@ -17,10 +19,22 @@ import noshanabi.game.GameManager;
  * Created by 2SMILE2 on 27/09/2017.
  */
 
-public class Player extends Object {
+public class Player extends Sprite {
 
     public static final short PLAYER_BIT = 2;
     public static final short FOOT_BIT = 4;
+
+    protected World world; //the world that this object is belonged to
+    private Body body; //the body of this object
+    private Array<Transform> positions; //the list of positions that this object was going through - this is for rewinding purpose
+    private Array<Vector2> velocities; //the list of velocities that this object was going through - this is for rewinding purpose
+//    private boolean isRewinding; //is rewinding time or not?
+//    private float maximumRewindingTime = 5f;
+
+    private int reviewingIndex =0;
+
+    private boolean isRecording = true;
+    private boolean isReviewing = false;
 
     private Body foot;
     public boolean isGrounded = false;
@@ -28,9 +42,17 @@ public class Player extends Object {
 
     private Vector2 checkPoint;
     private boolean returnToCheckPoint = false;
+    private boolean hitFinishPoint = false;
+
+
+
 
     public Player(World world, float x, float y) {
-        super(world);
+
+        this.world = world;
+        positions = new Array<Transform>();
+        velocities = new Array<Vector2>();
+//        isRewinding = false;
 
         Texture playerTexture= new Texture("images/alienYellow_square.png");
         set(new Sprite(playerTexture));
@@ -43,8 +65,6 @@ public class Player extends Object {
 
         //set Size
         setSize(40f/ GameManager.PPM,40f/GameManager.PPM);
-
-        //usePixelPerMeter();
 
         //set this to rotate object in the center
         setOriginCenter();
@@ -63,8 +83,17 @@ public class Player extends Object {
         checkPoint.set(x, y);
     }
 
-    @Override
-    protected void defineObject() {
+    public void setFinish(boolean finished)
+    {
+        this.hitFinishPoint = finished;
+    }
+
+    public boolean isHitFinishPoint()
+    {
+        return hitFinishPoint;
+    }
+
+    private void defineObject() {
         //Create a main body
         BodyDef bDef = new BodyDef();
         bDef.position.set(this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2);
@@ -77,7 +106,7 @@ public class Player extends Object {
         bodyShape.setAsBox(this.getWidth()/2,this.getHeight()/2);
         fDef.shape = bodyShape;
         fDef.filter.categoryBits = PLAYER_BIT;
-        fDef.filter.maskBits = Ground.GROUND_BIT|Checkpoint.CHECKPOINT_BIT|DeadGround.DEADGROUND_BIT;
+        fDef.filter.maskBits = Ground.GROUND_BIT| CheckPoint.CHECKPOINT_BIT|DeadGround.DEADGROUND_BIT|FinishPoint.FINISHPOINT_BIT;
         fDef.density = 2f;
         fDef.friction = 0.1f;
         body.createFixture(fDef).setUserData(this);
@@ -97,10 +126,9 @@ public class Player extends Object {
         foot.createFixture(fDef).setUserData(this);
     }
 
-    @Override
     public void update(float dt) {
 
-        super.update(dt);
+        recordPositions(dt);
 
         if(returnToCheckPoint)
         {
@@ -123,8 +151,112 @@ public class Player extends Object {
 
     }
 
-    @Override
-    public void dispose() {
-        super.dispose();
+    //record positions that this object was going through
+    private void recordPositions(float dt) {
+
+        if (body == null) return;
+
+//        if(isRewinding == false) {
+//            //
+//            if(positions.size > (int)(maximumRewindingTime/dt))
+//            {
+//                positions.removeIndex(positions.size-1);
+//                velocities.removeIndex(velocities.size-1);
+//            }
+//            positions.insert(0, new Transform(body.getPosition(), body.getAngle()));
+//            velocities.insert(0, new Vector2(body.getLinearVelocity()));
+//        }
+
+        if (isRecording && !isReviewing) {
+            positions.add(new Transform(body.getPosition(), body.getAngle()));
+            velocities.add(new Vector2(body.getLinearVelocity()));
+        }
+
+    }
+
+//    //start rewinding - this fuction will automatically stop rewinding when it reaches maximum rewinding time
+//    public void startRewinding () {
+//
+//        if(body==null) return;
+//
+//        if (positions.size >0) {
+//            isRewinding = true;
+//            //body.setType(BodyDef.BodyType.KinematicBody);
+//            body.setTransform(positions.first().getPosition(), positions.first().getRotation());
+//            body.setLinearVelocity(velocities.first());
+//            positions.removeIndex(0);
+//            velocities.removeIndex(0);
+//        }
+//        else
+//        {
+//            stopRewinding();
+//        }
+//    }
+//
+//    //stop rewinding time
+//    public void stopRewinding () {
+//        isRewinding = false;
+//        //body.setType(BodyDef.BodyType.DynamicBody);
+//    }
+
+
+    public void reviewing()
+    {
+
+        if(isReviewing==false) return;
+
+        if (reviewingIndex < positions.size) {
+            //body.setType(BodyDef.BodyType.KinematicBody);
+            body.setTransform(positions.get(reviewingIndex).getPosition(), positions.get(reviewingIndex).getRotation());
+            body.setLinearVelocity(velocities.get(reviewingIndex));
+            reviewingIndex++;
+        }
+        else
+        {
+            isReviewing = false;
+            reviewingIndex = 0;
+        }
+    }
+
+    public void startRecording()
+    {
+        isRecording = true;
+    }
+
+    public void stopRecording()
+    {
+        isRecording = false;
+    }
+
+    public boolean isReviewing()
+    {
+        return isReviewing;
+    }
+
+    //auto return false after finishing reviewing
+    public void setReviewing(boolean reviewing)
+    {
+        isReviewing = reviewing;
+    }
+
+    public void setReviewingIndex(int index)
+    {
+        reviewingIndex = index;
+    }
+
+
+
+    public Body getBody()
+    {
+        return body;
+    }
+
+    public void dispose()
+    {
+        if(getTexture()!=null)
+        {
+            getTexture().dispose();
+        }
+
     }
 }

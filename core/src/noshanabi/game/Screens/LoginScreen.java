@@ -30,7 +30,7 @@ public class LoginScreen implements Screen {
     //how well we want to see our map
     private Viewport viewPort;
 
-    //stage manage UI on it
+    //gameStage manage UI on it
     private Stage stage;
 
     //----------------TEXTURE RELATED VARIABLES------------//
@@ -124,7 +124,7 @@ public class LoginScreen implements Screen {
         table.row();
         table.add(googleLoginButton).size(300,100);
 
-        //add to stage
+        //add to gameStage
         stage.addActor(table);
 
 

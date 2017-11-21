@@ -28,7 +28,7 @@ public class MenuScreen implements Screen{
     //how well we want to see our map
     private Viewport menuViewPort;
 
-    //stage manage UI on it
+    //gameStage manage UI on it
     private Stage stage;
 
     //----------------TEXTURE RELATED VARIABLES------------//
@@ -109,7 +109,7 @@ public class MenuScreen implements Screen{
         table.row();
         table.add(multiPlayerButton).expandX().padTop(10f);
 
-        //add to stage
+        //add to gameStage
         stage.addActor(table);
 
     }

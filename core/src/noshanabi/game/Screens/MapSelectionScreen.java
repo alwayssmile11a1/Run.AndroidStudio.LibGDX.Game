@@ -28,7 +28,7 @@ public class MapSelectionScreen implements Screen {
     //viewport
     private Viewport mapSelectionViewport;
 
-    //stage manage UI on it
+    //gameStage manage UI on it
     private Stage stage;
 
     //game manager
@@ -169,7 +169,7 @@ public class MapSelectionScreen implements Screen {
         //add to group
         mapGroup.addActor(previousMapButton);
 
-        //add to stage
+        //add to gameStage
         stage.addActor(mapGroup);
 
 

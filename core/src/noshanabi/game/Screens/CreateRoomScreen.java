@@ -34,7 +34,7 @@ public class CreateRoomScreen implements Screen, ServerListener{
     //viewport
     private Viewport viewport;
 
-    //stage manage UI on it
+    //gameStage manage UI on it
     private Stage stage;
 
     //game manager
@@ -130,7 +130,7 @@ public class CreateRoomScreen implements Screen, ServerListener{
         errorLabel.setColor(Color.RED);
 
 
-        //add to stage
+        //add to gameStage
         stage.addActor(roomNameTable);
 
         //------------------RETURN BUTTON ----------------------
@@ -184,7 +184,7 @@ public class CreateRoomScreen implements Screen, ServerListener{
         group.addActor(userNameLabel);
 
 
-        //add to stage
+        //add to gameStage
         stage.addActor(group);
 
     }

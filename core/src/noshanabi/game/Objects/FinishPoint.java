@@ -7,21 +7,19 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
-import noshanabi.game.GameManager;
-
 /**
  * Created by 2SMILE2 on 21/11/2017.
  */
 
-public class Checkpoint extends Sprite {
+public class FinishPoint extends Sprite {
 
-    public static final short CHECKPOINT_BIT = 16;
+    public static final short FINISHPOINT_BIT = 64;
 
     private Body body;
 
     private World world;
 
-    public Checkpoint(World world, float x, float y, float width, float height) {
+    public FinishPoint(World world, float x, float y, float width, float height) {
 
         this.world = world;
 
@@ -29,18 +27,7 @@ public class Checkpoint extends Sprite {
 
         setSize(width,height);
 
-        //convert to PPM
-        usePixelPerMeter();
-
         defineObject();
-
-    }
-
-    //this function resize this object to be used more appropriate with Box2D
-    protected void usePixelPerMeter() {
-
-        setPosition(getX() / GameManager.PPM, getY() / GameManager.PPM);
-        setSize(getWidth() / GameManager.PPM, getHeight() / GameManager.PPM);
 
     }
 
@@ -57,7 +44,7 @@ public class Checkpoint extends Sprite {
         bodyShape.setAsBox(this.getWidth()/2,this.getHeight()/2);
         fDef.shape = bodyShape;
         fDef.isSensor = true;
-        fDef.filter.categoryBits = CHECKPOINT_BIT;
+        fDef.filter.categoryBits = FINISHPOINT_BIT;
         fDef.filter.maskBits = Player.PLAYER_BIT;
         body.createFixture(fDef).setUserData(this);
     }
@@ -74,6 +61,5 @@ public class Checkpoint extends Sprite {
     public void dispose() {
 
     }
-
 
 }

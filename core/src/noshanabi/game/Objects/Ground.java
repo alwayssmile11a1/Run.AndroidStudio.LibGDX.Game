@@ -1,5 +1,7 @@
 package noshanabi.game.Objects;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -9,12 +11,15 @@ import com.badlogic.gdx.physics.box2d.World;
  * Created by 2SMILE2 on 28/09/2017.
  */
 
-public class Ground extends Object {
+public class Ground extends Sprite {
 
+    protected World world; //the world that this object is belonged to
+    protected Body body; //the body of this object
     public static final short GROUND_BIT = 1;
 
     public Ground(World world, float x, float y, float width, float height) {
-        super(world);
+
+        this.world = world;
 
         //set Texture
         //setTexture(new Texture("images/WhiteRectangle.png"));
@@ -23,9 +28,6 @@ public class Ground extends Object {
 
         setSize(width,height);
 
-        //convert to PPM
-        usePixelPerMeter();
-
         //this help us easily apply rotation
         setOriginCenter();
 
@@ -33,7 +35,6 @@ public class Ground extends Object {
 
     }
 
-    @Override
     protected void defineObject() {
         //body definition
         BodyDef bDef = new BodyDef();
@@ -52,7 +53,7 @@ public class Ground extends Object {
         body.createFixture(fDef).setUserData(this);
     }
 
-    @Override
+
     public void update(float dt) {
 
         //update texture position
@@ -62,8 +63,10 @@ public class Ground extends Object {
     }
 
 
-    @Override
     public void dispose() {
-        super.dispose();
+        if(getTexture()!=null)
+        {
+            getTexture().dispose();
+        }
     }
 }

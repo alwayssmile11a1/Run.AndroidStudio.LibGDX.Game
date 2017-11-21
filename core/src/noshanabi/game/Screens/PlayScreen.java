@@ -12,12 +12,11 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.kotcrab.vis.ui.widget.VisLabel;
-import com.kotcrab.vis.ui.widget.VisTable;
 
 import noshanabi.game.GameManager;
 import noshanabi.game.Objects.Player;
-import noshanabi.game.PlayScreenUI.PlayScreenUI;
+import noshanabi.game.PlayScreenUI.GameFinishedUI;
+import noshanabi.game.PlayScreenUI.InGameUI;
 import noshanabi.game.Server.ServerCreator;
 import noshanabi.game.WorldCreator.MapCreator;
 import noshanabi.game.WorldCreator.WorldListener;
@@ -70,20 +69,23 @@ public class PlayScreen implements Screen{
 
 
 
-    //----------------CONTROLLER RELATED VARIABLES------------//
-    private PlayScreenUI playScreenUI;
-    private boolean gamePaused = false;
-    private float previousWorldStepSpeed;
+    //----------------UI RELATED VARIABLES------------//
+    private InGameUI inGameUI;
+    private boolean isGamePausing = false;
+    //private float previousWorldStepSpeed;
+
+
+    private GameFinishedUI gameFinishedUI;
 
     //----------------SERVER RELATED VARIABLES------------//
     ServerCreator server;
 
 
     //-------------------OTHERS------------------------
-    Stage stage;
-    VisLabel countDownLabel;
-    float countDownTime = 3;
-    Viewport stageViewport;
+    //just for holding count down label
+    private boolean isGameStarting = true; //if game is staring, don't move anything
+    private float playTime;
+    private boolean gameEnded = false;
 
 
     public PlayScreen(GameManager gameManager, String mapName) {
@@ -127,21 +129,14 @@ public class PlayScreen implements Screen{
         player.setCheckPoint(mapCreator.getInstantiatePosition().x,mapCreator.getInstantiatePosition().y);
 
         //--------------------------UI -----------------------------
-        playScreenUI = new PlayScreenUI(gameManager);
-        Gdx.input.setInputProcessor(playScreenUI.getInGameStage());
+        inGameUI = new InGameUI(gameManager);
+        Gdx.input.setInputProcessor(inGameUI.getInGameStage());
 
+
+        gameFinishedUI = new GameFinishedUI(gameManager);
 
 
         //-------------------------OTHERS------------------------------
-        stageViewport = new StretchViewport(gameManager.WORLDWIDTH,gameManager.WORLDHEIGHT);
-        stage = new Stage(stageViewport,gameManager.batch);
-        VisTable table = new VisTable();
-        table.setFillParent(true);
-        table.top();
-
-        countDownLabel = new VisLabel(""+(int)countDownTime);
-        table.add(countDownLabel).padTop(100f);
-        stage.addActor(table);
 
 
     }
@@ -154,33 +149,29 @@ public class PlayScreen implements Screen{
 
     }
 
-    public void handleInput(float delta) {
-        if (playScreenUI.isPauseButtonPressed() && !gamePaused) {
-            previousWorldStepSpeed = worldStepSpeed;
-            worldStepSpeed = 0;
-            gamePaused = true;
-        }
+    public Stage getGameStage()
+    {
+        return inGameUI.getInGameStage();
+    }
 
-        if (playScreenUI.isContinueButtonPressed() && gamePaused) {
-            worldStepSpeed = previousWorldStepSpeed;
-            gamePaused = false;
-            countDownTime = 2f;
-            return;
-        }
 
-        if (gamePaused) return;
+    private void updateCamera()
+    {
+        //update camera to follow this player
+        mainCamera.position.x = MathUtils.clamp(player.getBody().getPosition().x + 1,
+                gameViewPort.getWorldWidth()/2,
+                mapCreator.getFinishPosition().x);
 
-        if (countDownTime > 0) {
-            countDownLabel.setText("" + (int) countDownTime);
-            countDownTime -= 0.02f;
-            return;
-        } else {
-            countDownTime = 0;
-            countDownLabel.setText("");
-        }
+        mainCamera.position.y = MathUtils.clamp(player.getBody().getPosition().y ,gameViewPort.getWorldHeight()/2,gameViewPort.getWorldHeight()/2+3f);
+        mainCamera.update();
+    }
+
+
+    private void handleInput(float delta) {
+
 
         //player.getBody().setLinearVelocity(1.5f,player.getBody().getLinearVelocity().y);
-        if(player.getBody().getLinearVelocity().x <1.5f) {
+        if(player.getBody().getLinearVelocity().x <2f) {
             player.getBody().applyLinearImpulse(0.1f, 0f, player.getBody().getPosition().x, player.getBody().getPosition().y, true);
         }
 
@@ -198,12 +189,6 @@ public class PlayScreen implements Screen{
 
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.E)) {
-            player.startRewinding();
-        } else {
-            player.stopRewinding();
-        }
-
         //slow down the time
         if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
             worldStepSpeed = 0.05f;
@@ -212,53 +197,16 @@ public class PlayScreen implements Screen{
             worldStepSpeed = MathUtils.clamp(worldStepSpeed, 0f, 1f);
         }
 
-//        if(playScreenUI.isPauseButtonPressed())
+//        if(inGameUI.isPauseButtonPressed())
 //        {
 //            player.getBody().setLinearVelocity(1.5f,player.getBody().getLinearVelocity().y);
 //        }
 
     }
 
-
-    public void update(float delta)
+    private void handleUI()
     {
-        handleInput(delta);
-
-        if(countDownTime==0) {
-            //update world
-            world.step(1 / 60f * worldStepSpeed, 6, 2);
-        }
-
-        //update player
-        player.update(delta);
-
-        if(server!=null) {
-            //update server
-            server.updateServer(delta);
-        }
-
-        //update camera to follow this player
-        mainCamera.position.x = MathUtils.clamp(player.getBody().getPosition().x + 1,
-                                                gameViewPort.getWorldWidth()/2,
-                                                 mapCreator.getFinishPosition().x-2f);
-
-        mainCamera.position.y = MathUtils.clamp(player.getBody().getPosition().y ,gameViewPort.getWorldHeight()/2,gameViewPort.getWorldHeight()/2+3f);
-        mainCamera.update();
-
-        mapCreator.update(mainCamera);
-
-    }
-
-    public Stage getStage()
-    {
-        return playScreenUI.getInGameStage();
-    }
-
-    //render textures, maps, etc..
-    @Override
-    public void render(float delta) {
-
-        if (playScreenUI.isMenuButtonPressed()) {
+        if (inGameUI.isMenuButtonPressed() || gameFinishedUI.isMenuButtonPressed()) {
             gameManager.addToDisposeScreens(this);
 
             if (server == null) {
@@ -277,6 +225,93 @@ public class PlayScreen implements Screen{
             return;
         }
 
+        if (inGameUI.isPauseButtonPressed() && !isGamePausing) {
+            //previousWorldStepSpeed = worldStepSpeed;
+            //worldStepSpeed = 0;
+            isGamePausing = true;
+        }
+
+        if (inGameUI.isContinueButtonPressed() && isGamePausing) {
+            //worldStepSpeed = previousWorldStepSpeed;
+            isGamePausing = false;
+            if(server==null) {
+                inGameUI.setCountDownTime(2f);
+            }
+            return;
+        }
+
+
+        if(gameFinishedUI.isReplayButtonPressed())
+        {
+            player.setReviewing(true);
+        }
+
+
+    }
+
+    private void update(float delta) {
+
+        if(player.isHitFinishPoint())
+        {
+            gameEnded = true;
+        }
+
+        //if game isn't finished, continue to handle input
+        if(!gameEnded) {
+            if (!(isGamePausing && server == null)) {
+                if (inGameUI.getCountDownTime() > 0) {
+                    inGameUI.setCountDownTime(inGameUI.getCountDownTime() - 1 / 60f);
+                    inGameUI.setCountDownText("" + (int) inGameUI.getCountDownTime());
+                    isGameStarting = true;
+                    player.stopRecording();
+
+                } else {
+                    inGameUI.setCountDownTime(0f);
+                    inGameUI.setCountDownText("");
+                    isGameStarting = false;
+                    player.startRecording();
+                    handleInput(delta);
+                }
+            }
+        }
+        else // if game is finished and player want to review their game -> let's review
+        {
+            player.stopRecording();
+            player.reviewing(); // reviewing if isReviewing == true
+
+        }
+
+
+        if (!isGameStarting) {
+            if ((!isGamePausing) || (isGamePausing && server != null)) {
+                playTime += 1 / 60f;
+                //update world
+                world.step(1 / 60f * worldStepSpeed, 6, 2);
+            }
+        }
+
+
+        //update player
+        player.update(delta);
+
+        if (server != null) {
+            //update server
+            server.updateServer(delta);
+        }
+
+        //update camera
+        updateCamera();
+
+        //update map
+        mapCreator.update(mainCamera);
+
+    }
+
+    //render textures, maps, etc..
+    @Override
+    public void render(float delta) {
+
+        handleUI();
 
         //call update
         update(delta);
@@ -306,11 +341,18 @@ public class PlayScreen implements Screen{
         //end of draw
         gameManager.batch.end();
 
-        playScreenUI.draw();
+        inGameUI.draw();
 
-        if(countDownTime!=0) {
-            stage.draw();
+        if(gameEnded)
+        {
+            gameFinishedUI.draw();
+
         }
+        else
+        {
+            inGameUI.draw();
+        }
+
 
         //render box2DDebug
         b2DebugRenderer.render(world,mainCamera.combined);
@@ -323,8 +365,7 @@ public class PlayScreen implements Screen{
     public void resize(int width, int height) {
         //resize viewport if we resize our game world
         gameViewPort.update(width,height);
-        playScreenUI.resize(width,height);
-        stageViewport.update(width,height);
+        inGameUI.resize(width,height);
     }
 
     @Override
@@ -361,10 +402,11 @@ public class PlayScreen implements Screen{
         //if(rayHandler!=null) {
         //    rayHandler.dispose();
         //}
-        if(playScreenUI !=null)
-            playScreenUI.dispose();
+        if(inGameUI !=null)
+            inGameUI.dispose();
 
-        stage.dispose();
+        if(gameFinishedUI !=null)
+            gameFinishedUI.dispose();
 
         Gdx.app.log("DISPOSE","Play Screen");
 

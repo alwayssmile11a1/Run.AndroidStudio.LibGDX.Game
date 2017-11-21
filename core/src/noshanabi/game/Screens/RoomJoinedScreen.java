@@ -40,7 +40,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
     //viewport
     private Viewport viewport;
 
-    //stage manage UI on it
+    //gameStage manage UI on it
     private Stage stage;
 
     //game manager
@@ -216,7 +216,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
                     PlayScreen playScreen = new PlayScreen(gameManager, mapName);
                     playScreen.setServer(gameManager.getServer());
-                    Gdx.input.setInputProcessor(playScreen.getStage());
+                    Gdx.input.setInputProcessor(playScreen.getGameStage());
                     gameManager.getServer().getSocket().emit("joinGame");
                     gameManager.setScreen(playScreen);
 
@@ -283,7 +283,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         mapGroup.addActor(previousMapButton);
 
 
-        //add to stage
+        //add to gameStage
         stage.addActor(mapGroup);
     }
 

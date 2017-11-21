@@ -23,7 +23,7 @@ public class GameOverScreen implements Screen{
     //viewport
     private Viewport gameOverViewPort;
 
-    //stage manage UI on it
+    //gameStage manage UI on it
     private Stage stage;
 
     //game manager
@@ -54,7 +54,7 @@ public class GameOverScreen implements Screen{
         table.row();
         table.add(playAgainLabel).expandX().padTop(10f);
 
-        //add to stage
+        //add to gameStage
         stage.addActor(table);
 
     }
