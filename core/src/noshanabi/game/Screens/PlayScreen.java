@@ -102,7 +102,7 @@ public class PlayScreen implements Screen{
         mainCamera.position.set(gameViewPort.getWorldWidth() / 2, gameViewPort.getWorldHeight() / 2, 0);
 
 
-        //----------------OBJECT RELATED VARIABLES------------//
+        //----------------WORLD VARIABLES------------//
         //initialize world with the gravity of -9.8f
         world = new World(new Vector2(0f, -9.8f), true);
         worldListener = new WorldListener();
@@ -110,9 +110,6 @@ public class PlayScreen implements Screen{
 
         //initialize box2DDebugRenderer
         b2DebugRenderer = new Box2DDebugRenderer();
-
-        //initialize player
-        player = new Player(world);
 
 
         //----------------MAP RELATED VARIABLES------------//
@@ -124,6 +121,10 @@ public class PlayScreen implements Screen{
         //pointLight1.setSoftnessLength(50f);
         //System.out.print(pointLight.getSoftShadowLength());
 
+
+        //initialize player
+        player = new Player(world, mapCreator.getInstantiatePosition().x,mapCreator.getInstantiatePosition().y);
+        player.setCheckPoint(mapCreator.getInstantiatePosition().x,mapCreator.getInstantiatePosition().y);
 
         //--------------------------UI -----------------------------
         playScreenUI = new PlayScreenUI(gameManager);
@@ -237,7 +238,10 @@ public class PlayScreen implements Screen{
         }
 
         //update camera to follow this player
-        mainCamera.position.x = MathUtils.clamp(player.getBody().getPosition().x + 1,gameViewPort.getWorldWidth()/2,100f);
+        mainCamera.position.x = MathUtils.clamp(player.getBody().getPosition().x + 1,
+                                                gameViewPort.getWorldWidth()/2,
+                                                 mapCreator.getFinishPosition().x-2f);
+
         mainCamera.position.y = MathUtils.clamp(player.getBody().getPosition().y ,gameViewPort.getWorldHeight()/2,gameViewPort.getWorldHeight()/2+3f);
         mainCamera.update();
 

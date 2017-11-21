@@ -1,11 +1,15 @@
 package noshanabi.game.WorldCreator;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 
+import noshanabi.game.Objects.Checkpoint;
+import noshanabi.game.Objects.DeadGround;
+import noshanabi.game.Objects.Ground;
 import noshanabi.game.Objects.Player;
 
 /**
@@ -31,20 +35,65 @@ public class WorldListener implements ContactListener {
 
     private void beginContactPlayerHandler(Fixture fixtureA, Fixture fixtureB)
     {
+        //Gdx.app.log(fixtureA.getFilterData().categoryBits+"",fixtureB.getFilterData().categoryBits+"");
 
-        if(fixtureA.getUserData() instanceof Player && fixtureA.getFilterData().categoryBits == Player.FOOT)
+        switch (fixtureA.getFilterData().categoryBits*fixtureB.getFilterData().categoryBits)
         {
-            ((Player)fixtureA.getUserData()).isGrounded = true;
+            //Player and ground hit each other
+            case Player.FOOT_BIT * Ground.GROUND_BIT:
+                Gdx.app.log("Ground","");
+
+                if(fixtureA.getFilterData().categoryBits == Player.FOOT_BIT)
+                {
+                    ((Player)fixtureA.getUserData()).isGrounded = true;
+                }
+                else
+                {
+                    if (fixtureB.getFilterData().categoryBits == Player.FOOT_BIT)
+                    {
+                        ((Player)fixtureB.getUserData()).isGrounded = true;
+                    }
+                }
+                break;
+
+            case Player.PLAYER_BIT * Checkpoint.CHECKPOINT_BIT:
+
+                Gdx.app.log("CheckPoint","");
+
+                if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
+                {
+                    Checkpoint checkPoint = ((Checkpoint)fixtureB.getUserData());
+                    ((Player)fixtureA.getUserData()).setCheckPoint(checkPoint.getX(),checkPoint.getY());
+                }
+                else
+                {
+                    if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
+                    {
+                        Checkpoint checkPoint = ((Checkpoint)fixtureA.getUserData());
+                        ((Player)fixtureB.getUserData()).setCheckPoint(checkPoint.getX(),checkPoint.getY());
+                    }
+                }
+                break;
+
+            case Player.PLAYER_BIT* DeadGround.DEADGROUND_BIT:
+
+                Gdx.app.log("Dead","");
+                if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
+                {
+                    ((Player)fixtureA.getUserData()).returnToCheckPoint();
+                }
+                else
+                {
+                    if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
+                    {
+                        ((Player)fixtureB.getUserData()).returnToCheckPoint();
+                    }
+                }
+                break;
+
         }
-        else
-        {
-            if (fixtureB.getUserData() instanceof Player && fixtureB.getFilterData().categoryBits == Player.FOOT)
-            {
-                ((Player)fixtureA.getUserData()).isGrounded = true;
-            }
-        }
+
     }
-
 
     @Override
     public void endContact(Contact contact) {
@@ -63,13 +112,13 @@ public class WorldListener implements ContactListener {
     {
         System.out.println(fixtureA.getFilterData().categoryBits);
         System.out.println(fixtureB.getFilterData().categoryBits);
-        if(fixtureA.getUserData() instanceof Player && fixtureA.getFilterData().categoryBits == Player.FOOT)
+        if(fixtureA.getUserData() instanceof Player && fixtureA.getFilterData().categoryBits == Player.FOOT_BIT)
         {
             ((Player)fixtureA.getUserData()).isGrounded = false;
         }
         else
         {
-            if (fixtureB.getUserData() instanceof Player && fixtureB.getFilterData().categoryBits == Player.FOOT)
+            if (fixtureB.getUserData() instanceof Player && fixtureB.getFilterData().categoryBits == Player.FOOT_BIT)
             {
                 ((Player)fixtureA.getUserData()).isGrounded = false;
             }

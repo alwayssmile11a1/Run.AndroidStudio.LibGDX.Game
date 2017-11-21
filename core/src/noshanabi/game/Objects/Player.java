@@ -11,6 +11,8 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
+import noshanabi.game.GameManager;
+
 /**
  * Created by 2SMILE2 on 27/09/2017.
  */
@@ -18,28 +20,31 @@ import com.badlogic.gdx.physics.box2d.World;
 public class Player extends Object {
 
     public static final short PLAYER_BIT = 2;
-    public static final short FOOT = 4;
+    public static final short FOOT_BIT = 4;
 
     private Body foot;
     public boolean isGrounded = false;
     public boolean isDoubleJumped = false;
 
-    public Player(World world) {
+    private Vector2 checkPoint;
+    private boolean returnToCheckPoint = false;
+
+    public Player(World world, float x, float y) {
         super(world);
 
         Texture playerTexture= new Texture("images/alienYellow_square.png");
         set(new Sprite(playerTexture));
-
-        //set Texture
         //setColor(0f,0.4f,1f,1f);
 
+        checkPoint = new Vector2();
+
         //set Position
-        setPosition(50,200);
+        setPosition(x,y);
 
         //set Size
-        setSize(40f,40f);
+        setSize(40f/ GameManager.PPM,40f/GameManager.PPM);
 
-        usePixelPerMeter();
+        //usePixelPerMeter();
 
         //set this to rotate object in the center
         setOriginCenter();
@@ -48,6 +53,15 @@ public class Player extends Object {
         defineObject();
     }
 
+    public void returnToCheckPoint()
+    {
+        returnToCheckPoint = true;
+    }
+
+    public void setCheckPoint(float x, float y)
+    {
+        checkPoint.set(x, y);
+    }
 
     @Override
     protected void defineObject() {
@@ -63,7 +77,7 @@ public class Player extends Object {
         bodyShape.setAsBox(this.getWidth()/2,this.getHeight()/2);
         fDef.shape = bodyShape;
         fDef.filter.categoryBits = PLAYER_BIT;
-        fDef.filter.maskBits = Ground.GROUND_BIT|FriendPlayer.FRIEND_PLAYER_BIT;
+        fDef.filter.maskBits = Ground.GROUND_BIT|Checkpoint.CHECKPOINT_BIT|DeadGround.DEADGROUND_BIT;
         fDef.density = 2f;
         fDef.friction = 0.1f;
         body.createFixture(fDef).setUserData(this);
@@ -75,11 +89,11 @@ public class Player extends Object {
         foot = world.createBody(bDef);
         foot.setGravityScale(0);
 
-        bodyShape.setAsBox(this.getWidth()/2-0.01f,0.08f);
+        bodyShape.setAsBox(this.getWidth()/2-0.05f,0.08f);
         fDef.shape = bodyShape;
         fDef.isSensor = true;
-        fDef.filter.categoryBits = FOOT;
-        fDef.filter.maskBits = Ground.GROUND_BIT|FriendPlayer.FRIEND_PLAYER_BIT;
+        fDef.filter.categoryBits = FOOT_BIT;
+        fDef.filter.maskBits = Ground.GROUND_BIT;
         foot.createFixture(fDef).setUserData(this);
     }
 
@@ -87,6 +101,14 @@ public class Player extends Object {
     public void update(float dt) {
 
         super.update(dt);
+
+        if(returnToCheckPoint)
+        {
+            body.setTransform(checkPoint,0);
+            setRotation(0);
+            returnToCheckPoint = false;
+            return;
+        }
 
         //update texture position
         setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);

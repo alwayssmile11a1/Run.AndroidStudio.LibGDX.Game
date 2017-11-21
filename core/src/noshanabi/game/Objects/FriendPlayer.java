@@ -66,7 +66,7 @@ public class FriendPlayer extends Sprite {
         bodyShape.setAsBox(this.getWidth()/2,this.getHeight()/2);
         fDef.shape = bodyShape;
         fDef.filter.categoryBits = FRIEND_PLAYER_BIT;
-        fDef.filter.maskBits = FRIEND_PLAYER_BIT|Player.PLAYER_BIT|Player.FOOT;
+        fDef.filter.maskBits = FRIEND_PLAYER_BIT|Player.PLAYER_BIT|Player.FOOT_BIT;
         fDef.density = 2f;
         body.createFixture(fDef).setUserData(this);
 

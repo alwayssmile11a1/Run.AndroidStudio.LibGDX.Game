@@ -1,24 +1,30 @@
 package noshanabi.game.Objects;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
+import noshanabi.game.GameManager;
+
 /**
- * Created by 2SMILE2 on 28/09/2017.
+ * Created by 2SMILE2 on 21/11/2017.
  */
 
-public class Ground extends Object {
+public class Checkpoint extends Sprite {
 
-    public static final short GROUND_BIT = 1;
+    public static final short CHECKPOINT_BIT = 16;
 
-    public Ground(World world, float x, float y, float width, float height) {
-        super(world);
+    private Body body;
 
-        //set Texture
-        //setTexture(new Texture("images/WhiteRectangle.png"));
-        //setColor(0.4f,0.4f,1f,1f);
+    private World world;
+
+    public Checkpoint(World world, float x, float y, float width, float height) {
+
+        this.world = world;
+
         setPosition(x,y);
 
         setSize(width,height);
@@ -26,14 +32,18 @@ public class Ground extends Object {
         //convert to PPM
         usePixelPerMeter();
 
-        //this help us easily apply rotation
-        setOriginCenter();
-
         defineObject();
 
     }
 
-    @Override
+    //this function resize this object to be used more appropriate with Box2D
+    protected void usePixelPerMeter() {
+
+        setPosition(getX() / GameManager.PPM, getY() / GameManager.PPM);
+        setSize(getWidth() / GameManager.PPM, getHeight() / GameManager.PPM);
+
+    }
+
     protected void defineObject() {
         //body definition
         BodyDef bDef = new BodyDef();
@@ -46,24 +56,24 @@ public class Ground extends Object {
         PolygonShape bodyShape = new PolygonShape();
         bodyShape.setAsBox(this.getWidth()/2,this.getHeight()/2);
         fDef.shape = bodyShape;
-        fDef.friction = 1f;
-        fDef.filter.categoryBits = GROUND_BIT;
-        fDef.filter.maskBits = Player.PLAYER_BIT|Player.FOOT_BIT;
+        fDef.isSensor = true;
+        fDef.filter.categoryBits = CHECKPOINT_BIT;
+        fDef.filter.maskBits = Player.PLAYER_BIT;
         body.createFixture(fDef).setUserData(this);
     }
 
-    @Override
+
     public void update(float dt) {
 
         //update texture position
         setPosition(body.getPosition().x-getWidth()/2,body.getPosition().y-getHeight()/2);
 
-        //setRotation(body.getAngle()*MathUtils.radiansToDegrees);
     }
 
 
-    @Override
     public void dispose() {
-        super.dispose();
+
     }
+
+
 }
