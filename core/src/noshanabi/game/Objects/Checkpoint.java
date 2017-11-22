@@ -11,7 +11,7 @@ import com.badlogic.gdx.physics.box2d.World;
  * Created by 2SMILE2 on 21/11/2017.
  */
 
-public class CheckPoint extends Sprite {
+public class Checkpoint extends Sprite {
 
     public static final short CHECKPOINT_BIT = 16;
 
@@ -19,7 +19,7 @@ public class CheckPoint extends Sprite {
 
     private World world;
 
-    public CheckPoint(World world, float x, float y, float width, float height) {
+    public Checkpoint(World world, float x, float y, float width, float height) {
 
         this.world = world;
 

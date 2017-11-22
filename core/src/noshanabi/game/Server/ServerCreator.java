@@ -18,14 +18,13 @@ import io.socket.emitter.Emitter;
 import noshanabi.game.GameManager;
 import noshanabi.game.Objects.FriendPlayer;
 import noshanabi.game.Objects.Player;
+import noshanabi.game.Resourses;
 
 /**
  * Created by 2SMILE2 on 15/10/2017.
  */
 
 public class ServerCreator {
-
-    private boolean createServer = true;
 
     private GameManager gameManager;
 
@@ -40,7 +39,6 @@ public class ServerCreator {
     public ServerCreator(GameManager gameManager)
     {
         this.gameManager = gameManager;
-        if(!createServer) return;
         otherPlayers = new HashMap<String, FriendPlayer>();
         serverListeners = new Array<ServerListener>();
         playersToDispose = new Array<FriendPlayer>();
@@ -53,13 +51,15 @@ public class ServerCreator {
 
     public void connectSocket()
     {
-        if(!createServer) return;
-
         try
         {
             //Connect to server (server is the index.js file, kind of ..)
-            //socket = IO.socket("https://runandroidstudiolibgdx.herokuapp.com");
-            socket = IO.socket("http://localhost:5000");
+            if(Resourses.UseLocal) {
+                socket = IO.socket(Resourses.LocalServerUri);
+            }
+            else {
+                socket = IO.socket(Resourses.WebServerUri);
+            }
             socket.connect();
 
         }
@@ -70,8 +70,6 @@ public class ServerCreator {
     }
 
     public void configSocketEvents() {
-
-        if(!createServer) return;
 
         //when we start connecting
         socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
@@ -415,8 +413,6 @@ public class ServerCreator {
 
 
     public void updateServer(float dt) {
-        if (!createServer) return;
-
         for(FriendPlayer player:playersToDispose) {
             player.dispose();
         }
@@ -460,8 +456,6 @@ public class ServerCreator {
 
     public void drawOtherPlayers(SpriteBatch batch)
     {
-        if(!createServer) return;
-
         for(HashMap.Entry<String,FriendPlayer> entry : otherPlayers.entrySet())
         {
             if(entry.getValue().getTexture()==null)

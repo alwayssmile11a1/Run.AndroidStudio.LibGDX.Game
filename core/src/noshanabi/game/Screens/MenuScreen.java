@@ -3,17 +3,17 @@ package noshanabi.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import noshanabi.game.ButtonPrefabs.MultiPlayButton;
+import noshanabi.game.ButtonPrefabs.SinglePlayButton;
 import noshanabi.game.GameManager;
+import noshanabi.game.Resourses;
 
 /**
  * Created by 2SMILE2 on 25/09/2017.
@@ -32,10 +32,8 @@ public class MenuScreen implements Screen{
     private Stage stage;
 
     //----------------TEXTURE RELATED VARIABLES------------//
-    Image singlePlayerButton;
-    Image multiPlayerButton;
-    Texture singlePlayerTexture;
-    Texture multiPlayerTexture;
+    SinglePlayButton singlePlayerButton;
+    MultiPlayButton multiPlayerButton;
 
 
     public MenuScreen(GameManager _gameManager)
@@ -44,7 +42,7 @@ public class MenuScreen implements Screen{
         this.gameManager = _gameManager;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
-        menuViewPort = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+        menuViewPort = new StretchViewport(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
         stage = new Stage(menuViewPort,gameManager.batch);
 
 
@@ -55,11 +53,8 @@ public class MenuScreen implements Screen{
 
 
 
-        //singleplayer Button
-        singlePlayerTexture = new Texture("images/playbutton.png");
-        singlePlayerButton = new Image(singlePlayerTexture);
-        singlePlayerButton.setBounds(0,0,singlePlayerTexture.getWidth(),singlePlayerButton.getHeight());
-        singlePlayerButton.setTouchable(Touchable.enabled);
+        //singleplayer TouchableImage
+        singlePlayerButton = new SinglePlayButton();
         singlePlayerButton.addListener(new InputListener()
         {
             @Override
@@ -71,11 +66,8 @@ public class MenuScreen implements Screen{
 
         });
 
-        //multiplayer Button
-        multiPlayerTexture = new Texture("images/multiplaybutton.png");
-        multiPlayerButton = new Image(multiPlayerTexture);
-        multiPlayerButton.setBounds(0,0,multiPlayerTexture.getWidth(),multiPlayerTexture.getHeight());
-        multiPlayerButton.setTouchable(Touchable.enabled);
+        //multiplayer TouchableImage
+        multiPlayerButton = new MultiPlayButton();
         multiPlayerButton.addListener(new InputListener()
         {
             @Override
@@ -158,11 +150,11 @@ public class MenuScreen implements Screen{
             stage.dispose();
         }
 
-        if (singlePlayerTexture != null)
-            singlePlayerTexture.dispose();
+        if (singlePlayerButton != null)
+            singlePlayerButton.dispose();
 
-        if (multiPlayerTexture != null)
-            multiPlayerTexture.dispose();
+        if (multiPlayerButton != null)
+            multiPlayerButton.dispose();
     }
 
 

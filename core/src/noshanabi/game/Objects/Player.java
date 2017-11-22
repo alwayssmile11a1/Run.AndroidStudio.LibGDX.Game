@@ -13,7 +13,7 @@ import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
-import noshanabi.game.GameManager;
+import noshanabi.game.Resourses;
 
 /**
  * Created by 2SMILE2 on 27/09/2017.
@@ -32,6 +32,7 @@ public class Player extends Sprite {
 //    private float maximumRewindingTime = 5f;
 
     private int reviewingIndex =0;
+    private int checkpointIndex = 0;
 
     private boolean isRecording = true;
     private boolean isReviewing = false;
@@ -41,6 +42,7 @@ public class Player extends Sprite {
     public boolean isDoubleJumped = false;
 
     private Vector2 checkPoint;
+    private Vector2 instantiatePoint;
     private boolean returnToCheckPoint = false;
     private boolean hitFinishPoint = false;
 
@@ -59,12 +61,13 @@ public class Player extends Sprite {
         //setColor(0f,0.4f,1f,1f);
 
         checkPoint = new Vector2();
+        instantiatePoint = new Vector2();
 
         //set Position
         setPosition(x,y);
 
         //set Size
-        setSize(40f/ GameManager.PPM,40f/GameManager.PPM);
+        setSize(40f/ Resourses.PPM,40f/Resourses.PPM);
 
         //set this to rotate object in the center
         setOriginCenter();
@@ -76,16 +79,29 @@ public class Player extends Sprite {
     public void returnToCheckPoint()
     {
         returnToCheckPoint = true;
+
+        if(!hitFinishPoint) {
+            positions.removeRange(checkpointIndex, positions.size - 1);
+            velocities.removeRange(checkpointIndex, velocities.size - 1);
+        }
     }
 
     public void setCheckPoint(float x, float y)
     {
         checkPoint.set(x, y);
+        checkpointIndex = positions.size;
     }
 
-    public void setFinish(boolean finished)
+
+    public void setInstantiatePoint(float x, float y)
     {
-        this.hitFinishPoint = finished;
+        instantiatePoint.set(x, y);
+        checkPoint.set(x, y);
+    }
+
+    public void OnHitFinishPoint()
+    {
+        this.hitFinishPoint = true;
     }
 
     public boolean isHitFinishPoint()
@@ -106,7 +122,7 @@ public class Player extends Sprite {
         bodyShape.setAsBox(this.getWidth()/2,this.getHeight()/2);
         fDef.shape = bodyShape;
         fDef.filter.categoryBits = PLAYER_BIT;
-        fDef.filter.maskBits = Ground.GROUND_BIT| CheckPoint.CHECKPOINT_BIT|DeadGround.DEADGROUND_BIT|FinishPoint.FINISHPOINT_BIT;
+        fDef.filter.maskBits = Ground.GROUND_BIT| Checkpoint.CHECKPOINT_BIT|DeadGround.DEADGROUND_BIT|FinishPoint.FINISHPOINT_BIT;
         fDef.density = 2f;
         fDef.friction = 0.1f;
         body.createFixture(fDef).setUserData(this);
@@ -128,8 +144,6 @@ public class Player extends Sprite {
 
     public void update(float dt) {
 
-        recordPositions(dt);
-
         if(returnToCheckPoint)
         {
             body.setTransform(checkPoint,0);
@@ -137,6 +151,8 @@ public class Player extends Sprite {
             returnToCheckPoint = false;
             return;
         }
+
+        recordPositions(dt);
 
         //update texture position
         setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
@@ -171,6 +187,7 @@ public class Player extends Sprite {
             positions.add(new Transform(body.getPosition(), body.getAngle()));
             velocities.add(new Vector2(body.getLinearVelocity()));
         }
+
 
     }
 
@@ -244,7 +261,17 @@ public class Player extends Sprite {
         reviewingIndex = index;
     }
 
-
+    public void reset()
+    {
+        isReviewing = false;
+        hitFinishPoint = false;
+        positions.clear();
+        velocities.clear();
+        reviewingIndex = 0;
+        checkpointIndex = 0;
+        checkPoint.set(instantiatePoint.x,instantiatePoint.y);
+        body.setTransform(instantiatePoint,0);
+    }
 
     public Body getBody()
     {

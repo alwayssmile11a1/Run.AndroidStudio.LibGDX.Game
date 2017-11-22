@@ -6,12 +6,18 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kotcrab.vis.ui.widget.VisImage;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisTable;
 
+import noshanabi.game.ButtonPrefabs.MenuButton;
+import noshanabi.game.ButtonPrefabs.PauseButton;
+import noshanabi.game.ButtonPrefabs.ReplayButton;
+import noshanabi.game.ButtonPrefabs.ReviewButton;
 import noshanabi.game.GameManager;
+import noshanabi.game.Resourses;
 
 /**
  * Created by 2SMILE2 on 21/11/2017.
@@ -27,50 +33,51 @@ public class GameFinishedUI {
     Stage stage;
 
 
-    //Pause Button
+    //Pause TouchableImage
     boolean pauseButtonPressed = false;
-    Texture pauseButtonTexture;
-    VisImage pauseButton;
+    PauseButton pauseButton;
 
     //group
     Group gameFinishedGroup;
     //replay button
-    VisImage replayButton;
-    Texture replayButtonTexture;
-    boolean replayButtonPressed = false;
+    ReviewButton reviewButton;
+    boolean reviewButtonPressed = false;
 
     //background
     VisImage background;
     Texture backgroundTexture;
 
+    //replay button
+    ReplayButton replayButton;
+    boolean replayButtonPressed = false;
 
     //menu button
-    Texture menuButtonTexture;
-    VisImage menuButton;
+    MenuButton menuButton;
     private boolean menuButtonPressed =false;
+
+
+    //display playing time
+    VisTable table;
+    VisLabel playTimeLabel;
 
 
     private boolean needSetInputProcessor = true;
 //    private boolean drawGameFinishedStageGroup = false;
 
     public GameFinishedUI(GameManager gameManager) {
-        needSetInputProcessor = true;
         //set up
-        viewPort = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
-        //inGameStage = new Stage(viewPort, gameManager.batch);
+        viewPort = new StretchViewport(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
+        //stage = new Stage(viewPort, gameManager.batch);
         stage = new Stage(viewPort, gameManager.batch);
 
         //--------------PAUSE BUTTON ------------------------
-        pauseButtonTexture = new Texture("images/pausebutton.png");
-        pauseButton = new VisImage(pauseButtonTexture);
-        pauseButton.setSize(32, 32);
-        pauseButton.setPosition(gameManager.WORLDWIDTH - pauseButton.getWidth() - 10, gameManager.WORLDHEIGHT - pauseButton.getHeight() - 10);
-        pauseButton.setTouchable(Touchable.enabled);
+        pauseButton = new PauseButton();
         pauseButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 pauseButtonPressed = true;
                 gameFinishedGroup.setVisible(true);
+                table.setVisible(true);
                 //drawGameFinishedStageGroup = true;
                 //Gdx.input.setInputProcessor(stage);
                 return true;
@@ -88,25 +95,23 @@ public class GameFinishedUI {
         gameFinishedGroup = new Group();
 
         //background
-        backgroundTexture = new Texture("images/WhiteRectangle.png");
+        backgroundTexture = new Texture(Resourses.GameFinishedBackground);
         background = new VisImage(backgroundTexture);
-        background.setSize(gameManager.WORLDWIDTH-25,gameManager.WORLDHEIGHT-25);
-        background.setPosition(gameManager.WORLDWIDTH/2- background.getWidth()/2,gameManager.WORLDHEIGHT/2- background.getHeight()/2);
+        background.setSize(Resourses.WORLDWIDTH-25,Resourses.WORLDHEIGHT-25);
+        background.setPosition(Resourses.WORLDWIDTH/2- background.getWidth()/2,Resourses.WORLDHEIGHT/2- background.getHeight()/2);
         background.setColor(0, 0, 0, 0.5f);
         gameFinishedGroup.addActor(background);
 
         //replay button
-        replayButtonTexture = new Texture("images/youtube.png");
-        replayButton = new VisImage(replayButtonTexture);
-        replayButton.setTouchable(Touchable.enabled);
-        replayButton.setPosition(gameManager.WORLDWIDTH/2- replayButton.getWidth()/2,gameManager.WORLDHEIGHT/2- replayButton.getHeight()/2);
+        replayButton = new ReplayButton();
         replayButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 replayButtonPressed = true;
                 gameFinishedGroup.setVisible(false);
+                table.setVisible(false);
                 //drawGameFinishedStageGroup = false;
-                //Gdx.input.setInputProcessor(inGameStage);
+                //Gdx.input.setInputProcessor(stage);
                 return true;
             }
 
@@ -118,13 +123,30 @@ public class GameFinishedUI {
         //add to table
         gameFinishedGroup.addActor(replayButton);
 
+        //review button
+        reviewButton = new ReviewButton();
+        reviewButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                reviewButtonPressed = true;
+                gameFinishedGroup.setVisible(false);
+                table.setVisible(false);
+                //drawGameFinishedStageGroup = false;
+                //Gdx.input.setInputProcessor(stage);
+                return true;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                reviewButtonPressed = false;
+            }
+        });
+        //add to table
+        gameFinishedGroup.addActor(reviewButton);
+
 
         //menu button
-        menuButtonTexture = new Texture("images/menubutton.png");
-        menuButton = new VisImage(menuButtonTexture);
-        menuButton.setTouchable(Touchable.enabled);
-        menuButton.setSize(52,52);
-        menuButton.setPosition(replayButton.getX()+80,gameManager.WORLDHEIGHT/2-menuButton.getHeight()/2);
+        menuButton = new MenuButton();
         menuButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -141,13 +163,38 @@ public class GameFinishedUI {
         //add to table
         gameFinishedGroup.addActor(menuButton);
         stage.addActor(gameFinishedGroup);
+
+
+        //----------------PLAY TIME LABEL --------------------
+        table = new VisTable();
+        table.setFillParent(true);
+        table.top();
+
+        playTimeLabel = new VisLabel();
+        table.add(playTimeLabel).padTop(100f);
+        stage.addActor(table);
+
     }
 
+    public void reset()
+    {
+        needSetInputProcessor = true;
+        gameFinishedGroup.setVisible(true);
+        table.setVisible(true);
+        reviewButtonPressed = false;
+        menuButtonPressed = false;
+        pauseButtonPressed = false;
+        replayButtonPressed = false;
+    }
+
+    public void setPlayTimeText(String text)
+    {
+        playTimeLabel.setText(text);
+    }
 
     public void draw()
     {
         if(needSetInputProcessor) {
-            Gdx.app.log("hello","");
             Gdx.input.setInputProcessor(stage);
             needSetInputProcessor = false;
         }
@@ -155,12 +202,12 @@ public class GameFinishedUI {
         stage.draw();
         stage.act();
 
-        //since the frame is so fast that the replayButtonPressed and pauseButtonPressed is not returned to false in 2-3 frames
+        //since the frame is so fast that the reviewButtonPressed and pauseButtonPressed is not returned to false in 2-3 frames
         //and furthermore, we want the result to be justTouched-like event, setting these variable to false after one frame is necessary
-        replayButtonPressed = false;
+        reviewButtonPressed = false;
         menuButtonPressed = false;
         pauseButtonPressed = false;
-
+        replayButtonPressed = false;
 
     }
 
@@ -174,16 +221,16 @@ public class GameFinishedUI {
         return stage;
     }
 
-    public boolean isReplayButtonPressed() {
-        return replayButtonPressed;
+    public boolean isReviewButtonPressed() {
+        return reviewButtonPressed;
     }
 
     public void dispose() {
         if (stage != null)
             stage.dispose();
 
-        if(replayButtonTexture !=null)
-            replayButtonTexture.dispose();
+        if(reviewButton !=null)
+            reviewButton.dispose();
 
         if(stage !=null)
             stage.dispose();
@@ -191,14 +238,14 @@ public class GameFinishedUI {
         if(backgroundTexture !=null)
             backgroundTexture.dispose();
 
-        if(menuButtonTexture!=null)
-            menuButtonTexture.dispose();
+        if(menuButton!=null)
+            menuButton.dispose();
 
-        if(pauseButtonTexture!=null)
-            pauseButtonTexture.dispose();
+        if(pauseButton!=null)
+            pauseButton.dispose();
 
-//        if(inGameStage!=null)
-//            inGameStage.dispose();
+        if(replayButton!=null)
+            replayButton.dispose();
 
     }
 
@@ -209,5 +256,9 @@ public class GameFinishedUI {
 
     public boolean isPauseButtonPressed() {
         return pauseButtonPressed;
+    }
+
+    public boolean isReplayButtonPressed() {
+        return replayButtonPressed;
     }
 }

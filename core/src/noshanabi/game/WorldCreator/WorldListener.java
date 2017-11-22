@@ -7,7 +7,7 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 
-import noshanabi.game.Objects.CheckPoint;
+import noshanabi.game.Objects.Checkpoint;
 import noshanabi.game.Objects.DeadGround;
 import noshanabi.game.Objects.FinishPoint;
 import noshanabi.game.Objects.Ground;
@@ -41,7 +41,6 @@ public class WorldListener implements ContactListener {
         {
             //Player and ground hit each other
             case Player.FOOT_BIT * Ground.GROUND_BIT:
-                Gdx.app.log("Ground","");
 
                 if(fixtureA.getFilterData().categoryBits == Player.FOOT_BIT)
                 {
@@ -56,21 +55,21 @@ public class WorldListener implements ContactListener {
                 }
                 break;
 
-            case Player.PLAYER_BIT * CheckPoint.CHECKPOINT_BIT:
+            case Player.PLAYER_BIT * Checkpoint.CHECKPOINT_BIT:
 
-                Gdx.app.log("CheckPoint","");
+                Gdx.app.log("Checkpoint","");
 
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
                 {
-                    CheckPoint checkPoint = ((CheckPoint)fixtureB.getUserData());
-                    ((Player)fixtureA.getUserData()).setCheckPoint(checkPoint.getX(),checkPoint.getY());
+                    Player player = ((Player)fixtureA.getUserData());
+                    player.setCheckPoint(player.getBody().getPosition().x, player.getBody().getPosition().y);
                 }
                 else
                 {
                     if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
                     {
-                        CheckPoint checkPoint = ((CheckPoint)fixtureA.getUserData());
-                        ((Player)fixtureB.getUserData()).setCheckPoint(checkPoint.getX(),checkPoint.getY());
+                        Player player = ((Player)fixtureB.getUserData());
+                        player.setCheckPoint(player.getBody().getPosition().x, player.getBody().getPosition().y);
                     }
                 }
                 break;
@@ -93,16 +92,15 @@ public class WorldListener implements ContactListener {
 
             case Player.PLAYER_BIT* FinishPoint.FINISHPOINT_BIT:
 
-                Gdx.app.log("Finish","");
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
                 {
-                    ((Player)fixtureA.getUserData()).setFinish(true);
+                    ((Player)fixtureA.getUserData()).OnHitFinishPoint();
                 }
                 else
                 {
                     if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
                     {
-                        ((Player)fixtureB.getUserData()).setFinish(true);
+                        ((Player)fixtureB.getUserData()).OnHitFinishPoint();
                     }
                 }
                 break;

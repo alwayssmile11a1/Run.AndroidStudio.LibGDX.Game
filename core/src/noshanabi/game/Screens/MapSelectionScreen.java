@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
 import noshanabi.game.GameManager;
+import noshanabi.game.Resourses;
 
 /**
  * Created by 2SMILE2 on 07/11/2017.
@@ -61,7 +62,7 @@ public class MapSelectionScreen implements Screen {
         this.gameManager = _gameManager;
 
         backGround = new Sprite(new Texture("images/BlueBackground.png"));
-        backGround.setSize(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+        backGround.setSize(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
 
         transitionLeft = -1;
         transitionDistance = 0;
@@ -69,7 +70,7 @@ public class MapSelectionScreen implements Screen {
         transitionSpeed = 50;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
-        mapSelectionViewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+        mapSelectionViewport = new StretchViewport(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
         stage = new Stage(mapSelectionViewport,gameManager.batch);
 
 
@@ -109,8 +110,8 @@ public class MapSelectionScreen implements Screen {
                 }
 
             });
-            mapImage.setPosition(100 + i * gameManager.WORLDWIDTH, 50);
-            mapImage.setSize(gameManager.WORLDWIDTH - 200, gameManager.WORLDHEIGHT - 100);
+            mapImage.setPosition(100 + i * Resourses.WORLDWIDTH, 50);
+            mapImage.setSize(Resourses.WORLDWIDTH - 200, Resourses.WORLDHEIGHT - 100);
             mapGroup.addActor(mapImages.get(i));
 
         }
@@ -118,7 +119,7 @@ public class MapSelectionScreen implements Screen {
 
 
         //Next map button
-        nextMapTexture = new Texture("images/nextarrow.png");
+        nextMapTexture = new Texture(Resourses.NextMapButton);
         nextMapButton = new Image(nextMapTexture);
         nextMapButton.setBounds(0,0,nextMapTexture.getWidth(),nextMapTexture.getHeight());
         nextMapButton.setTouchable(Touchable.enabled);
@@ -138,7 +139,7 @@ public class MapSelectionScreen implements Screen {
         });
 
         nextMapButton.setSize(50,50);
-        nextMapButton.setPosition(gameManager.WORLDWIDTH-80,mapImages.first().getY() + mapImages.first().getHeight()/2- nextMapButton.getHeight()/2);
+        nextMapButton.setPosition(Resourses.WORLDWIDTH-80,mapImages.first().getY() + mapImages.first().getHeight()/2- nextMapButton.getHeight()/2);
 
         //add to table
         mapGroup.addActor(nextMapButton);
@@ -220,7 +221,7 @@ public class MapSelectionScreen implements Screen {
             }
             transitionDistance += transitionSpeed;
 
-            if (transitionDistance >= gameManager.WORLDWIDTH) {
+            if (transitionDistance >= Resourses.WORLDWIDTH) {
                 transitionDistance = 0;
                 transitionLeft = -1;
             }

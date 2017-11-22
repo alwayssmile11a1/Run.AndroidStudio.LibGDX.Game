@@ -3,19 +3,19 @@ package noshanabi.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import noshanabi.game.ButtonPrefabs.FacebookLoginButton;
+import noshanabi.game.ButtonPrefabs.GoogleLoginButton;
 import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
 import noshanabi.game.GameManager;
+import noshanabi.game.Resourses;
 
 /**
  * Created by 2SMILE2 on 11/11/2017.
@@ -33,13 +33,9 @@ public class LoginScreen implements Screen {
     //gameStage manage UI on it
     private Stage stage;
 
-    //----------------TEXTURE RELATED VARIABLES------------//
-    Image facebookLoginButton;
-    Texture facebookLoginTexture;
-
-    //the background image
-    Image googleLoginButton;
-    Texture googleLoginTexture;
+    //----------------BUTTON---------------------------------//
+    FacebookLoginButton facebookLoginButton;
+    GoogleLoginButton googleLoginButton;
 
     private ReturnScreenButton returnScreenButton;
 
@@ -55,7 +51,7 @@ public class LoginScreen implements Screen {
         needSwitchScreen = false;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
-        viewPort = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+        viewPort = new StretchViewport(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
         stage = new Stage(viewPort,gameManager.batch);
 
         //Table help us to easily arrange UI, such as labels, texts, etc.
@@ -64,10 +60,7 @@ public class LoginScreen implements Screen {
         table.setFillParent(true);
 
         //---------------- FACEBOOK LOGIN BUTTON ----------------
-        facebookLoginTexture = new Texture("images/facebookloginbutton.png");
-        facebookLoginButton = new Image(facebookLoginTexture);
-        facebookLoginButton.setBounds(0,0, facebookLoginTexture.getWidth(), facebookLoginButton.getHeight());
-        facebookLoginButton.setTouchable(Touchable.enabled);
+        facebookLoginButton = new FacebookLoginButton();
         facebookLoginButton.addListener(new InputListener()
         {
             @Override
@@ -91,10 +84,7 @@ public class LoginScreen implements Screen {
         });
 
         //------------------------- GOOGLE LOGIN BUTTON ------------------
-        googleLoginTexture = new Texture("images/googleloginbutton.png");
-        googleLoginButton = new Image(googleLoginTexture);
-        googleLoginButton.setBounds(0,0, googleLoginTexture.getWidth(), googleLoginTexture.getHeight());
-        googleLoginButton.setTouchable(Touchable.enabled);
+        googleLoginButton = new GoogleLoginButton();
         googleLoginButton.addListener(new InputListener()
         {
             @Override
@@ -207,11 +197,11 @@ public class LoginScreen implements Screen {
             stage.dispose();
         }
 
-        if (facebookLoginTexture != null)
-            facebookLoginTexture.dispose();
+        if (facebookLoginButton != null)
+            facebookLoginButton.dispose();
 
-        if (googleLoginTexture != null)
-            googleLoginTexture.dispose();
+        if (googleLoginButton != null)
+            googleLoginButton.dispose();
 
         if(returnScreenButton!=null)
             returnScreenButton.dispose();

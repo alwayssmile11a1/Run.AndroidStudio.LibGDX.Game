@@ -23,6 +23,7 @@ import org.json.JSONObject;
 import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
 import noshanabi.game.ButtonPrefabs.SignOutButton;
 import noshanabi.game.GameManager;
+import noshanabi.game.Resourses;
 import noshanabi.game.Server.ServerListener;
 
 /**
@@ -60,13 +61,13 @@ public class CreateRoomScreen implements Screen, ServerListener{
         this.gameManager = _gameManager;
 
 
-        backGround = new Sprite(new Texture("images/BlueBackground.png"));
-        backGround.setSize(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+        backGround = new Sprite(new Texture(Resourses.CreateRoomBackground));
+        backGround.setSize(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
 
         isRoomExisted = true;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
-        viewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+        viewport = new StretchViewport(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
         stage = new Stage(viewport, gameManager.batch);
 
 
@@ -179,7 +180,7 @@ public class CreateRoomScreen implements Screen, ServerListener{
         if (gameManager.getPlayerServices() != null) {
             userNameLabel.setText(gameManager.getPlayerServices().getUserName());
         }
-        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth(), returnScreenButton.getY() + 15);
+        userNameLabel.setPosition(Resourses.WORLDWIDTH - userNameLabel.getWidth(), returnScreenButton.getY() + 15);
 
         group.addActor(userNameLabel);
 

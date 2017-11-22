@@ -13,7 +13,6 @@ import com.kotcrab.vis.ui.VisUI;
 import noshanabi.game.Extensions.PlayerServices;
 import noshanabi.game.Screens.CreateRoomScreen;
 import noshanabi.game.Screens.FindRoomScreen;
-import noshanabi.game.Screens.GameOverScreen;
 import noshanabi.game.Screens.LoginScreen;
 import noshanabi.game.Screens.MapSelectionScreen;
 import noshanabi.game.Screens.MenuScreen;
@@ -23,11 +22,6 @@ import noshanabi.game.Server.ServerCreator;
 
 //manage audio, sprite, world width, world height, etc.
 public class GameManager extends Game {
-
-	//----FINAL VARIABLES-----//
-	public static final int WORLDWIDTH = 800;
-	public static final int WORLDHEIGHT = 400;
-	public static final float PPM = 100f;
 
 	//batch is used for draw everything into a screen
 	//we just need one of this because we only have to draw on it over and over again
@@ -45,7 +39,6 @@ public class GameManager extends Game {
 	private MenuScreen menuScreen;
 	private MapSelectionScreen mapSelectionScreen;
 	private LoginScreen loginScreen;
-	private GameOverScreen gameOverScreen;
 	private ModeSelectionScreen modeSelectionScreen;
 	private CreateRoomScreen createRoomScreen;
 	private FindRoomScreen findRoomScreen;
@@ -77,7 +70,6 @@ public class GameManager extends Game {
 		menuScreen = new MenuScreen(this);
 		mapSelectionScreen = new MapSelectionScreen(this);
 		loginScreen = new LoginScreen(this);
-		gameOverScreen = new GameOverScreen(this);
 		modeSelectionScreen = new ModeSelectionScreen(this);
 		createRoomScreen = new CreateRoomScreen(this);
 		findRoomScreen = new FindRoomScreen(this);
@@ -152,7 +144,6 @@ public class GameManager extends Game {
 		menuScreen.dispose();
 		mapSelectionScreen.dispose();
 		loginScreen.dispose();
-		gameOverScreen.dispose();
 		modeSelectionScreen.dispose();
 		findRoomScreen.dispose();
 		roomJoinedScreen.dispose();
@@ -183,10 +174,6 @@ public class GameManager extends Game {
 		return loginScreen;
 	}
 
-
-	public GameOverScreen getGameOverScreen() {
-		return gameOverScreen;
-	}
 
 	public ModeSelectionScreen getModeSelectionScreen() {
 		return modeSelectionScreen;

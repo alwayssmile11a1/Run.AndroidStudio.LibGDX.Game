@@ -29,6 +29,7 @@ import java.util.Iterator;
 import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
 import noshanabi.game.ButtonPrefabs.SignOutButton;
 import noshanabi.game.GameManager;
+import noshanabi.game.Resourses;
 import noshanabi.game.Server.ServerListener;
 
 /**
@@ -96,8 +97,8 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         transitionCount = 0;
         transitionSpeed = 20;
 
-        backGround = new Sprite(new Texture("images/BlueBackground.png"));
-        backGround.setSize(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+        backGround = new Sprite(new Texture(Resourses.RoomJoinedBackground));
+        backGround.setSize(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
 
         playerTexture = new Texture("images/bird.png");
 
@@ -106,7 +107,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         needSwitchScreen = false;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
-        viewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+        viewport = new StretchViewport(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
         stage = new Stage(viewport, gameManager.batch);
 
 
@@ -117,7 +118,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         playersTable = new VisTable();
 
         playersTable.setPosition(50,50);
-        playersTable.setSize(100,gameManager.WORLDHEIGHT-playersTable.getY()*2);
+        playersTable.setSize(100,Resourses.WORLDHEIGHT-playersTable.getY()*2);
         stage.addActor(playersTable);
 
 
@@ -169,7 +170,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         if (gameManager.getPlayerServices() != null && gameManager.getPlayerServices().isSignedIn()) {
             userNameLabel.setText(gameManager.getPlayerServices().getUserName());
         }
-        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth() - 100, returnScreenButton.getY() + 15);
+        userNameLabel.setPosition(Resourses.WORLDWIDTH - userNameLabel.getWidth() - 100, returnScreenButton.getY() + 15);
 
         group.addActor(userNameLabel);
 
@@ -208,8 +209,8 @@ public class RoomJoinedScreen implements Screen, ServerListener {
             mapImages.add(mapImage);
             mapImage.setBounds(0, 0, mapTextures.get(i).getWidth(), mapTextures.get(i).getHeight());
             mapImage.setTouchable(Touchable.enabled);
-            mapImage.setPosition(250, 75 - gameManager.WORLDHEIGHT * i);
-            mapImage.setSize(gameManager.WORLDWIDTH - 300, gameManager.WORLDHEIGHT - 150);
+            mapImage.setPosition(250, 75 - Resourses.WORLDHEIGHT * i);
+            mapImage.setSize(Resourses.WORLDWIDTH - 300, Resourses.WORLDHEIGHT - 150);
             mapImage.addListener(new InputListener() {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -230,7 +231,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
 
         //--------------- NEXT MAP BUTTON --------------
-        nextMapTexture = new Texture("images/nextarrow.png");
+        nextMapTexture = new Texture(Resourses.NextMapButton);
         nextMapButton = new Image(nextMapTexture);
         nextMapButton.setBounds(0, 0, nextMapTexture.getWidth(), nextMapTexture.getHeight());
         nextMapButton.setTouchable(Touchable.enabled);
@@ -251,7 +252,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         nextMapButton.setSize(50, 50);
         nextMapButton.setOrigin(nextMapButton.getWidth() / 2, nextMapButton.getHeight() / 2);
         nextMapButton.setRotation(90);
-        nextMapButton.setPosition(mapImages.get(0).getX() + mapImages.get(0).getWidth() / 2 - nextMapButton.getWidth() / 2, gameManager.WORLDHEIGHT - 70);
+        nextMapButton.setPosition(mapImages.get(0).getX() + mapImages.get(0).getWidth() / 2 - nextMapButton.getWidth() / 2, Resourses.WORLDHEIGHT - 70);
 
         //add to group
         mapGroup.addActor(nextMapButton);
@@ -506,7 +507,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
             }
             transitionDistance += transitionSpeed;
 
-            if (transitionDistance >= gameManager.WORLDHEIGHT) {
+            if (transitionDistance >= Resourses.WORLDHEIGHT) {
                 transitionDistance = 0;
                 transitionUp = -1;
             }

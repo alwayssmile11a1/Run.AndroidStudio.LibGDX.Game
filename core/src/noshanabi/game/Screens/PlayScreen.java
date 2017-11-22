@@ -17,6 +17,7 @@ import noshanabi.game.GameManager;
 import noshanabi.game.Objects.Player;
 import noshanabi.game.PlayScreenUI.GameFinishedUI;
 import noshanabi.game.PlayScreenUI.InGameUI;
+import noshanabi.game.Resourses;
 import noshanabi.game.Server.ServerCreator;
 import noshanabi.game.WorldCreator.MapCreator;
 import noshanabi.game.WorldCreator.WorldListener;
@@ -91,8 +92,8 @@ public class PlayScreen implements Screen{
     public PlayScreen(GameManager gameManager, String mapName) {
         //set up constructor variables
         this.gameManager = gameManager;
-        this.worldWidth = gameManager.WORLDWIDTH / gameManager.PPM;
-        this.worldHeight = gameManager.WORLDHEIGHT / gameManager.PPM;
+        this.worldWidth = Resourses.WORLDWIDTH / Resourses.PPM;
+        this.worldHeight = Resourses.WORLDHEIGHT / Resourses.PPM;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
         //initialize a new camera
@@ -126,11 +127,12 @@ public class PlayScreen implements Screen{
 
         //initialize player
         player = new Player(world, mapCreator.getInstantiatePosition().x,mapCreator.getInstantiatePosition().y);
-        player.setCheckPoint(mapCreator.getInstantiatePosition().x,mapCreator.getInstantiatePosition().y);
+        player.setInstantiatePoint(mapCreator.getInstantiatePosition().x,mapCreator.getInstantiatePosition().y);
+        player.reset();
 
         //--------------------------UI -----------------------------
         inGameUI = new InGameUI(gameManager);
-        Gdx.input.setInputProcessor(inGameUI.getInGameStage());
+        Gdx.input.setInputProcessor(inGameUI.getStage());
 
 
         gameFinishedUI = new GameFinishedUI(gameManager);
@@ -151,7 +153,7 @@ public class PlayScreen implements Screen{
 
     public Stage getGameStage()
     {
-        return inGameUI.getInGameStage();
+        return inGameUI.getStage();
     }
 
 
@@ -241,12 +243,28 @@ public class PlayScreen implements Screen{
         }
 
 
-        if(gameFinishedUI.isReplayButtonPressed())
+        if(gameFinishedUI.isReviewButtonPressed())
         {
             player.setReviewing(true);
         }
 
+        if(gameFinishedUI.isReplayButtonPressed())
+        {
+            resetGame();
+        }
 
+    }
+
+    private void resetGame()
+    {
+        isGameStarting = true;
+        isGamePausing = false;
+        inGameUI.setCountDownTime(3f);
+        gameEnded = false;
+        player.reset();
+        playTime = 0;
+        Gdx.input.setInputProcessor(inGameUI.getStage());
+        gameFinishedUI.reset();
     }
 
     private void update(float delta) {
@@ -254,11 +272,21 @@ public class PlayScreen implements Screen{
         if(player.isHitFinishPoint())
         {
             gameEnded = true;
+            gameFinishedUI.setPlayTimeText(""+((int)(playTime*1000))/1000f);
         }
 
         //if game isn't finished, continue to handle input
         if(!gameEnded) {
-            if (!(isGamePausing && server == null)) {
+
+            //game pausing
+            if (isGamePausing && server == null)
+            {
+                //Gdx.app.log("GAME","PAUSED");
+                player.stopRecording();
+            }
+            else
+            {
+                //if game is still countdowning, it means player just start the game or player just pause the game and continue the game again (if server is null)
                 if (inGameUI.getCountDownTime() > 0) {
                     inGameUI.setCountDownTime(inGameUI.getCountDownTime() - 1 / 60f);
                     inGameUI.setCountDownText("" + (int) inGameUI.getCountDownTime());
@@ -271,6 +299,8 @@ public class PlayScreen implements Screen{
                     isGameStarting = false;
                     player.startRecording();
                     handleInput(delta);
+                    playTime += 1 / 60f;
+                    Gdx.app.log("play time",""+playTime);
                 }
             }
         }
@@ -284,7 +314,6 @@ public class PlayScreen implements Screen{
 
         if (!isGameStarting) {
             if ((!isGamePausing) || (isGamePausing && server != null)) {
-                playTime += 1 / 60f;
                 //update world
                 world.step(1 / 60f * worldStepSpeed, 6, 2);
             }

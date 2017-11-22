@@ -15,6 +15,7 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
 import noshanabi.game.ButtonPrefabs.SignOutButton;
 import noshanabi.game.GameManager;
+import noshanabi.game.Resourses;
 
 /**
  * Created by 2SMILE2 on 12/11/2017.
@@ -43,7 +44,7 @@ public class ModeSelectionScreen implements Screen {
         this.gameManager = _gameManager;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
-        viewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+        viewport = new StretchViewport(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
         stage = new Stage(viewport, gameManager.batch);
         Gdx.input.setInputProcessor(stage);
 
@@ -132,7 +133,7 @@ public class ModeSelectionScreen implements Screen {
         if (gameManager.getPlayerServices() != null) {
             userNameLabel.setText(gameManager.getPlayerServices().getUserName());
         }
-        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth(), returnScreenButton.getY() + 15);
+        userNameLabel.setPosition(Resourses.WORLDWIDTH - userNameLabel.getWidth(), returnScreenButton.getY() + 15);
 
         group.addActor(userNameLabel);
 

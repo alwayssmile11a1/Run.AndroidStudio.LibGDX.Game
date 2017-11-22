@@ -8,7 +8,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
-import noshanabi.game.GameManager;
+import noshanabi.game.Resourses;
 
 /**
  * Created by 2SMILE2 on 17/10/2017.
@@ -44,8 +44,8 @@ public class FriendPlayer extends Sprite {
     //this function resize this object to be used more appropriate with Box2D
     protected void usePixelPerMeter() {
 
-        setPosition(getX() / GameManager.PPM, getY() / GameManager.PPM);
-        setSize(getWidth() / GameManager.PPM, getHeight() / GameManager.PPM);
+        setPosition(getX() / Resourses.PPM, getY() / Resourses.PPM);
+        setSize(getWidth() / Resourses.PPM, getHeight() / Resourses.PPM);
 
     }
 

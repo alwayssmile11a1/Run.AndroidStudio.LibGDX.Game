@@ -27,6 +27,7 @@ import java.util.Iterator;
 import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
 import noshanabi.game.ButtonPrefabs.SignOutButton;
 import noshanabi.game.GameManager;
+import noshanabi.game.Resourses;
 import noshanabi.game.Server.ServerListener;
 
 /**
@@ -68,8 +69,8 @@ public class FindRoomScreen implements Screen, ServerListener{
         //set up constructor variables
         this.gameManager = _gameManager;
 
-        backGround = new Sprite(new Texture("images/BlueBackground.png"));
-        backGround.setSize(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+        backGround = new Sprite(new Texture(Resourses.FindRoomBackground));
+        backGround.setSize(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
 
         roomsToAdd = new Array<Array<String>>();
         roomsToRemove = new Array<String>();
@@ -78,7 +79,7 @@ public class FindRoomScreen implements Screen, ServerListener{
         needSwitchScreen = false;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
-        viewport = new StretchViewport(GameManager.WORLDWIDTH, GameManager.WORLDHEIGHT);
+        viewport = new StretchViewport(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
         stage = new Stage(viewport, gameManager.batch);
 
 
@@ -124,7 +125,7 @@ public class FindRoomScreen implements Screen, ServerListener{
         if (gameManager.getPlayerServices() != null) {
             userNameLabel.setText(gameManager.getPlayerServices().getUserName());
         }
-        userNameLabel.setPosition(gameManager.WORLDWIDTH - userNameLabel.getWidth(), returnScreenButton.getY() + 15);
+        userNameLabel.setPosition(Resourses.WORLDWIDTH - userNameLabel.getWidth(), returnScreenButton.getY() + 15);
 
         group.addActor(userNameLabel);
 
@@ -143,7 +144,7 @@ public class FindRoomScreen implements Screen, ServerListener{
         roomTable.row();
 
         VisScrollPane scrollPane = new VisScrollPane(roomTable);
-        scrollPane.setSize(gameManager.WORLDWIDTH/1.5f,gameManager.WORLDHEIGHT-100);
+        scrollPane.setSize(Resourses.WORLDWIDTH/1.5f,Resourses.WORLDHEIGHT-100);
         scrollPane.setPosition(125,50);
 
         stage.addActor(scrollPane);
