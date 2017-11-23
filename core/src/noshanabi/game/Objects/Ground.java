@@ -49,7 +49,7 @@ public class Ground extends Sprite {
         fDef.shape = bodyShape;
         fDef.friction = 1f;
         fDef.filter.categoryBits = GROUND_BIT;
-        fDef.filter.maskBits = Player.PLAYER_BIT|Player.FOOT_BIT;
+        fDef.filter.maskBits = Player.PLAYER_BIT|Player.FOOT_BIT|GroundEnemies.ENEMY_BIT;
         body.createFixture(fDef).setUserData(this);
     }
 

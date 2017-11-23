@@ -122,7 +122,7 @@ public class Player extends Sprite {
         bodyShape.setAsBox(this.getWidth()/2,this.getHeight()/2);
         fDef.shape = bodyShape;
         fDef.filter.categoryBits = PLAYER_BIT;
-        fDef.filter.maskBits = Ground.GROUND_BIT| Checkpoint.CHECKPOINT_BIT|DeadGround.DEAD_BIT |FinishPoint.FINISHPOINT_BIT;
+        fDef.filter.maskBits = Ground.GROUND_BIT| Checkpoint.CHECKPOINT_BIT|DeadGround.DEAD_BIT |FinishPoint.FINISHPOINT_BIT|GroundEnemies.ENEMY_BIT;
         fDef.density = 2f;
         fDef.friction = 0.1f;
         body.createFixture(fDef).setUserData(this);

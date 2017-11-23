@@ -1,8 +1,9 @@
 package noshanabi.game.WorldCreator;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -18,7 +19,9 @@ import noshanabi.game.Objects.Checkpoint;
 import noshanabi.game.Objects.DeadGround;
 import noshanabi.game.Objects.FinishPoint;
 import noshanabi.game.Objects.Ground;
-import noshanabi.game.Objects.Saw;
+import noshanabi.game.Objects.GroundEnemies;
+import noshanabi.game.Objects.HalfSaws;
+import noshanabi.game.Objects.Saws;
 import noshanabi.game.Resourses;
 
 /**
@@ -27,118 +30,168 @@ import noshanabi.game.Resourses;
 
 public class MapCreator {
 
+    private float movableLayerSpeed = 0.2f;
+
     private TiledMap map;
     private OrthogonalTiledMapRenderer mapRenderer;
+    private float mapWidth;
+
     private Array<Ground> grounds;
     private Array<DeadGround> deadGrounds;
     private Vector2 instantiatePosition;
     private Vector2 finishPosition;
-    private Array<Saw> saws;
+    private Saws saws;
+    private HalfSaws halfSaws;
+    private GroundEnemies groundEnemies;
 
-    //texture
-    private Texture sawTexture;
+    private MapLayer movableLayer;
 
 
-    public MapCreator(World world, String fileName)
-    {
+    public MapCreator(World world, String fileName) {
         grounds = new Array<Ground>();
         deadGrounds = new Array<DeadGround>();
+
         //get map from file
         map = new TmxMapLoader().load(fileName);
-        mapRenderer = new OrthogonalTiledMapRenderer(map, 1/ Resourses.PPM);
+        mapRenderer = new OrthogonalTiledMapRenderer(map, 1 / Resourses.PPM);
 
-        //get init Position
-        Rectangle instantiateRect = map.getLayers().get("InstantiatePosition").getObjects().getByType(RectangleMapObject.class).first().getRectangle();
-        instantiatePosition =  new Vector2((instantiateRect.getX()+instantiateRect.getWidth()/2)/Resourses.PPM,
-                                            (instantiateRect.getY()+instantiateRect.getHeight()/2)/Resourses.PPM);
+        float tileWidth = Float.parseFloat(map.getProperties().get("tilewidth").toString()) / Resourses.PPM;
+        mapWidth = Float.parseFloat(map.getProperties().get("width").toString()) * tileWidth;
 
-        //get finish Position
-        Rectangle finishRect = map.getLayers().get("FinishPosition").getObjects().getByType(RectangleMapObject.class).first().getRectangle();
-        finishPosition =  new Vector2((finishRect.getX()+finishRect.getWidth()/2)/Resourses.PPM,
-                                        (finishRect.getY()+finishRect.getHeight()/2)/Resourses.PPM);
+        //get movable layer
+        movableLayer = map.getLayers().get("MovableBackGround");
 
+
+        //-------------GET INIT POINT
+        if (map.getLayers().get("InstantiatePosition") != null) {
+            Rectangle instantiateRect = map.getLayers().get("InstantiatePosition").getObjects().getByType(RectangleMapObject.class).first().getRectangle();
+            instantiatePosition = new Vector2((instantiateRect.getX() + instantiateRect.getWidth() / 2) / Resourses.PPM,
+                    (instantiateRect.getY() + instantiateRect.getHeight() / 2) / Resourses.PPM);
+        }
+
+
+        //-----------------CREATE FINISH POINT --------------------------------------------
+        if (map.getLayers().get("FinishPosition") != null) {
+            //get finish Position
+            Rectangle finishRect = map.getLayers().get("FinishPosition").getObjects().getByType(RectangleMapObject.class).first().getRectangle();
+            finishPosition = new Vector2((finishRect.getX() + finishRect.getWidth() / 2) / Resourses.PPM,
+                    (finishRect.getY() + finishRect.getHeight() / 2) / Resourses.PPM);
+
+            //-----------------CREATE FINISH POINT --------------------------------------------
+            FinishPoint finishPoint = new FinishPoint(world, finishRect.getX() / Resourses.PPM, finishRect.getY() / Resourses.PPM,
+                    finishRect.getWidth() / Resourses.PPM, finishRect.getHeight() / Resourses.PPM);
+        }
 
         //--------------------CREATE PLATFORMS-------------------------------------
-        Array<RectangleMapObject> platforms = map.getLayers().get("Platforms").getObjects().getByType(RectangleMapObject.class);
-        for(RectangleMapObject platform:platforms)
-        {
-            //create rigid body
-            Rectangle rectangle = platform.getRectangle();
-            Ground ground = new Ground(world,
-                    rectangle.getX()/Resourses.PPM,
-                    rectangle.getY()/Resourses.PPM,
-                    rectangle.getWidth()/Resourses.PPM,
-                    rectangle.getHeight()/Resourses.PPM);
+        if (map.getLayers().get("Platforms") != null) {
+            Array<RectangleMapObject> platforms = map.getLayers().get("Platforms").getObjects().getByType(RectangleMapObject.class);
+            for (RectangleMapObject platform : platforms) {
 
-            grounds.add(ground);
+                Rectangle rectangle = platform.getRectangle();
+                Ground ground = new Ground(world,
+                        rectangle.getX() / Resourses.PPM,
+                        rectangle.getY() / Resourses.PPM,
+                        rectangle.getWidth() / Resourses.PPM,
+                        rectangle.getHeight() / Resourses.PPM);
 
+                grounds.add(ground);
+
+            }
         }
 
         //----------------------CREATE DEAD PLATFORMS-------------------------------------
-        Array<RectangleMapObject> deadPlatforms = map.getLayers().get("DeadPlatforms").getObjects().getByType(RectangleMapObject.class);
-        for(RectangleMapObject deadPlatform:deadPlatforms)
-        {
-            //create rigid body
-            Rectangle rectangle = deadPlatform.getRectangle();
-            DeadGround deadGround = new DeadGround(world,
-                    rectangle.getX()/Resourses.PPM,
-                    rectangle.getY()/Resourses.PPM,
-                    rectangle.getWidth()/Resourses.PPM,
-                    rectangle.getHeight()/Resourses.PPM);
+        if (map.getLayers().get("DeadPlatforms") != null) {
+            Array<RectangleMapObject> deadPlatforms = map.getLayers().get("DeadPlatforms").getObjects().getByType(RectangleMapObject.class);
+            for (RectangleMapObject deadPlatform : deadPlatforms) {
 
-            deadGrounds.add(deadGround);
+                Rectangle rectangle = deadPlatform.getRectangle();
+                DeadGround deadGround = new DeadGround(world,
+                        rectangle.getX() / Resourses.PPM,
+                        rectangle.getY() / Resourses.PPM,
+                        rectangle.getWidth() / Resourses.PPM,
+                        rectangle.getHeight() / Resourses.PPM);
 
+                deadGrounds.add(deadGround);
+
+            }
         }
 
         //----------------------CREATE CHECKPOINTS-----------------------------------------
-        Array<RectangleMapObject> checkPoints = map.getLayers().get("CheckPoints").getObjects().getByType(RectangleMapObject.class);
-        for(RectangleMapObject checkpoint:checkPoints)
-        {
-            //create rigid body
-            Rectangle rectangle = checkpoint.getRectangle();
-            Checkpoint checkPoint = new Checkpoint(world,
-                    rectangle.getX()/Resourses.PPM,
-                    rectangle.getY()/Resourses.PPM,
-                    rectangle.getWidth()/Resourses.PPM,
-                    rectangle.getHeight()/Resourses.PPM);
+        if (map.getLayers().get("CheckPoints") != null) {
+            Array<RectangleMapObject> checkPoints = map.getLayers().get("CheckPoints").getObjects().getByType(RectangleMapObject.class);
+            for (RectangleMapObject checkpoint : checkPoints) {
+
+                Rectangle rectangle = checkpoint.getRectangle();
+                Checkpoint checkPoint = new Checkpoint(world,
+                        rectangle.getX() / Resourses.PPM,
+                        rectangle.getY() / Resourses.PPM,
+                        rectangle.getWidth() / Resourses.PPM,
+                        rectangle.getHeight() / Resourses.PPM);
+            }
         }
-
-        //-----------------CREATE FINISH POINT --------------------------------------------
-        FinishPoint finishPoint = new FinishPoint(world, finishRect.getX()/Resourses.PPM, finishRect.getY()/Resourses.PPM,
-                                                            finishRect.getWidth()/Resourses.PPM,finishRect.getHeight()/Resourses.PPM);
-
 
 
         //------------------CREATE SAWS-----------------------------------------------
-        sawTexture = new Texture(Resourses.Saw);
-        saws = new Array<Saw>();
-        Array<EllipseMapObject> mapObjects = map.getLayers().get("Saws").getObjects().getByType(EllipseMapObject.class);
-        for(EllipseMapObject object:mapObjects) {
-            //create rigid body
-            Ellipse ellipse = object.getEllipse();
+        saws = new Saws();
+        if (map.getLayers().get("Saws") != null) {
+            Array<EllipseMapObject> mapObjects = map.getLayers().get("Saws").getObjects().getByType(EllipseMapObject.class);
 
-            Saw saw = new Saw(world, sawTexture,
-                    ellipse.x / Resourses.PPM,
-                    ellipse.y / Resourses.PPM,
-                    ellipse.width / Resourses.PPM,
-                    ellipse.height / Resourses.PPM);
+            for (EllipseMapObject object : mapObjects) {
 
-            if(object.getProperties().get("angularVelocity") != null) {
-                saw.setAngularVelocity(Float.parseFloat(object.getProperties().get("angularVelocity").toString()));
+                Ellipse ellipse = object.getEllipse();
+
+                float angularVelocity = -2f;
+
+                if (object.getProperties().get("angularVelocity") != null) {
+                    angularVelocity = Float.parseFloat(object.getProperties().get("angularVelocity").toString());
+
+
+                    saws.addSaw(world, ellipse.x / Resourses.PPM, ellipse.y / Resourses.PPM,
+                            ellipse.width / Resourses.PPM, ellipse.height / Resourses.PPM, angularVelocity);
+
+                }
             }
-            else
-            {
-                saw.setAngularVelocity(-2f);
-            }
-
-            //add to array
-            saws.add(saw);
-
         }
 
+        //------------------CREATE HALF SAWS-----------------------------------------------
+        halfSaws = new HalfSaws();
+        if (map.getLayers().get("HalfSaws") != null) {
+            Array<EllipseMapObject> mapObjects = map.getLayers().get("HalfSaws").getObjects().getByType(EllipseMapObject.class);
 
+            for (EllipseMapObject object : mapObjects) {
 
+                Ellipse ellipse = object.getEllipse();
+
+                float angularVelocity = 5f;
+
+                if (object.getProperties().get("angularVelocity") != null) {
+                    angularVelocity = Float.parseFloat(object.getProperties().get("angularVelocity").toString());
+
+                    halfSaws.addSaw(world, ellipse.x / Resourses.PPM, (ellipse.y + ellipse.height / 2) / Resourses.PPM,
+                            ellipse.width / Resourses.PPM, ellipse.height / Resourses.PPM,
+                            angularVelocity);
+                }
+            }
+        }
+
+        //------------------CREATE GROUND ENEMIES-----------------------------------------------
+        groundEnemies = new GroundEnemies();
+        if (map.getLayers().get("GroundEnemies") != null) {
+            Array<RectangleMapObject> mapObjects = map.getLayers().get("GroundEnemies").getObjects().getByType(RectangleMapObject.class);
+
+            for (RectangleMapObject object : mapObjects) {
+
+                Rectangle rectangle = object.getRectangle();
+
+                String name = object.getProperties().get("name").toString();
+                Gdx.app.log("",name);
+                groundEnemies.addEnemy(world, name, rectangle.getX() / Resourses.PPM, rectangle.getY() / Resourses.PPM,
+                        rectangle.getWidth() / Resourses.PPM, rectangle.getHeight() / Resourses.PPM,
+                        1, 1);
+            }
+        }
     }
+
 
     public Vector2 getInstantiatePosition()
     {
@@ -161,52 +214,64 @@ public class MapCreator {
     }
 
 
-    public void renderMap()
+    public void renderMap(OrthographicCamera camera)
     {
+        if(movableLayer!=null) {
+            if (movableLayer.getOffsetX() / Resourses.PPM + mapWidth - 5f > camera.position.x - camera.viewportWidth / 2) {
+                movableLayer.setOffsetX(movableLayer.getOffsetX() - movableLayerSpeed);
+            } else {
+                movableLayer.setOffsetX((camera.position.x + camera.viewportWidth / 2) * Resourses.PPM);
+            }
+        }
+
+
         mapRenderer.render();
     }
 
     public void draw(SpriteBatch batch)
     {
-        for(Saw saw:saws)
-        {
-            saw.draw(batch);
-        }
+        saws.draw(batch);
+
+        halfSaws.draw(batch);
+
+        groundEnemies.draw(batch);
     }
 
 
-    public void update(OrthographicCamera camera, float dt)
-    {
+    public void update(OrthographicCamera camera, float dt) {
         mapRenderer.setView(camera);
-        for(Saw saw:saws)
-        {
-            saw.update(dt);
-        }
+
+        saws.update(dt);
+
+        halfSaws.update(dt);
+
+
     }
 
-    public void dispose()
+    public void updateMovableObjects(float dt)
     {
-        if(map!=null)
-        {
+        groundEnemies.update(dt);
+    }
+
+
+    public void dispose() {
+        if (map != null) {
             map.dispose();
         }
-        if(mapRenderer!=null)
-        {
+        if (mapRenderer != null) {
             mapRenderer.dispose();
         }
 
-        for(Ground ground:grounds)
-        {
+        for (Ground ground : grounds) {
             ground.dispose();
         }
 
-        for(Saw saw:saws)
-        {
-            saw.dispose();
-        }
 
-        if(sawTexture!=null)
-            sawTexture.dispose();
+        saws.dispose();
+
+        halfSaws.dispose();
+
+        groundEnemies.dispose();
 
     }
 

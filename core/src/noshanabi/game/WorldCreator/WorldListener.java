@@ -11,6 +11,7 @@ import noshanabi.game.Objects.Checkpoint;
 import noshanabi.game.Objects.DeadGround;
 import noshanabi.game.Objects.FinishPoint;
 import noshanabi.game.Objects.Ground;
+import noshanabi.game.Objects.GroundEnemies;
 import noshanabi.game.Objects.Player;
 
 /**
@@ -75,6 +76,7 @@ public class WorldListener implements ContactListener {
                 break;
 
             case Player.PLAYER_BIT* DeadGround.DEAD_BIT:
+            case Player.PLAYER_BIT* GroundEnemies.ENEMY_BIT:
 
                 Gdx.app.log("Dead","");
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)

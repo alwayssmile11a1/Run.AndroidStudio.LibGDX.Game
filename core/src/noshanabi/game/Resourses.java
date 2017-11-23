@@ -23,9 +23,10 @@ public final class Resourses {
 
 
     //-----------------ENEMIES-------------------------
+    public static String EnemiesSpriteSheet = "enemies/spritesheet_enemies.png";
     public static String Saw = "enemies/saw_move.png";
-
-
+    public static String SawHalf1 = "enemies/sawHalf.png";
+    public static String SawHalf2 = "enemies/sawHalf_move.png";
 
 
     //----------------SERVER ---------------------------

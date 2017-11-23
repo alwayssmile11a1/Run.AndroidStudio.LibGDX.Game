@@ -84,7 +84,7 @@ public class PlayScreen implements Screen{
 
     //-------------------OTHERS------------------------
     //just for holding count down label
-    private boolean isGameStarting = true; //if game is staring, don't move anything
+    //private boolean isGameStarting = true; //if game is staring, don't move anything
     private float playTime;
     private boolean gameEnded = false;
 
@@ -130,16 +130,16 @@ public class PlayScreen implements Screen{
         player.setInstantiatePoint(mapCreator.getInstantiatePosition().x,mapCreator.getInstantiatePosition().y);
         player.reset();
 
+        //do this to avoid map being faded at the very beginning of the game
+        world.step(1 / 600f * worldStepSpeed, 6, 2);
+
         //--------------------------UI -----------------------------
         inGameUI = new InGameUI(gameManager);
         Gdx.input.setInputProcessor(inGameUI.getStage());
-
-
         gameFinishedUI = new GameFinishedUI(gameManager);
 
 
         //-------------------------OTHERS------------------------------
-
 
 
     }
@@ -200,11 +200,6 @@ public class PlayScreen implements Screen{
             worldStepSpeed = MathUtils.clamp(worldStepSpeed, 0f, 1f);
         }
 
-//        if(inGameUI.isPauseButtonPressed())
-//        {
-//            player.getBody().setLinearVelocity(1.5f,player.getBody().getLinearVelocity().y);
-//        }
-
     }
 
     private void handleUI()
@@ -229,16 +224,13 @@ public class PlayScreen implements Screen{
         }
 
         if (inGameUI.isPauseButtonPressed() && !isGamePausing) {
-            //previousWorldStepSpeed = worldStepSpeed;
-            //worldStepSpeed = 0;
             isGamePausing = true;
         }
 
         if (inGameUI.isContinueButtonPressed() && isGamePausing) {
-            //worldStepSpeed = previousWorldStepSpeed;
             isGamePausing = false;
             if(server==null) {
-                inGameUI.setCountDownTime(2f);
+                inGameUI.setCountDownTime(1.5f);
             }
             return;
         }
@@ -258,7 +250,7 @@ public class PlayScreen implements Screen{
 
     private void resetGame()
     {
-        isGameStarting = true;
+        //isGameStarting = true;
         isGamePausing = false;
         inGameUI.setCountDownTime(3f);
         gameEnded = false;
@@ -291,17 +283,18 @@ public class PlayScreen implements Screen{
                 if (inGameUI.getCountDownTime() > 0) {
                     inGameUI.setCountDownTime(inGameUI.getCountDownTime() - 1 / 60f);
                     inGameUI.setCountDownText("" + (int) inGameUI.getCountDownTime());
-                    isGameStarting = true;
+                    //isGameStarting = true;
                     player.stopRecording();
 
                 } else {
                     inGameUI.setCountDownTime(0f);
                     inGameUI.setCountDownText("");
-                    isGameStarting = false;
+                    //isGameStarting = false;
                     player.startRecording();
                     handleInput(delta);
                     playTime += 1 / 60f;
-                    Gdx.app.log("play time",""+playTime);
+
+                    mapCreator.updateMovableObjects(delta);
                 }
             }
         }
@@ -312,17 +305,11 @@ public class PlayScreen implements Screen{
 
         }
 
-
-        if (!isGameStarting) {
-            if ((!isGamePausing) || (isGamePausing && server != null)) {
-                //update world
+        //update world
+        if(inGameUI.getCountDownTime()==0) {
+            if((!isGamePausing) || (isGamePausing && server!=null)) {
                 world.step(1 / 60f * worldStepSpeed, 6, 2);
             }
-        }
-        else
-        {
-            //do this to avoid map being faded at the very beginning
-            world.step(1/6000f, 6, 2);
         }
 
 
@@ -340,6 +327,8 @@ public class PlayScreen implements Screen{
         //update map
         mapCreator.update(mainCamera, delta);
 
+
+
     }
 
     //render textures, maps, etc..
@@ -353,12 +342,11 @@ public class PlayScreen implements Screen{
 
         //clear background color to a specified color
         Gdx.gl.glClearColor(0,0,0,1f);
-        //Gdx.gl.glClearColor(0.85f, 0.85f, 0.85f, 0);
 
         //clear background color
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        mapCreator.renderMap();
+        mapCreator.renderMap(mainCamera);
 
         //-----------DRAW-----------------//
         //set camera to be used by this batch
