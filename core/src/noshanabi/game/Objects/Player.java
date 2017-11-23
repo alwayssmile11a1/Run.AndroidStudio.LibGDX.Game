@@ -24,7 +24,7 @@ public class Player extends Sprite {
     public static final short PLAYER_BIT = 2;
     public static final short FOOT_BIT = 4;
 
-    protected World world; //the world that this object is belonged to
+    private World world; //the world that this object is belonged to
     private Body body; //the body of this object
     private Array<Transform> positions; //the list of positions that this object was going through - this is for rewinding purpose
     private Array<Vector2> velocities; //the list of velocities that this object was going through - this is for rewinding purpose
@@ -56,7 +56,7 @@ public class Player extends Sprite {
         velocities = new Array<Vector2>();
 //        isRewinding = false;
 
-        Texture playerTexture= new Texture("images/alienYellow_square.png");
+        Texture playerTexture= new Texture(Resourses.Player1);
         set(new Sprite(playerTexture));
         //setColor(0f,0.4f,1f,1f);
 
@@ -122,7 +122,7 @@ public class Player extends Sprite {
         bodyShape.setAsBox(this.getWidth()/2,this.getHeight()/2);
         fDef.shape = bodyShape;
         fDef.filter.categoryBits = PLAYER_BIT;
-        fDef.filter.maskBits = Ground.GROUND_BIT| Checkpoint.CHECKPOINT_BIT|DeadGround.DEADGROUND_BIT|FinishPoint.FINISHPOINT_BIT;
+        fDef.filter.maskBits = Ground.GROUND_BIT| Checkpoint.CHECKPOINT_BIT|DeadGround.DEAD_BIT |FinishPoint.FINISHPOINT_BIT;
         fDef.density = 2f;
         fDef.friction = 0.1f;
         body.createFixture(fDef).setUserData(this);

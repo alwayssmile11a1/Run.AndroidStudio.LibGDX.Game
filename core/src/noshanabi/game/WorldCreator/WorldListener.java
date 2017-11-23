@@ -74,7 +74,7 @@ public class WorldListener implements ContactListener {
                 }
                 break;
 
-            case Player.PLAYER_BIT* DeadGround.DEADGROUND_BIT:
+            case Player.PLAYER_BIT* DeadGround.DEAD_BIT:
 
                 Gdx.app.log("Dead","");
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)

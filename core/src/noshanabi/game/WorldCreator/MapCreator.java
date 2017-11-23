@@ -1,11 +1,14 @@
 package noshanabi.game.WorldCreator;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Ellipse;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
@@ -15,6 +18,7 @@ import noshanabi.game.Objects.Checkpoint;
 import noshanabi.game.Objects.DeadGround;
 import noshanabi.game.Objects.FinishPoint;
 import noshanabi.game.Objects.Ground;
+import noshanabi.game.Objects.Saw;
 import noshanabi.game.Resourses;
 
 /**
@@ -29,6 +33,11 @@ public class MapCreator {
     private Array<DeadGround> deadGrounds;
     private Vector2 instantiatePosition;
     private Vector2 finishPosition;
+    private Array<Saw> saws;
+
+    //texture
+    private Texture sawTexture;
+
 
     public MapCreator(World world, String fileName)
     {
@@ -49,12 +58,12 @@ public class MapCreator {
                                         (finishRect.getY()+finishRect.getHeight()/2)/Resourses.PPM);
 
 
-        //create Platforms
+        //--------------------CREATE PLATFORMS-------------------------------------
         Array<RectangleMapObject> platforms = map.getLayers().get("Platforms").getObjects().getByType(RectangleMapObject.class);
-        for(MapObject mapObject:platforms)
+        for(RectangleMapObject platform:platforms)
         {
             //create rigid body
-            Rectangle rectangle = ((RectangleMapObject) mapObject).getRectangle();
+            Rectangle rectangle = platform.getRectangle();
             Ground ground = new Ground(world,
                     rectangle.getX()/Resourses.PPM,
                     rectangle.getY()/Resourses.PPM,
@@ -65,12 +74,12 @@ public class MapCreator {
 
         }
 
-        //create Dead Platforms
+        //----------------------CREATE DEAD PLATFORMS-------------------------------------
         Array<RectangleMapObject> deadPlatforms = map.getLayers().get("DeadPlatforms").getObjects().getByType(RectangleMapObject.class);
-        for(MapObject mapObject:deadPlatforms)
+        for(RectangleMapObject deadPlatform:deadPlatforms)
         {
             //create rigid body
-            Rectangle rectangle = ((RectangleMapObject) mapObject).getRectangle();
+            Rectangle rectangle = deadPlatform.getRectangle();
             DeadGround deadGround = new DeadGround(world,
                     rectangle.getX()/Resourses.PPM,
                     rectangle.getY()/Resourses.PPM,
@@ -81,22 +90,52 @@ public class MapCreator {
 
         }
 
-        //create Checkpoint
+        //----------------------CREATE CHECKPOINTS-----------------------------------------
         Array<RectangleMapObject> checkPoints = map.getLayers().get("CheckPoints").getObjects().getByType(RectangleMapObject.class);
-        for(MapObject mapObject:checkPoints)
+        for(RectangleMapObject checkpoint:checkPoints)
         {
             //create rigid body
-            Rectangle rectangle = ((RectangleMapObject) mapObject).getRectangle();
-            Checkpoint checkpoint = new Checkpoint(world,
+            Rectangle rectangle = checkpoint.getRectangle();
+            Checkpoint checkPoint = new Checkpoint(world,
                     rectangle.getX()/Resourses.PPM,
                     rectangle.getY()/Resourses.PPM,
                     rectangle.getWidth()/Resourses.PPM,
                     rectangle.getHeight()/Resourses.PPM);
         }
 
-        //create finish position
+        //-----------------CREATE FINISH POINT --------------------------------------------
         FinishPoint finishPoint = new FinishPoint(world, finishRect.getX()/Resourses.PPM, finishRect.getY()/Resourses.PPM,
                                                             finishRect.getWidth()/Resourses.PPM,finishRect.getHeight()/Resourses.PPM);
+
+
+
+        //------------------CREATE SAWS-----------------------------------------------
+        sawTexture = new Texture(Resourses.Saw);
+        saws = new Array<Saw>();
+        Array<EllipseMapObject> mapObjects = map.getLayers().get("Saws").getObjects().getByType(EllipseMapObject.class);
+        for(EllipseMapObject object:mapObjects) {
+            //create rigid body
+            Ellipse ellipse = object.getEllipse();
+
+            Saw saw = new Saw(world, sawTexture,
+                    ellipse.x / Resourses.PPM,
+                    ellipse.y / Resourses.PPM,
+                    ellipse.width / Resourses.PPM,
+                    ellipse.height / Resourses.PPM);
+
+            if(object.getProperties().get("angularVelocity") != null) {
+                saw.setAngularVelocity(Float.parseFloat(object.getProperties().get("angularVelocity").toString()));
+            }
+            else
+            {
+                saw.setAngularVelocity(-2f);
+            }
+
+            //add to array
+            saws.add(saw);
+
+        }
+
 
 
     }
@@ -127,9 +166,22 @@ public class MapCreator {
         mapRenderer.render();
     }
 
-    public void update(OrthographicCamera camera)
+    public void draw(SpriteBatch batch)
+    {
+        for(Saw saw:saws)
+        {
+            saw.draw(batch);
+        }
+    }
+
+
+    public void update(OrthographicCamera camera, float dt)
     {
         mapRenderer.setView(camera);
+        for(Saw saw:saws)
+        {
+            saw.update(dt);
+        }
     }
 
     public void dispose()
@@ -147,6 +199,15 @@ public class MapCreator {
         {
             ground.dispose();
         }
+
+        for(Saw saw:saws)
+        {
+            saw.dispose();
+        }
+
+        if(sawTexture!=null)
+            sawTexture.dispose();
+
     }
 
 }

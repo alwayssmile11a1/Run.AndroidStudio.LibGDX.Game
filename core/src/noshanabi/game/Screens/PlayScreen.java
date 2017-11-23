@@ -141,6 +141,7 @@ public class PlayScreen implements Screen{
         //-------------------------OTHERS------------------------------
 
 
+
     }
 
     public void setServer(ServerCreator server)
@@ -318,6 +319,11 @@ public class PlayScreen implements Screen{
                 world.step(1 / 60f * worldStepSpeed, 6, 2);
             }
         }
+        else
+        {
+            //do this to avoid map being faded at the very beginning
+            world.step(1/6000f, 6, 2);
+        }
 
 
         //update player
@@ -332,7 +338,7 @@ public class PlayScreen implements Screen{
         updateCamera();
 
         //update map
-        mapCreator.update(mainCamera);
+        mapCreator.update(mainCamera, delta);
 
     }
 
@@ -367,8 +373,13 @@ public class PlayScreen implements Screen{
 
         player.draw(gameManager.batch);
 
+        mapCreator.draw(gameManager.batch);
+
         //end of draw
         gameManager.batch.end();
+
+
+        //----------------------------------------
 
         inGameUI.draw();
 

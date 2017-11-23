@@ -135,7 +135,6 @@ public class InGameUI {
         table.add(countDownLabel).padTop(100f);
         stage.addActor(table);
 
-
     }
 
     public float getCountDownTime()
@@ -159,7 +158,6 @@ public class InGameUI {
 
         stage.draw();
         stage.act();
-
 
         //since the frame is so fast that the reviewButtonPressed and pauseButtonPressed is not returned to false in 2-3 frames
         //and furthermore, we want the result to be justTouched-like event, setting these variable to false after one frame is necessary

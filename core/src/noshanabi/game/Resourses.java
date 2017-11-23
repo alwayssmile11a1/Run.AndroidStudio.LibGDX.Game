@@ -12,6 +12,22 @@ public final class Resourses {
     public static float PPM = 100f;
 
 
+    
+
+
+
+    //------------------PLAYER -----------------------
+    public static String Player1 = "players/alienYellow_square.png";
+
+
+
+
+    //-----------------ENEMIES-------------------------
+    public static String Saw = "enemies/saw_move.png";
+
+
+
+
     //----------------SERVER ---------------------------
     public static boolean UseLocal = true; //if false, use web server
     public static String WebServerUri = "https://runandroidstudiolibgdx.herokuapp.com";
