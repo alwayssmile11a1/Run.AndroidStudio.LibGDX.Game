@@ -83,12 +83,10 @@ public class WorldListener implements ContactListener {
                 break;
 
             case Player.PLAYER_BIT * Checkpoint.CHECKPOINT_BIT:
-
-                Gdx.app.log("Checkpoint","");
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
                 {
                     Player player = ((Player)fixtureA.getUserData());
-                    player.setCheckPoint(player.getBody().getPosition().x, player.getBody().getPosition().y);
+                    player.onHitCheckPoint(player.getBody().getPosition().x, player.getBody().getPosition().y);
                     playerHitCheckPoint = true;
                 }
                 else
@@ -96,7 +94,7 @@ public class WorldListener implements ContactListener {
                     if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
                     {
                         Player player = ((Player)fixtureB.getUserData());
-                        player.setCheckPoint(player.getBody().getPosition().x, player.getBody().getPosition().y);
+                        player.onHitCheckPoint(player.getBody().getPosition().x, player.getBody().getPosition().y);
                         playerHitCheckPoint = true;
                     }
                 }
@@ -110,14 +108,14 @@ public class WorldListener implements ContactListener {
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
                 {
                     playerDead = true;
-                    ((Player)fixtureA.getUserData()).returnToCheckPoint();
+                    ((Player)fixtureA.getUserData()).onDead();
                 }
                 else
                 {
                     if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
                     {
                         playerDead = true;
-                        ((Player)fixtureB.getUserData()).returnToCheckPoint();
+                        ((Player)fixtureB.getUserData()).onDead();
                     }
                 }
                 break;
@@ -126,14 +124,14 @@ public class WorldListener implements ContactListener {
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
                 {
                     playerHitFinishPoint = true;
-                    ((Player)fixtureA.getUserData()).OnHitFinishPoint();
+                    ((Player)fixtureA.getUserData()).onHitFinishPoint();
                 }
                 else
                 {
                     if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
                     {
                         playerHitFinishPoint = true;
-                        ((Player)fixtureB.getUserData()).OnHitFinishPoint();
+                        ((Player)fixtureB.getUserData()).onHitFinishPoint();
                     }
                 }
                 break;

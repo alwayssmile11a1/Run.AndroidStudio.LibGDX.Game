@@ -2,6 +2,7 @@ package noshanabi.game.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
@@ -88,7 +89,11 @@ public class PlayScreen implements Screen{
     private boolean gameEnded = false;
 
 
-    public PlayScreen(GameManager gameManager, String mapName) {
+    private Music backgroundMusic;
+    float playbackPosition=0;
+
+
+    public PlayScreen(GameManager gameManager, String mapName, String backgroundMusicName) {
         //set up constructor variables
         this.gameManager = gameManager;
         this.worldWidth = Resourses.WORLDWIDTH / Resourses.PPM;
@@ -125,12 +130,12 @@ public class PlayScreen implements Screen{
 
 
         //initialize player
-        player = new Player(world, mapCreator.getInstantiatePosition().x,mapCreator.getInstantiatePosition().y);
+        player = new Player(gameManager, world, mapCreator.getInstantiatePosition().x,mapCreator.getInstantiatePosition().y);
         player.setInstantiatePoint(mapCreator.getInstantiatePosition().x,mapCreator.getInstantiatePosition().y);
         player.reset();
 
-//        //do this to avoid map being faded at the very beginning of the game
-//        world.step(1 / 600f * worldStepSpeed, 6, 2);
+        //do this to avoid map being faded at the very beginning of the game
+        world.step(1 / 600f * worldStepSpeed, 6, 2);
 
         //--------------------------UI -----------------------------
         inGameUI = new InGameUI(gameManager);
@@ -139,8 +144,9 @@ public class PlayScreen implements Screen{
 
 
         //-------------------------OTHERS------------------------------
-
-
+        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(backgroundMusicName));
+        backgroundMusic.setLooping(true);
+        backgroundMusic.setVolume(0.4f);
     }
 
     public void setServer(ServerCreator server)
@@ -238,6 +244,7 @@ public class PlayScreen implements Screen{
 
         if(gameFinishedUI.isReviewButtonPressed())
         {
+            //set reviewing to true, reviewing automatically return false if there is nothing left to review
             player.setReviewing(true);
             mapCreator.getGroundEnemies().setReviewing(true);
         }
@@ -295,8 +302,11 @@ public class PlayScreen implements Screen{
         }
         else // if game is finished and player want to review their game -> let's review
         {
+            //stop recording
             player.setRecording(false);
             mapCreator.getGroundEnemies().setRecording(false);
+
+            //review if necessary
             player.reviewing(); // reviewing if isReviewing == true
             mapCreator.getGroundEnemies().reviewing();
         }
@@ -312,17 +322,19 @@ public class PlayScreen implements Screen{
         //update enemy
         if(worldListener.isPlayerDead())
         {
-            mapCreator.getGroundEnemies().OnPlayerDead();
+            backgroundMusic.setPosition(playbackPosition);
+            mapCreator.getGroundEnemies().onPlayerDead();
         }
 
         if(worldListener.isPlayerHitCheckPoint())
         {
-            mapCreator.getGroundEnemies().OnPlayerHitCheckPoint();
+            playbackPosition = backgroundMusic.getPosition();
+            mapCreator.getGroundEnemies().onPlayerHitCheckPoint();
         }
 
         if(worldListener.isPlayerHitFinishPoint())
         {
-            mapCreator.getGroundEnemies().OnPlayerHitFinishPoint();
+            mapCreator.getGroundEnemies().onPlayerHitFinishPoint();
         }
 
 
@@ -344,6 +356,24 @@ public class PlayScreen implements Screen{
     {
         player.setActive(actived);
         mapCreator.getGroundEnemies().setActive(actived);
+
+        if(actived==false)
+        {
+            if(backgroundMusic.isPlaying()) {
+                playbackPosition = backgroundMusic.getPosition();
+                backgroundMusic.stop();
+            }
+        }
+        else
+        {
+            if(!backgroundMusic.isPlaying())
+            {
+                backgroundMusic.play();
+                backgroundMusic.setPosition(playbackPosition);
+            }
+        }
+
+
     }
 
     //render textures, maps, etc..
@@ -454,6 +484,11 @@ public class PlayScreen implements Screen{
 
         if(gameFinishedUI !=null)
             gameFinishedUI.dispose();
+
+        if(backgroundMusic!=null)
+        {
+            backgroundMusic.dispose();
+        }
 
         Gdx.app.log("DISPOSE","Play Screen");
 

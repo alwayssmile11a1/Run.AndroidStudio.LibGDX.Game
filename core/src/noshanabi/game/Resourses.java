@@ -12,8 +12,13 @@ public final class Resourses {
     public static float PPM = 100f;
 
 
-    
+    //-------------SOUND ------------------------------
+    public static String ExplosionSound = "audios/explosion1.wav";
+    public static String CheckpointSound = "audios/checkpoint.wav";
 
+    //----------EFFECT----------------------------------
+    public static String ExplosionEffect = "effects/explosion.p";
+    public static String ParticleImageDir = "effects";
 
 
     //------------------PLAYER -----------------------

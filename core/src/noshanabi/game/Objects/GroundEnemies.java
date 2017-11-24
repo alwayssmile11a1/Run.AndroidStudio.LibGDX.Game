@@ -131,17 +131,17 @@ public class GroundEnemies {
 
         }
 
-        public void OnPlayerDead() {
+        public void onPlayerDead() {
             if (!playerHitFinishPoint)
                 positions.removeRange(checkpointIndex, positions.size - 1);
         }
 
-        public void OnPlayerHitCheckPoint()
+        public void onPlayerHitCheckPoint()
         {
             checkpointIndex = positions.size;
         }
 
-        public void OnPlayerHitFinishPoint()
+        public void onPlayerHitFinishPoint()
         {
             playerHitFinishPoint = true;
         }
@@ -275,24 +275,24 @@ public class GroundEnemies {
         return groundEnemies;
     }
 
-    public void OnPlayerDead() {
+    public void onPlayerDead() {
         for(GroundEnemy enemy: groundEnemies)
         {
-            enemy.OnPlayerDead();
+            enemy.onPlayerDead();
         }
     }
 
-    public void OnPlayerHitCheckPoint() {
+    public void onPlayerHitCheckPoint() {
         for (GroundEnemy enemy : groundEnemies) {
-            enemy.OnPlayerHitCheckPoint();
+            enemy.onPlayerHitCheckPoint();
         }
     }
 
-    public void OnPlayerHitFinishPoint()
+    public void onPlayerHitFinishPoint()
     {
         for(GroundEnemy enemy: groundEnemies)
         {
-            enemy.OnPlayerHitFinishPoint();
+            enemy.onPlayerHitFinishPoint();
         }
     }
 

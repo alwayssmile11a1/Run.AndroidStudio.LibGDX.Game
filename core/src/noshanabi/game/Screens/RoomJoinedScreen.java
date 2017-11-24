@@ -206,6 +206,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         for (int i = 0; i < mapCount; i++) {
             Image mapImage = new Image(mapTextures.get(i));
             final String mapName = "maps/map" + i + "/map.tmx";
+            final String backgroundMusicName = "maps/map" + i + "/backgroundmusic.mp3";
             mapImages.add(mapImage);
             mapImage.setBounds(0, 0, mapTextures.get(i).getWidth(), mapTextures.get(i).getHeight());
             mapImage.setTouchable(Touchable.enabled);
@@ -215,9 +216,9 @@ public class RoomJoinedScreen implements Screen, ServerListener {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                    PlayScreen playScreen = new PlayScreen(gameManager, mapName);
+                    PlayScreen playScreen = new PlayScreen(gameManager, mapName, backgroundMusicName);
                     playScreen.setServer(gameManager.getServer());
-                    Gdx.input.setInputProcessor(playScreen.getGameStage());
+                    //Gdx.input.setInputProcessor(playScreen.getGameStage());
                     gameManager.getServer().getSocket().emit("joinGame");
                     gameManager.setScreen(playScreen);
 

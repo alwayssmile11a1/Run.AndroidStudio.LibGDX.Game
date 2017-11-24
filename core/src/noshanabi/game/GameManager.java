@@ -4,7 +4,6 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
@@ -28,7 +27,7 @@ public class GameManager extends Game {
 	public SpriteBatch batch;
 
 	//Audio manager
-	private AssetManager audioManager;
+	private AssetManager assetManager;
 
 	//Login to facebook, login to google
 	private PlayerServices playerServices;
@@ -84,8 +83,8 @@ public class GameManager extends Game {
 		server.addServerListener(roomJoinedScreen);
 
 		//init audio
-		audioManager = new AssetManager();
-		loadEssentialAudio();
+		assetManager = new AssetManager();
+		loadEssentialAssets();
 
 		//set screen
 		Gdx.input.setInputProcessor(menuScreen.getStage());
@@ -102,12 +101,11 @@ public class GameManager extends Game {
 	}
 
 	//used for load essential audio
-	public void loadEssentialAudio()
+	public void loadEssentialAssets()
 	{
-		//example
-		audioManager.load("audios/music.mp3", Music.class);
-		audioManager.load("audios/sfx_wing.ogg",Sound.class);
-
+		//load sound
+		assetManager.load(Resourses.ExplosionSound, Sound.class);
+		assetManager.load(Resourses.CheckpointSound, Sound.class);
 	}
 
 	public void addToDisposeScreens(Screen screen)
@@ -118,7 +116,7 @@ public class GameManager extends Game {
 	@Override
 	public void render () {
 		super.render();
-		audioManager.update();
+		assetManager.update();
 
 		if(disposeScreens.size>0)
 		{
@@ -137,8 +135,8 @@ public class GameManager extends Game {
 		if(batch!=null) {
 			batch.dispose();
 		}
-		if(audioManager!=null) {
-			audioManager.dispose();
+		if(assetManager !=null) {
+			assetManager.dispose();
 		}
 
 		menuScreen.dispose();
@@ -191,8 +189,8 @@ public class GameManager extends Game {
 		return playerServices;
 	}
 
-	public AssetManager getAudioManager() {
-		return audioManager;
+	public AssetManager getAssetManager() {
+		return assetManager;
 	}
 
 	public FindRoomScreen getFindRoomScreen() {

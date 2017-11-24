@@ -2,7 +2,10 @@ package noshanabi.game.Objects;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -14,6 +17,7 @@ import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
+import noshanabi.game.GameManager;
 import noshanabi.game.Resourses;
 
 /**
@@ -48,8 +52,12 @@ public class Player extends Sprite {
     private boolean hitFinishPoint = false;
 
 
+    private Sound explosionSound;
+    private Sound checkPointSound;
+    private ParticleEffect explosionEffect;
 
-    public Player(World world, float x, float y) {
+
+    public Player(GameManager gameManager, World world, float x, float y) {
 
         this.world = world;
         positions = new Array<Transform>();
@@ -74,9 +82,19 @@ public class Player extends Sprite {
 
         //defineObject
         defineObject();
+
+
+        //load Sound
+        explosionSound = gameManager.getAssetManager().get(Resourses.ExplosionSound);
+        checkPointSound = gameManager.getAssetManager().get(Resourses.CheckpointSound);
+        //load effect
+        explosionEffect = new ParticleEffect();
+        explosionEffect.load(Gdx.files.internal(Resourses.ExplosionEffect),Gdx.files.internal(Resourses.ParticleImageDir));
+        explosionEffect.scaleEffect(1/Resourses.PPM);
+        explosionEffect.start();
     }
 
-    public void returnToCheckPoint()
+    public void onDead()
     {
         returnToCheckPoint = true;
 
@@ -84,13 +102,19 @@ public class Player extends Sprite {
             positions.removeRange(checkpointIndex, positions.size - 1);
             velocities.removeRange(checkpointIndex, velocities.size - 1);
         }
+        explosionSound.play(0.3f);
+        explosionEffect.setPosition(body.getPosition().x,body.getPosition().y);
+        explosionEffect.start();
 
     }
 
-    public void setCheckPoint(float x, float y)
+    public void onHitCheckPoint(float x, float y)
     {
         checkPoint.set(x, y);
         checkpointIndex = positions.size;
+        checkPointSound.play(1.0f);
+        explosionEffect.setPosition(body.getPosition().x+this.getWidth()/2,body.getPosition().y);
+        explosionEffect.start();
     }
 
 
@@ -100,9 +124,11 @@ public class Player extends Sprite {
         checkPoint.set(x, y);
     }
 
-    public void OnHitFinishPoint()
+    public void onHitFinishPoint()
     {
         this.hitFinishPoint = true;
+        long id = checkPointSound.play(1.0f);
+        checkPointSound.setPitch(id,2f);
     }
 
     public boolean isHitFinishPoint()
@@ -143,6 +169,12 @@ public class Player extends Sprite {
         foot.createFixture(fDef).setUserData(this);
     }
 
+    @Override
+    public void draw(Batch batch) {
+        super.draw(batch);
+        explosionEffect.draw(batch);
+    }
+
     public void update(float dt) {
 
         if(returnToCheckPoint)
@@ -166,6 +198,7 @@ public class Player extends Sprite {
         //rotate the texture corresponding to the body
         setRotation(body.getAngle() * MathUtils.radiansToDegrees);
 
+        explosionEffect.update(dt);
     }
 
 
@@ -184,7 +217,6 @@ public class Player extends Sprite {
         if (body == null) return;
 
         if (isRecording && !isReviewing) {
-            Gdx.app.log("Player","recording");
             positions.add(new Transform(body.getPosition(), body.getAngle()));
             velocities.add(new Vector2(body.getLinearVelocity()));
         }
@@ -200,8 +232,6 @@ public class Player extends Sprite {
         if(isReviewing==false) return;
 
         if (reviewingIndex < positions.size) {
-            //Gdx.app.log("Player:"+positions.size+" " + reviewingIndex,"");
-            //body.setType(BodyDef.BodyType.KinematicBody);
             body.setTransform(positions.get(reviewingIndex).getPosition(), positions.get(reviewingIndex).getRotation());
             body.setLinearVelocity(velocities.get(reviewingIndex));
             reviewingIndex++;
@@ -257,6 +287,7 @@ public class Player extends Sprite {
         {
             getTexture().dispose();
         }
-
+        explosionEffect.dispose();
     }
+
 }

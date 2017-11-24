@@ -99,13 +99,14 @@ public class MapSelectionScreen implements Screen {
         for(int i=0;i<mapCount;i++) {
             Image mapImage = new Image(mapTextures.get(i));
             final String mapName = "maps/map" + i + "/map.tmx";
+            final String backgroundMusicName = "maps/map" + i + "/backgroundmusic.mp3";
             mapImages.add(mapImage);
             mapImage.setBounds(0, 0, mapTextures.get(i).getWidth(), mapTextures.get(i).getHeight());
             mapImage.setTouchable(Touchable.enabled);
             mapImage.addListener(new InputListener() {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                    gameManager.setScreen(new PlayScreen(gameManager, mapName));
+                    gameManager.setScreen(new PlayScreen(gameManager, mapName, backgroundMusicName));
                     return true;
                 }
 

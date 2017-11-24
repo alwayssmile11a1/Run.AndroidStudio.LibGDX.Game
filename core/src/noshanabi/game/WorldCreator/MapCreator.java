@@ -62,18 +62,20 @@ public class MapCreator {
 
 
         //-------------GET INIT POINT
+        instantiatePosition = new Vector2();
         if (map.getLayers().get("InstantiatePosition") != null) {
             Rectangle instantiateRect = map.getLayers().get("InstantiatePosition").getObjects().getByType(RectangleMapObject.class).first().getRectangle();
-            instantiatePosition = new Vector2((instantiateRect.getX() + instantiateRect.getWidth() / 2) / Resourses.PPM,
+            instantiatePosition.set((instantiateRect.getX() + instantiateRect.getWidth() / 2) / Resourses.PPM,
                     (instantiateRect.getY() + instantiateRect.getHeight() / 2) / Resourses.PPM);
         }
 
 
         //-----------------CREATE FINISH POINT --------------------------------------------
+        finishPosition = new Vector2();
         if (map.getLayers().get("FinishPosition") != null) {
             //get finish Position
             Rectangle finishRect = map.getLayers().get("FinishPosition").getObjects().getByType(RectangleMapObject.class).first().getRectangle();
-            finishPosition = new Vector2((finishRect.getX() + finishRect.getWidth() / 2) / Resourses.PPM,
+            finishPosition.set((finishRect.getX() + finishRect.getWidth() / 2) / Resourses.PPM,
                     (finishRect.getY() + finishRect.getHeight() / 2) / Resourses.PPM);
 
             //-----------------CREATE FINISH POINT --------------------------------------------
