@@ -211,6 +211,12 @@ public class GameFinishedUI {
 
     }
 
+    public void setVisiable(boolean visible)
+    {
+        gameFinishedGroup.setVisible(visible);
+        table.setVisible(visible);
+    }
+
     public void resize(int width, int height)
     {
         viewPort.update(width,height);

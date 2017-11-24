@@ -1,7 +1,6 @@
 package noshanabi.game.Screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -130,8 +129,8 @@ public class PlayScreen implements Screen{
         player.setInstantiatePoint(mapCreator.getInstantiatePosition().x,mapCreator.getInstantiatePosition().y);
         player.reset();
 
-        //do this to avoid map being faded at the very beginning of the game
-        world.step(1 / 600f * worldStepSpeed, 6, 2);
+//        //do this to avoid map being faded at the very beginning of the game
+//        world.step(1 / 600f * worldStepSpeed, 6, 2);
 
         //--------------------------UI -----------------------------
         inGameUI = new InGameUI(gameManager);
@@ -172,6 +171,7 @@ public class PlayScreen implements Screen{
 
     private void handleInput(float delta) {
 
+        if(!player.getBody().isActive() || gameEnded) return;
 
         //player.getBody().setLinearVelocity(1.5f,player.getBody().getLinearVelocity().y);
         if(player.getBody().getLinearVelocity().x <2f) {
@@ -192,13 +192,13 @@ public class PlayScreen implements Screen{
 
         }
 
-        //slow down the time
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
-            worldStepSpeed = 0.05f;
-        } else {
-            worldStepSpeed = worldStepSpeed + 1 / (slowdownLength / delta);
-            worldStepSpeed = MathUtils.clamp(worldStepSpeed, 0f, 1f);
-        }
+//        //slow down the time
+//        if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+//            worldStepSpeed = 0.05f;
+//        } else {
+//            worldStepSpeed = worldStepSpeed + 1 / (slowdownLength / delta);
+//            worldStepSpeed = MathUtils.clamp(worldStepSpeed, 0f, 1f);
+//        }
 
     }
 
@@ -239,6 +239,7 @@ public class PlayScreen implements Screen{
         if(gameFinishedUI.isReviewButtonPressed())
         {
             player.setReviewing(true);
+            mapCreator.getGroundEnemies().setReviewing(true);
         }
 
         if(gameFinishedUI.isReplayButtonPressed())
@@ -255,6 +256,7 @@ public class PlayScreen implements Screen{
         inGameUI.setCountDownTime(3f);
         gameEnded = false;
         player.reset();
+        mapCreator.getGroundEnemies().reset();
         playTime = 0;
         Gdx.input.setInputProcessor(inGameUI.getStage());
         gameFinishedUI.reset();
@@ -262,59 +264,67 @@ public class PlayScreen implements Screen{
 
     private void update(float delta) {
 
-        if(player.isHitFinishPoint())
-        {
+        if (player.isHitFinishPoint()) {
             gameEnded = true;
-            gameFinishedUI.setPlayTimeText(""+((int)(playTime*1000))/1000f);
+            gameFinishedUI.setPlayTimeText("" + ((int) (playTime * 1000)) / 1000f);
         }
 
         //if game isn't finished, continue to handle input
-        if(!gameEnded) {
+        if (!gameEnded) {
 
             //game pausing
             if (isGamePausing && server == null)
             {
-                //Gdx.app.log("GAME","PAUSED");
-                player.stopRecording();
+                setWorldActive(false);
             }
             else
-            {
+                {
                 //if game is still countdowning, it means player just start the game or player just pause the game and continue the game again (if server is null)
                 if (inGameUI.getCountDownTime() > 0) {
                     inGameUI.setCountDownTime(inGameUI.getCountDownTime() - 1 / 60f);
                     inGameUI.setCountDownText("" + (int) inGameUI.getCountDownTime());
-                    //isGameStarting = true;
-                    player.stopRecording();
+                    setWorldActive(false);
 
                 } else {
                     inGameUI.setCountDownTime(0f);
                     inGameUI.setCountDownText("");
-                    //isGameStarting = false;
-                    player.startRecording();
-                    handleInput(delta);
                     playTime += 1 / 60f;
-
-                    mapCreator.updateMovableObjects(delta);
+                    setWorldActive(true);
                 }
             }
         }
         else // if game is finished and player want to review their game -> let's review
         {
-            player.stopRecording();
+            player.setRecording(false);
+            mapCreator.getGroundEnemies().setRecording(false);
             player.reviewing(); // reviewing if isReviewing == true
-
+            mapCreator.getGroundEnemies().reviewing();
         }
 
-        //update world
-        if(inGameUI.getCountDownTime()==0) {
-            if((!isGamePausing) || (isGamePausing && server!=null)) {
-                world.step(1 / 60f * worldStepSpeed, 6, 2);
-            }
-        }
+        handleInput(delta);
 
+
+        world.step(1 / 60f * worldStepSpeed, 6, 2);
 
         //update player
         player.update(delta);
+
+        //update enemy
+        if(worldListener.isPlayerDead())
+        {
+            mapCreator.getGroundEnemies().OnPlayerDead();
+        }
+
+        if(worldListener.isPlayerHitCheckPoint())
+        {
+            mapCreator.getGroundEnemies().OnPlayerHitCheckPoint();
+        }
+
+        if(worldListener.isPlayerHitFinishPoint())
+        {
+            mapCreator.getGroundEnemies().OnPlayerHitFinishPoint();
+        }
+
 
         if (server != null) {
             //update server
@@ -328,7 +338,12 @@ public class PlayScreen implements Screen{
         mapCreator.update(mainCamera, delta);
 
 
+    }
 
+    public void setWorldActive(boolean actived)
+    {
+        player.setActive(actived);
+        mapCreator.getGroundEnemies().setActive(actived);
     }
 
     //render textures, maps, etc..
@@ -374,13 +389,17 @@ public class PlayScreen implements Screen{
         if(gameEnded)
         {
             gameFinishedUI.draw();
-
+            if(!player.isReviewing())
+            {
+                gameFinishedUI.setVisiable(true);
+            }
         }
         else
         {
             inGameUI.draw();
         }
 
+        worldListener.update();
 
         //render box2DDebug
         b2DebugRenderer.render(world,mainCamera.combined);

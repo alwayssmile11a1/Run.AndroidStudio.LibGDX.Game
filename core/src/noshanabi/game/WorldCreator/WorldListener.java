@@ -19,6 +19,32 @@ import noshanabi.game.Objects.Player;
  */
 
 public class WorldListener implements ContactListener {
+
+    private boolean playerDead = false;
+    private boolean playerHitCheckPoint = false;
+    private boolean playerHitFinishPoint = false;
+
+    public void update()
+    {
+        playerDead = false;
+        playerHitCheckPoint = false;
+        playerHitFinishPoint = false;
+    }
+
+    public boolean isPlayerDead() {
+        return playerDead;
+    }
+
+    public boolean isPlayerHitCheckPoint() {
+        return playerHitCheckPoint;
+    }
+
+
+    public boolean isPlayerHitFinishPoint() {
+        return playerHitFinishPoint;
+    }
+
+
     @Override
     public void beginContact(Contact contact) {
 
@@ -59,11 +85,11 @@ public class WorldListener implements ContactListener {
             case Player.PLAYER_BIT * Checkpoint.CHECKPOINT_BIT:
 
                 Gdx.app.log("Checkpoint","");
-
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
                 {
                     Player player = ((Player)fixtureA.getUserData());
                     player.setCheckPoint(player.getBody().getPosition().x, player.getBody().getPosition().y);
+                    playerHitCheckPoint = true;
                 }
                 else
                 {
@@ -71,6 +97,7 @@ public class WorldListener implements ContactListener {
                     {
                         Player player = ((Player)fixtureB.getUserData());
                         player.setCheckPoint(player.getBody().getPosition().x, player.getBody().getPosition().y);
+                        playerHitCheckPoint = true;
                     }
                 }
                 break;
@@ -79,29 +106,33 @@ public class WorldListener implements ContactListener {
             case Player.PLAYER_BIT* GroundEnemies.ENEMY_BIT:
 
                 Gdx.app.log("Dead","");
+
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
                 {
+                    playerDead = true;
                     ((Player)fixtureA.getUserData()).returnToCheckPoint();
                 }
                 else
                 {
                     if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
                     {
+                        playerDead = true;
                         ((Player)fixtureB.getUserData()).returnToCheckPoint();
                     }
                 }
                 break;
 
             case Player.PLAYER_BIT* FinishPoint.FINISHPOINT_BIT:
-
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
                 {
+                    playerHitFinishPoint = true;
                     ((Player)fixtureA.getUserData()).OnHitFinishPoint();
                 }
                 else
                 {
                     if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
                     {
+                        playerHitFinishPoint = true;
                         ((Player)fixtureB.getUserData()).OnHitFinishPoint();
                     }
                 }
@@ -124,22 +155,22 @@ public class WorldListener implements ContactListener {
         //endContactPlayerHandler(fixtureA,fixtureB);
     }
 
-    private void endContactPlayerHandler(Fixture fixtureA, Fixture fixtureB)
-    {
-        System.out.println(fixtureA.getFilterData().categoryBits);
-        System.out.println(fixtureB.getFilterData().categoryBits);
-        if(fixtureA.getUserData() instanceof Player && fixtureA.getFilterData().categoryBits == Player.FOOT_BIT)
-        {
-            ((Player)fixtureA.getUserData()).isGrounded = false;
-        }
-        else
-        {
-            if (fixtureB.getUserData() instanceof Player && fixtureB.getFilterData().categoryBits == Player.FOOT_BIT)
-            {
-                ((Player)fixtureA.getUserData()).isGrounded = false;
-            }
-        }
-    }
+//    private void endContactPlayerHandler(Fixture fixtureA, Fixture fixtureB)
+//    {
+//        System.out.println(fixtureA.getFilterData().categoryBits);
+//        System.out.println(fixtureB.getFilterData().categoryBits);
+//        if(fixtureA.getUserData() instanceof Player && fixtureA.getFilterData().categoryBits == Player.FOOT_BIT)
+//        {
+//            ((Player)fixtureA.getUserData()).isGrounded = false;
+//        }
+//        else
+//        {
+//            if (fixtureB.getUserData() instanceof Player && fixtureB.getFilterData().categoryBits == Player.FOOT_BIT)
+//            {
+//                ((Player)fixtureA.getUserData()).isGrounded = false;
+//            }
+//        }
+//    }
 
     @Override
     public void preSolve(Contact contact, Manifold oldManifold) {
@@ -150,4 +181,5 @@ public class WorldListener implements ContactListener {
     public void postSolve(Contact contact, ContactImpulse impulse) {
 
     }
+
 }

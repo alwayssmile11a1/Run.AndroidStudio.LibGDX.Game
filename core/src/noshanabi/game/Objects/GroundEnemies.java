@@ -1,6 +1,5 @@
 package noshanabi.game.Objects;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -12,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
@@ -28,8 +28,13 @@ public class GroundEnemies {
     public static class GroundEnemy extends Sprite {
         private World world; //the world that this object is belonged to
         private Body body; //the body of this object
+        private Array<Transform> positions; //the list of positions that this object was going through - this is for rewinding purpose
+
+        private int reviewingIndex = 0;
+        private int checkpointIndex = 0;
 
         float stateTime = 0;
+        float playTime = 0;
 
         Animation<TextureRegion> animation;
 
@@ -41,6 +46,11 @@ public class GroundEnemies {
         private float initX;
         private float previousX;
 
+        private boolean isRecording = true;
+
+        private boolean isReviewing = false;
+
+        private boolean playerHitFinishPoint = false;
 
 
         public GroundEnemy(World world, Array<TextureRegion> textures, float x, float y, float width, float height) {
@@ -48,6 +58,8 @@ public class GroundEnemies {
             this.world = world;
 
             move = new Vector2();
+
+            positions = new Array<Transform>();
 
             animation = new Animation<TextureRegion>(0.3f, textures);
 
@@ -87,21 +99,26 @@ public class GroundEnemies {
 
 
         public void update(float dt) {
+            if(body.isActive() && !isReviewing) {
+
+                playTime +=dt;
+
+                move.set(initX + moveDistance * MathUtils.sin(playTime * moveSpeed), body.getPosition().y);
+
+                body.setTransform(move, 0);
+
+            }
 
             stateTime += dt;
-
             setRegion(animation.getKeyFrame(stateTime, true));
 
-            move.set(initX + moveDistance * MathUtils.sin(stateTime * moveSpeed), body.getPosition().y);
-
-            body.setTransform(move, 0);
+            //record position
+            recordPositions();
 
             //update texture position
             setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
 
-            Gdx.app.log("",MathUtils.sin(stateTime * moveSpeed)+"");
-
-            if (move.x-previousX > 0) {
+            if (body.getPosition().x-previousX > 0) {
 
                 this.flip(true, false);
             }
@@ -110,9 +127,93 @@ public class GroundEnemies {
                 this.flip(false, false);
             }
 
+            previousX = body.getPosition().x;
 
-            previousX = move.x;
+        }
 
+        public void OnPlayerDead() {
+            if (!playerHitFinishPoint)
+                positions.removeRange(checkpointIndex, positions.size - 1);
+        }
+
+        public void OnPlayerHitCheckPoint()
+        {
+            checkpointIndex = positions.size;
+        }
+
+        public void OnPlayerHitFinishPoint()
+        {
+            playerHitFinishPoint = true;
+        }
+
+
+        //record positions that this object was going through
+        private void recordPositions() {
+
+            if (body == null) return;
+
+            if (isRecording && !isReviewing) {
+                positions.add(new Transform(body.getPosition(), body.getAngle()));
+            }
+
+        }
+
+        public void reviewing()
+        {
+
+            if(isReviewing==false) return;
+
+            if (reviewingIndex < positions.size) {
+                body.setTransform(positions.get(reviewingIndex).getPosition(), positions.get(reviewingIndex).getRotation());
+                reviewingIndex++;
+            }
+            else
+            {
+                isReviewing = false;
+                reviewingIndex = 0;
+            }
+        }
+
+        public void setRecording(boolean recording)
+        {
+            isRecording = recording;
+        }
+
+        public boolean isReviewing()
+        {
+            return isReviewing;
+        }
+
+        //auto return false after finishing reviewing
+        public void setReviewing(boolean reviewing)
+        {
+            isReviewing = reviewing;
+        }
+
+        public void setReviewingIndex(int index)
+        {
+            reviewingIndex = index;
+        }
+
+        public void reset()
+        {
+            isReviewing = false;
+            positions.clear();
+            reviewingIndex = 0;
+            checkpointIndex = 0;
+            playerHitFinishPoint = false;
+            playTime = 0;
+            stateTime = 0;
+        }
+
+
+        public void setActive(boolean actived)
+        {
+            if(body.isActive()^actived) {
+                body.setActive(actived);
+            }
+
+            setRecording(actived);
         }
 
         public void setMoveDistance(float distance)
@@ -126,6 +227,7 @@ public class GroundEnemies {
         }
 
     }
+
 
     private Texture texture;
     Array<TextureRegion> textureRegions1;
@@ -156,11 +258,9 @@ public class GroundEnemies {
 
         if(name.equals("snail"))
         {
-            Gdx.app.log("snail","");
             groundEnemy = new GroundEnemy(world, textureRegions1, x, y, width, height);
         }
         else {
-            Gdx.app.log("not snail","");
             groundEnemy = new GroundEnemy(world, textureRegions2, x, y, width, height);
         }
 
@@ -175,11 +275,74 @@ public class GroundEnemies {
         return groundEnemies;
     }
 
+    public void OnPlayerDead() {
+        for(GroundEnemy enemy: groundEnemies)
+        {
+            enemy.OnPlayerDead();
+        }
+    }
+
+    public void OnPlayerHitCheckPoint() {
+        for (GroundEnemy enemy : groundEnemies) {
+            enemy.OnPlayerHitCheckPoint();
+        }
+    }
+
+    public void OnPlayerHitFinishPoint()
+    {
+        for(GroundEnemy enemy: groundEnemies)
+        {
+            enemy.OnPlayerHitFinishPoint();
+        }
+    }
+
+    public void reviewing()
+    {
+        for(GroundEnemy enemy: groundEnemies)
+        {
+            enemy.reviewing();
+        }
+    }
+
+    public void setRecording(boolean recording)
+    {
+        for(GroundEnemy enemy: groundEnemies)
+        {
+            enemy.setRecording(recording);
+        }
+    }
+
+    //auto return false after finishing reviewing
+    public void setReviewing(boolean reviewing)
+    {
+        for(GroundEnemy enemy: groundEnemies)
+        {
+            enemy.setReviewing(reviewing);
+        }
+    }
+
+    public void reset()
+    {
+        for(GroundEnemy enemy: groundEnemies)
+        {
+            enemy.reset();
+        }
+    }
+
+
     public void update(float dt)
     {
         for(GroundEnemy enemy: groundEnemies)
         {
             enemy.update(dt);
+        }
+    }
+
+    public void setActive(boolean actived)
+    {
+        for(GroundEnemy enemy: groundEnemies)
+        {
+            enemy.setActive(actived);
         }
     }
 

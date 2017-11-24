@@ -1,6 +1,5 @@
 package noshanabi.game.WorldCreator;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
@@ -184,7 +183,6 @@ public class MapCreator {
                 Rectangle rectangle = object.getRectangle();
 
                 String name = object.getProperties().get("name").toString();
-                Gdx.app.log("",name);
                 groundEnemies.addEnemy(world, name, rectangle.getX() / Resourses.PPM, rectangle.getY() / Resourses.PPM,
                         rectangle.getWidth() / Resourses.PPM, rectangle.getHeight() / Resourses.PPM,
                         1, 1);
@@ -217,9 +215,10 @@ public class MapCreator {
     public void renderMap(OrthographicCamera camera)
     {
         if(movableLayer!=null) {
-            if (movableLayer.getOffsetX() / Resourses.PPM + mapWidth - 5f > camera.position.x - camera.viewportWidth / 2) {
+            if ((movableLayer.getOffsetX() / Resourses.PPM + mapWidth - 5f) > (camera.position.x - camera.viewportWidth / 2)) {
                 movableLayer.setOffsetX(movableLayer.getOffsetX() - movableLayerSpeed);
             } else {
+
                 movableLayer.setOffsetX((camera.position.x + camera.viewportWidth / 2) * Resourses.PPM);
             }
         }
@@ -245,12 +244,12 @@ public class MapCreator {
 
         halfSaws.update(dt);
 
-
+        groundEnemies.update(dt);
     }
 
-    public void updateMovableObjects(float dt)
+    public GroundEnemies getGroundEnemies()
     {
-        groundEnemies.update(dt);
+        return groundEnemies;
     }
 
 

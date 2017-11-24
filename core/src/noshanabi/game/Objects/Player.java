@@ -1,6 +1,7 @@
 package noshanabi.game.Objects;
 
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
@@ -48,7 +49,6 @@ public class Player extends Sprite {
 
 
 
-
     public Player(World world, float x, float y) {
 
         this.world = world;
@@ -84,6 +84,7 @@ public class Player extends Sprite {
             positions.removeRange(checkpointIndex, positions.size - 1);
             velocities.removeRange(checkpointIndex, velocities.size - 1);
         }
+
     }
 
     public void setCheckPoint(float x, float y)
@@ -152,7 +153,7 @@ public class Player extends Sprite {
             return;
         }
 
-        recordPositions(dt);
+        recordPositions();
 
         //update texture position
         setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
@@ -167,23 +168,23 @@ public class Player extends Sprite {
 
     }
 
+
+    public void setActive(boolean actived)
+    {
+        if(body.isActive() ^ actived) {
+            body.setActive(actived);
+        }
+        setRecording(actived);
+    }
+
+
     //record positions that this object was going through
-    private void recordPositions(float dt) {
+    private void recordPositions() {
 
         if (body == null) return;
 
-//        if(isRewinding == false) {
-//            //
-//            if(positions.size > (int)(maximumRewindingTime/dt))
-//            {
-//                positions.removeIndex(positions.size-1);
-//                velocities.removeIndex(velocities.size-1);
-//            }
-//            positions.insert(0, new Transform(body.getPosition(), body.getAngle()));
-//            velocities.insert(0, new Vector2(body.getLinearVelocity()));
-//        }
-
         if (isRecording && !isReviewing) {
+            Gdx.app.log("Player","recording");
             positions.add(new Transform(body.getPosition(), body.getAngle()));
             velocities.add(new Vector2(body.getLinearVelocity()));
         }
@@ -191,30 +192,6 @@ public class Player extends Sprite {
 
     }
 
-//    //start rewinding - this fuction will automatically stop rewinding when it reaches maximum rewinding time
-//    public void startRewinding () {
-//
-//        if(body==null) return;
-//
-//        if (positions.size >0) {
-//            isRewinding = true;
-//            //body.setType(BodyDef.BodyType.KinematicBody);
-//            body.setTransform(positions.first().getPosition(), positions.first().getRotation());
-//            body.setLinearVelocity(velocities.first());
-//            positions.removeIndex(0);
-//            velocities.removeIndex(0);
-//        }
-//        else
-//        {
-//            stopRewinding();
-//        }
-//    }
-//
-//    //stop rewinding time
-//    public void stopRewinding () {
-//        isRewinding = false;
-//        //body.setType(BodyDef.BodyType.DynamicBody);
-//    }
 
 
     public void reviewing()
@@ -223,6 +200,7 @@ public class Player extends Sprite {
         if(isReviewing==false) return;
 
         if (reviewingIndex < positions.size) {
+            //Gdx.app.log("Player:"+positions.size+" " + reviewingIndex,"");
             //body.setType(BodyDef.BodyType.KinematicBody);
             body.setTransform(positions.get(reviewingIndex).getPosition(), positions.get(reviewingIndex).getRotation());
             body.setLinearVelocity(velocities.get(reviewingIndex));
@@ -235,14 +213,9 @@ public class Player extends Sprite {
         }
     }
 
-    public void startRecording()
+    public void setRecording(boolean recording)
     {
-        isRecording = true;
-    }
-
-    public void stopRecording()
-    {
-        isRecording = false;
+        isRecording = recording;
     }
 
     public boolean isReviewing()
