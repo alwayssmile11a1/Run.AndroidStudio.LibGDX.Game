@@ -17,7 +17,9 @@ public final class Resourses {
     public static String CheckpointSound = "audios/checkpoint.wav";
 
     //----------EFFECT----------------------------------
-    public static String ExplosionEffect = "effects/explosion.p";
+    public static String ExplosionEffect1 = "effects/explosion.p";
+    public static String ExplosionEffect2 = "effects/explosion2.p";
+    public static String ExplosionEffect3 = "effects/explosion3.p";
     public static String ParticleImageDir = "effects";
 
 

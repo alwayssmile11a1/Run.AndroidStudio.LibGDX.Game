@@ -108,14 +108,16 @@ public class WorldListener implements ContactListener {
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
                 {
                     playerDead = true;
-                    ((Player)fixtureA.getUserData()).onDead();
+                    Player player = ((Player)fixtureA.getUserData());
+                    player.onDead();
                 }
                 else
                 {
                     if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
                     {
                         playerDead = true;
-                        ((Player)fixtureB.getUserData()).onDead();
+                        Player player = ((Player)fixtureB.getUserData());
+                        player.onDead();
                     }
                 }
                 break;

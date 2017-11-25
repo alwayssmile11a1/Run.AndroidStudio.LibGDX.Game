@@ -92,6 +92,8 @@ public class PlayScreen implements Screen{
     private Music backgroundMusic;
     float playbackPosition=0;
 
+    float deadTime = -1;
+
 
     public PlayScreen(GameManager gameManager, String mapName, String backgroundMusicName) {
         //set up constructor variables
@@ -163,14 +165,29 @@ public class PlayScreen implements Screen{
     }
 
 
-    private void updateCamera()
-    {
-        //update camera to follow this player
-        mainCamera.position.x = MathUtils.clamp(player.getBody().getPosition().x + 1,
-                gameViewPort.getWorldWidth()/2,
-                mapCreator.getFinishPosition().x);
+    private void updateCamera() {
+        if (deadTime == -1) {
+            //update camera to follow this player
+            mainCamera.position.x = MathUtils.clamp(player.getBody().getPosition().x + 1,
+                    gameViewPort.getWorldWidth() / 2,
+                    mapCreator.getFinishPosition().x);
 
-        mainCamera.position.y = MathUtils.clamp(player.getBody().getPosition().y ,gameViewPort.getWorldHeight()/2,gameViewPort.getWorldHeight()/2+3f);
+            mainCamera.position.y = MathUtils.clamp(player.getBody().getPosition().y, gameViewPort.getWorldHeight() / 2, gameViewPort.getWorldHeight() / 2 + 3f);
+
+        } else {
+            if (deadTime > 0) {
+                deadTime -= 1 / 60f;
+                //update camera to follow this player
+                mainCamera.position.x = MathUtils.clamp(player.getDeadPoint().x + 1,
+                        gameViewPort.getWorldWidth() / 2,
+                        mapCreator.getFinishPosition().x);
+
+                mainCamera.position.y = MathUtils.clamp(player.getDeadPoint().y, gameViewPort.getWorldHeight() / 2, gameViewPort.getWorldHeight() / 2 + 3f);
+            } else {
+                deadTime = -1;
+            }
+        }
+
         mainCamera.update();
     }
 
@@ -324,6 +341,7 @@ public class PlayScreen implements Screen{
         {
             backgroundMusic.setPosition(playbackPosition);
             mapCreator.getGroundEnemies().onPlayerDead();
+            deadTime =0.5f;
         }
 
         if(worldListener.isPlayerHitCheckPoint())

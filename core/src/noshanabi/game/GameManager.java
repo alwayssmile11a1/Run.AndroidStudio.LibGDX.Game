@@ -4,7 +4,9 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.ParticleEffectLoader;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import com.kotcrab.vis.ui.VisUI;
@@ -106,6 +108,15 @@ public class GameManager extends Game {
 		//load sound
 		assetManager.load(Resourses.ExplosionSound, Sound.class);
 		assetManager.load(Resourses.CheckpointSound, Sound.class);
+
+		//load effect
+		ParticleEffectLoader.ParticleEffectParameter pep = new ParticleEffectLoader.ParticleEffectParameter();
+		pep.imagesDir = Gdx.files.internal(Resourses.ParticleImageDir);
+		assetManager.load(Resourses.ExplosionEffect1, ParticleEffect.class,pep);
+		assetManager.load(Resourses.ExplosionEffect2, ParticleEffect.class,pep);
+		assetManager.load(Resourses.ExplosionEffect3, ParticleEffect.class,pep);
+
+
 	}
 
 	public void addToDisposeScreens(Screen screen)
@@ -116,6 +127,7 @@ public class GameManager extends Game {
 	@Override
 	public void render () {
 		super.render();
+
 		assetManager.update();
 
 		if(disposeScreens.size>0)

@@ -1,5 +1,6 @@
 package noshanabi.game.Objects;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -138,7 +139,7 @@ public class GroundEnemies {
 
         public void onPlayerHitCheckPoint()
         {
-            checkpointIndex = positions.size;
+            checkpointIndex = positions.size-1;
         }
 
         public void onPlayerHitFinishPoint()
@@ -164,6 +165,7 @@ public class GroundEnemies {
             if(isReviewing==false) return;
 
             if (reviewingIndex < positions.size) {
+                Gdx.app.log("Enemy",""+positions.size);
                 body.setTransform(positions.get(reviewingIndex).getPosition(), positions.get(reviewingIndex).getRotation());
                 reviewingIndex++;
             }
