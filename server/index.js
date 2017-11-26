@@ -135,30 +135,51 @@ io.on('connection',function(socket){
     });
 
     socket.on('joinGame',function(){
-       socket.broadcast.to(socket.room).emit('gameJoined');
-       rooms[socket.room].state = "InGame";
-       io.sockets.emit('roomStateChanged', {roomName: socket.room, state: "InGame"});
+
+       if(rooms.hasOwnProperty(socket.room))
+       {
+            socket.broadcast.to(socket.room).emit('gameJoined');
+            rooms[socket.room].state = "InGame";
+            io.sockets.emit('roomStateChanged', {roomName: socket.room, state: "InGame"});
+       }
     });
 
     socket.on('transitionMap', function(data){
-        socket.broadcast.to(socket.room).emit('mapTransitioned', {transitionUp: data});
+        if(rooms.hasOwnProperty(socket.room))
+        {
+            socket.broadcast.to(socket.room).emit('mapTransitioned', {transitionUp: data});
+        }
     });
 
 
     //when the client emits this event, emit the position, rotation,..etc.. to other players
     socket.on('socketPlayerMoved',function(data){
-        //put the id in for the sake of quick searching
-        data.id = socket.id;
 
-        //emit to all other players but the client's socket
-        socket.broadcast.to(socket.room).emit('playerMoved',data);
+        if(data) //if !=null
+        {
+            //put the id in for the sake of quick searching
+            data.id = socket.id;
 
-        //update the position and ..etc.. in hash table
-        var socketPlayer = rooms[socket.room].players[socket.id];
-        socketPlayer.x = data.x;
-        socketPlayer.y = data.y;
-        socketPlayer.rotation = data.rotation;
+            //emit to all other players but the client's socket
+            socket.broadcast.to(socket.room).emit('playerMoved',data);
 
+            //update the position and ..etc.. in hash table
+            var room = rooms[socket.room];
+
+            var socketPlayer;
+
+            if(room)
+            {
+               socketPlayer = room.players[socket.id];
+            }
+
+            if(socketPlayer) //if !=null
+            {
+                socketPlayer.x = data.x;
+                socketPlayer.y = data.y;
+                socketPlayer.rotation = data.rotation;
+            }
+        }
 
     });
 

@@ -36,12 +36,15 @@ public class ServerCreator {
 
     private Array<ServerListener> serverListeners;
 
+    private Texture friendPlayerTexture;
+
     public ServerCreator(GameManager gameManager)
     {
         this.gameManager = gameManager;
         otherPlayers = new HashMap<String, FriendPlayer>();
         serverListeners = new Array<ServerListener>();
         playersToDispose = new Array<FriendPlayer>();
+        friendPlayerTexture = new Texture(Gdx.files.internal(Resourses.Player1));
     }
 
     public void SetMainPlayer(Player mainPlayer)
@@ -227,15 +230,7 @@ public class ServerCreator {
                     serverListener.OnSocketRoomLeaved(args);
                 }
 
-                try {
-                    JSONObject data = (JSONObject) args[0];
-                    String roomName = data.getString("roomName");
-                    Gdx.app.log("SocketIO", "You leaved room " + roomName );
-
-                } catch (JSONException e) {
-                    Gdx.app.log("SocketIO", "Error leaving room");
-                    e.printStackTrace();
-                }
+                handleSocketRoomLeavedEvent(args);
             }
         });
 
@@ -301,6 +296,8 @@ public class ServerCreator {
 
     }
 
+
+
     public void handlePlayerMovedEvent(Object... args) {
 //        //Since all of the ApplicationListener methods are called on the same thread.
 //        //This thread is the rendering thread on which OpenGL calls can be made
@@ -325,10 +322,13 @@ public class ServerCreator {
             FriendPlayer otherPlayer = otherPlayers.get(id);
 
             if (otherPlayer != null) {
+                otherPlayer.setTempRotation(rotation.floatValue());
+                otherPlayer.setTempPosition(x.floatValue(), y.floatValue());
 
-                otherPlayer.setPosition(x.floatValue(), y.floatValue());
-                otherPlayer.setRotation(rotation.floatValue());
             }
+
+
+
         } catch (JSONException e) {
             Gdx.app.log("SocketIO", "Error getting disconnected player ID");
             e.printStackTrace();
@@ -368,8 +368,8 @@ public class ServerCreator {
                 position.y = ((Double) value.getDouble("y")).floatValue();
                 float rotation = ((Double) value.getDouble("rotation")).floatValue();
 
-                otherPlayer.setPosition(position.x, position.y);
-                otherPlayer.setRotation(rotation);
+                otherPlayer.setTempRotation(rotation);
+                otherPlayer.setTempPosition(position.x, position.y);
 
                 otherPlayers.put(otherPlayerID, otherPlayer);
 
@@ -411,8 +411,29 @@ public class ServerCreator {
 
     }
 
+    public void handleSocketRoomLeavedEvent(Object... args)
+    {
+        try {
+            JSONObject data = (JSONObject) args[0];
+            String roomName = data.getString("roomName");
+            Gdx.app.log("SocketIO", "You leaved room " + roomName );
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error leaving room");
+            e.printStackTrace();
+        }
+
+        for(HashMap.Entry<String,FriendPlayer> entry: otherPlayers.entrySet()) {
+            playersToDispose.addAll(entry.getValue());
+        }
+        otherPlayers.clear();
+
+    }
+
 
     public void updateServer(float dt) {
+
+        //dispose player
         for(FriendPlayer player:playersToDispose) {
             player.dispose();
         }
@@ -428,6 +449,11 @@ public class ServerCreator {
             socket.emit("socketPlayerMoved", data);
         } catch (JSONException e) {
             Gdx.app.log("SOCKET.IO", "Error sending update data");
+        }
+
+        for(HashMap.Entry<String,FriendPlayer> entry : otherPlayers.entrySet())
+        {
+            entry.getValue().update(dt);
         }
 
 //        //update body position of other players
@@ -460,7 +486,7 @@ public class ServerCreator {
         {
             if(entry.getValue().getTexture()==null)
             {
-                entry.getValue().setTexture(new Texture("images/WhiteRectangle.png"));
+                entry.getValue().SetTexture();
             }
 
             entry.getValue().draw(batch);
@@ -477,6 +503,8 @@ public class ServerCreator {
 
     public void dispose()
     {
+
+        friendPlayerTexture.dispose();
 
         for(HashMap.Entry<String,FriendPlayer> entry : otherPlayers.entrySet())
         {

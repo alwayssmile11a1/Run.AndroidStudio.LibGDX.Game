@@ -1,7 +1,8 @@
 package noshanabi.game.Objects;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -22,32 +23,33 @@ public class FriendPlayer extends Sprite {
 
     private Body body; //the body of this object
 
+    private Vector2 tempPosition;
+    private float tempRotation;
+
     public FriendPlayer()
     {
-        //set Texture
-        //setTexture(new Texture("images/WhiteRectangle.png"));
-        setColor(0.5f,0.4f,1f,1f);
 
-        //set Position
-        setPosition(200,200);
+        tempPosition = new Vector2();
+        tempRotation = 0;
 
-        //set Size
-        setSize(30f,30f);
 
-        usePixelPerMeter();
+    }
+
+    public void SetTexture() {
+
+        Texture texture = new Texture(Resourses.Player1);
+
+        set(new Sprite(texture));
+
+        setBounds(200/ Resourses.PPM,200/ Resourses.PPM, 40f/Resourses.PPM,40f/Resourses.PPM);
 
         //set this to rotate object in the center
         setOriginCenter();
 
     }
 
-    //this function resize this object to be used more appropriate with Box2D
-    protected void usePixelPerMeter() {
 
-        setPosition(getX() / Resourses.PPM, getY() / Resourses.PPM);
-        setSize(getWidth() / Resourses.PPM, getHeight() / Resourses.PPM);
 
-    }
 
     public void defineObject(World world) {
 
@@ -72,12 +74,27 @@ public class FriendPlayer extends Sprite {
 
     }
 
+    public void setTempPosition(float x, float y)
+    {
+        tempPosition.set(x,y);
+    }
+
+    public void setTempRotation(float rotation)
+    {
+        this.tempRotation = rotation;
+    }
+
+
     public void update(float dt) {
 
-        if(body==null) return;
+//        if(body==null) return;
+//
+//        //update texture position
+//        body.setTransform(this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2,this.getRotation()/ MathUtils.radiansToDegrees);
 
-        //update texture position
-        body.setTransform(this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2,this.getRotation()/ MathUtils.radiansToDegrees);
+        setRotation(tempRotation);
+        setPosition(tempPosition.x,tempPosition.y);
+
 
     }
 

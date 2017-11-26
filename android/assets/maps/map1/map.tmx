@@ -6,7 +6,12 @@
    eJztwwENAAAMAiDz2D+gEf4AsJEAAAAAAAAAAAAAAAAAAMCtqqqqqqqqqqqqqqqqqqr6ONYXZ1s=
   </data>
  </layer>
- <layer name="StaticLayer" width="250" height="30">
+ <layer name="MovableBackGround" width="250" height="30">
+  <data encoding="base64" compression="zlib">
+   eJztwTEBAAAAwqD1T20JT6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4GdTAAAQ==
+  </data>
+ </layer>
+ <layer name="ObjectGraphics" width="250" height="30">
   <data encoding="base64" compression="zlib">
    eJzt1j0OgyAAgFErS0fnnsT7eCDP6g1ahy6CP1EMat7wEsJACMkH9K+q6gEAAAAAAAAAAAAAAAAAAAAAAAAA4Kery+8ByEPPcL6hjh1Z7x3S46lU30ebb8N2pc8d7uIT4vthrvNxvNR9Dk2I/buezpU+O7izMztPNdysrOn9hmV7/vQl3/MUnUN+Oofn0zk8n87hGr43RGNx
   </data>

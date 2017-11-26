@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -14,10 +15,12 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisTable;
 
 import org.json.JSONException;
@@ -72,8 +75,6 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
     private VisTable playersTable;
 
-    private Texture playerTexture;
-
     private Array<String> playersToAdd;
 
     private Array<String> playersToRemove;
@@ -83,6 +84,14 @@ public class RoomJoinedScreen implements Screen, ServerListener {
     private Group mapGroup;
 
     private boolean needSwitchScreen;
+
+    private boolean ownRoom = false;
+
+    //choose player table
+    private Stage chooseCharacterStage;
+    private VisTable chooseCharacterTable;
+    private Texture chooseCharacterBackgroundTexture;
+    private Image chooseCharacterBackground;
 
 
     public RoomJoinedScreen(GameManager _gameManager) {
@@ -99,9 +108,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
         backGround = new Sprite(new Texture(Resourses.RoomJoinedBackground));
         backGround.setSize(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
-
-        playerTexture = new Texture("images/bird.png");
-
+        //-------------------------------------------------------
         players = new HashMap<String, Image>();
 
         needSwitchScreen = false;
@@ -109,7 +116,6 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         //-----------------VIEW RELATED VARIABLES-----------------//
         viewport = new StretchViewport(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
         stage = new Stage(viewport, gameManager.batch);
-
 
         //-----------------MAP GROUP ---------------------
         setupMapGroup();
@@ -174,11 +180,11 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
         group.addActor(userNameLabel);
 
-
-
         //add to actor
         stage.addActor(group);
 
+        //-------------------------------
+        setupChooseCharacterTable();
     }
 
     private void setupMapGroup()
@@ -215,11 +221,13 @@ public class RoomJoinedScreen implements Screen, ServerListener {
             mapImage.addListener(new InputListener() {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
+                    Gdx.app.log("SwitchToMap","");
                     PlayScreen playScreen = new PlayScreen(gameManager, mapName, backgroundMusicName);
                     playScreen.setServer(gameManager.getServer());
                     //Gdx.input.setInputProcessor(playScreen.getGameStage());
-                    gameManager.getServer().getSocket().emit("joinGame");
+                    if(ownRoom) {
+                        gameManager.getServer().getSocket().emit("joinGame");
+                    }
                     gameManager.setScreen(playScreen);
 
                     return true;
@@ -287,8 +295,57 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
         //add to gameStage
         stage.addActor(mapGroup);
+
+
     }
 
+    public void setupChooseCharacterTable()
+    {
+        chooseCharacterStage = new Stage();
+
+        //------------------CHOOSE CHARACTER TABLE ---------------------//
+        //get all player texture
+        chooseCharacterTable = new VisTable();
+        chooseCharacterTable.setFillParent(true);
+        chooseCharacterTable.center();
+
+        //background
+        chooseCharacterBackgroundTexture = new Texture(Resourses.GameFinishedBackground);
+        chooseCharacterBackground = new VisImage(chooseCharacterBackgroundTexture);
+        chooseCharacterBackground.setSize(Resourses.WORLDWIDTH-25,Resourses.WORLDHEIGHT-25);
+        chooseCharacterBackground.setPosition(Resourses.WORLDWIDTH/2- chooseCharacterBackground.getWidth()/2,Resourses.WORLDHEIGHT/2- chooseCharacterBackground.getHeight()/2);
+        chooseCharacterBackground.setColor(0, 0, 0, 0.5f);
+        chooseCharacterTable.addActor(chooseCharacterBackground);
+
+
+        Array<TextureRegion> characterRegions = gameManager.getCharacterRegions();
+        int index = 0;
+        for(final TextureRegion region:characterRegions) {
+
+            VisImage characterImage = new VisImage(region);
+            characterImage.addListener(new InputListener() {
+                @Override
+                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                    gameManager.setCurrentCharacter(region);
+                    chooseCharacterTable.setVisible(false);
+                    Gdx.input.setInputProcessor(stage);
+                    players.get("main").setDrawable(new TextureRegionDrawable(region));
+                    return true;
+                }
+
+            });
+            chooseCharacterTable.add(characterImage).expandX();
+            index++;
+            if (index >= 4) {
+                index = 0;
+                chooseCharacterTable.row().padTop(50f);
+            }
+        }
+
+
+        chooseCharacterStage.addActor(chooseCharacterTable);
+        chooseCharacterTable.setVisible(false);
+    }
 
     @Override
     public void OnSocketRoomCreated(Object... args) {
@@ -346,10 +403,23 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
     private void addPlayer(String playerID)
     {
-        Image playerImage = new Image(playerTexture);
+        VisImage playerImage = new VisImage(gameManager.getCurrentCharacter());
         players.put(playerID, playerImage);
         playersTable.add(playerImage).padBottom(20f).size(50,50);
         playersTable.row();
+
+        if(playerID.equals("main"))
+        {
+            playerImage.addListener(new InputListener() {
+                @Override
+                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                    Gdx.input.setInputProcessor(chooseCharacterStage);
+                    chooseCharacterTable.setVisible(true);
+                    return true;
+                }
+
+            });
+        }
 
     }
 
@@ -385,7 +455,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
     @Override
     public void OnSocketRoomJoined(Object... args) {
-        playersToAdd.add("mainPlayer");
+        playersToAdd.add("main");
     }
 
     @Override
@@ -445,6 +515,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
     public void ownRoomMode(boolean ownRoom)
     {
+        this.ownRoom = ownRoom;
         if(ownRoom)
         {
             mapGroup.setTouchable(Touchable.enabled);
@@ -484,11 +555,11 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         }
 
         if(needSwitchScreen==true) {
+            needSwitchScreen = false;
             //perform touch down event
             InputEvent event = new InputEvent();
             event.setType(InputEvent.Type.touchDown);
             mapImages.get(transitionCount).fire(event);
-            needSwitchScreen = false;
         }
 
 
@@ -523,6 +594,9 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         gameManager.batch.end();
 
         stage.draw();
+        stage.act();
+        chooseCharacterStage.draw();
+        chooseCharacterStage.act();
     }
 
 
@@ -581,9 +655,15 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         if(signOutButton!=null)
             signOutButton.dispose();
 
-        if(playerTexture!=null)
-            playerTexture.dispose();
+        if(chooseCharacterBackgroundTexture !=null)
+            chooseCharacterBackgroundTexture.dispose();
 
+        if(chooseCharacterStage!=null) {
+            chooseCharacterStage.dispose();
+            chooseCharacterStage = null;
+        }
+
+        Gdx.app.log("dispose","Room joined screen");
 
     }
 

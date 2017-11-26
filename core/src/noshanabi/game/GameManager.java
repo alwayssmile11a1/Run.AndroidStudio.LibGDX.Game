@@ -6,10 +6,15 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ParticleEffectLoader;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.XmlReader;
 import com.kotcrab.vis.ui.VisUI;
+
+import java.io.IOException;
 
 import noshanabi.game.Extensions.PlayerServices;
 import noshanabi.game.Screens.CreateRoomScreen;
@@ -18,6 +23,7 @@ import noshanabi.game.Screens.LoginScreen;
 import noshanabi.game.Screens.MapSelectionScreen;
 import noshanabi.game.Screens.MenuScreen;
 import noshanabi.game.Screens.ModeSelectionScreen;
+import noshanabi.game.Screens.PlayScreen;
 import noshanabi.game.Screens.RoomJoinedScreen;
 import noshanabi.game.Server.ServerCreator;
 
@@ -34,7 +40,10 @@ public class GameManager extends Game {
 	//Login to facebook, login to google
 	private PlayerServices playerServices;
 
-
+	//PLAYER TEXTURE
+	Texture charactersTexture;
+	Array<TextureRegion> characterRegions;
+	TextureRegion currentCharacter;
 
 	//---ALL SCREENS----//
 	private MenuScreen menuScreen;
@@ -53,6 +62,7 @@ public class GameManager extends Game {
 	private Array<Screen> disposeScreens;
 
 
+
 	public GameManager(PlayerServices playerServices)
 	{
 		this.playerServices = playerServices;
@@ -66,6 +76,9 @@ public class GameManager extends Game {
 		disposeScreens = new Array<Screen>();
 
 		VisUI.load(VisUI.SkinScale.X2);
+
+		//load characters texture
+		setupCharacters();
 
 		//init screens
 		menuScreen = new MenuScreen(this);
@@ -96,6 +109,56 @@ public class GameManager extends Game {
 
 	}
 
+	private void setupCharacters()
+	{
+		charactersTexture = new Texture(Gdx.files.internal(Resourses.PlayerSheet));
+		characterRegions = new Array<TextureRegion>();
+		XmlReader reader = new XmlReader();
+		try {
+			XmlReader.Element root = reader.parse(Gdx.files.internal(Resourses.PlayerSheetXML));
+
+			Array<XmlReader.Element> items = root.getChildrenByName("SubTexture");
+
+			for(XmlReader.Element item:items)
+			{
+				int x =Integer.parseInt( item.getAttribute("x"));
+				int y =Integer.parseInt( item.getAttribute("y"));
+				int width =Integer.parseInt( item.getAttribute("width"));
+				int height =Integer.parseInt( item.getAttribute("height"));
+
+				TextureRegion region = new TextureRegion(charactersTexture,x,y,width,height);
+
+				characterRegions.add(region);
+
+			}
+
+		}
+		catch (IOException e)
+		{
+			Gdx.app.log("Something went wrong","");
+		}
+
+		currentCharacter = characterRegions.get(8);
+
+	}
+
+	public Array<TextureRegion> getCharacterRegions()
+	{
+		return characterRegions;
+	}
+
+	public TextureRegion getCurrentCharacter()
+	{
+		return currentCharacter;
+	}
+
+	public void setCurrentCharacter(TextureRegion textureRegion)
+	{
+		currentCharacter = textureRegion;
+	}
+
+
+
 	public void connectToServer()
 	{
 		server.connectSocket();
@@ -103,7 +166,7 @@ public class GameManager extends Game {
 	}
 
 	//used for load essential audio
-	public void loadEssentialAssets()
+	private void loadEssentialAssets()
 	{
 		//load sound
 		assetManager.load(Resourses.ExplosionSound, Sound.class);
@@ -151,16 +214,31 @@ public class GameManager extends Game {
 			assetManager.dispose();
 		}
 
-		menuScreen.dispose();
-		mapSelectionScreen.dispose();
-		loginScreen.dispose();
-		modeSelectionScreen.dispose();
-		findRoomScreen.dispose();
-		roomJoinedScreen.dispose();
+		if(menuScreen!=null) {
+			menuScreen.dispose();
+		}
+		if(mapSelectionScreen!=null) {
+			mapSelectionScreen.dispose();
+		}
+		if(loginScreen!=null) {
+			loginScreen.dispose();
+		}
+		if(modeSelectionScreen!=null) {
+			modeSelectionScreen.dispose();
+		}
+		if(findRoomScreen!=null) {
+			findRoomScreen.dispose();
+		}
+		if(roomJoinedScreen!=null) {
+			roomJoinedScreen.dispose();
+		}
 
-		if(getScreen()!=null)
+		//dispose current screen
+		Screen currentScreen = getScreen();
+		if(currentScreen!=null && currentScreen instanceof PlayScreen)
 		{
-			getScreen().dispose();
+			currentScreen.dispose();
+			currentScreen = null;
 		}
 
 		if(server!=null) {
@@ -168,6 +246,9 @@ public class GameManager extends Game {
 		}
 
 		VisUI.dispose();
+
+		if(charactersTexture!=null)
+			charactersTexture.dispose();
 
 	}
 

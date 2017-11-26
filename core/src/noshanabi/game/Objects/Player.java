@@ -1,9 +1,7 @@
 package noshanabi.game.Objects;
 
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -70,8 +68,8 @@ public class Player extends Sprite {
         velocities = new Array<Vector2>();
 //        isRewinding = false;
 
-        Texture playerTexture= new Texture(Resourses.Player1);
-        set(new Sprite(playerTexture));
+        //Texture playerTexture= new Texture(Resourses.Player1);
+        set(new Sprite(gameManager.getCurrentCharacter()));
         //setColor(0f,0.4f,1f,1f);
 
         checkPoint = new Vector2();
@@ -280,7 +278,6 @@ public class Player extends Sprite {
         if(isReviewing==false) return;
 
         if (reviewingIndex < positions.size) {
-            Gdx.app.log("Player",""+positions.size);
             body.setTransform(positions.get(reviewingIndex).getPosition(), positions.get(reviewingIndex).getRotation());
             body.setLinearVelocity(velocities.get(reviewingIndex));
             reviewingIndex++;
@@ -332,10 +329,10 @@ public class Player extends Sprite {
 
     public void dispose()
     {
-        if(getTexture()!=null)
-        {
-            getTexture().dispose();
-        }
+//        if(getTexture()!=null)
+//        {
+//            getTexture().dispose();
+//        }
 
         checkpointEffect.reset();
         deadEffect.reset();

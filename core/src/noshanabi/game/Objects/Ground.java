@@ -47,7 +47,7 @@ public class Ground extends Sprite {
         PolygonShape bodyShape = new PolygonShape();
         bodyShape.setAsBox(this.getWidth()/2,this.getHeight()/2);
         fDef.shape = bodyShape;
-        fDef.friction = 1f;
+        fDef.friction = 0.1f;
         fDef.filter.categoryBits = GROUND_BIT;
         fDef.filter.maskBits = Player.PLAYER_BIT|Player.FOOT_BIT|GroundEnemies.ENEMY_BIT;
         body.createFixture(fDef).setUserData(this);

@@ -12,7 +12,6 @@ public class SinglePlayButton extends TouchableImage {
     public SinglePlayButton()
     {
         super(Resourses.SinglePlayButton);
-
     }
 
 }

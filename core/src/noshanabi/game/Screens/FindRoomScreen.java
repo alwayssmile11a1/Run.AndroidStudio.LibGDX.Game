@@ -299,7 +299,7 @@ public class FindRoomScreen implements Screen, ServerListener{
             JSONObject data = (JSONObject) args[0];
             String roomName = data.getString("roomName");
             String roomState = data.getString("state");
-            roomList.get(roomName).get(1).setText(roomState);
+            roomList.get(roomName).get(1).setText(roomState); //get(1): room state
 
         } catch (JSONException e) {
             Gdx.app.log("SocketIO", "Error getting room state");
@@ -315,7 +315,7 @@ public class FindRoomScreen implements Screen, ServerListener{
             JSONObject data = (JSONObject) args[0];
             String roomName = data.getString("roomName");
             int playersCount = data.getInt("playersCount");
-            roomList.get(roomName).get(2).setText(playersCount+"/"+maxPlayersInRoom);
+            roomList.get(roomName).get(2).setText(playersCount+"/"+maxPlayersInRoom); //get(2) : player count
 
         } catch (JSONException e) {
             Gdx.app.log("SocketIO", "Error getting players count");
@@ -365,11 +365,13 @@ public class FindRoomScreen implements Screen, ServerListener{
 
     private void removeRoom(String roomName)
     {
-        Array<Label> room = roomList.get(roomName);
-        for(Label label: room) {
-            roomTable.removeActor(label);
+        Array<Label> roomLabel = roomList.get(roomName);
+        if(roomLabel!=null) {
+            for (Label label : roomLabel) {
+                roomTable.removeActor(label);
+            }
+            roomList.remove(roomName);
         }
-        roomList.remove(roomName);
     }
 
     @Override

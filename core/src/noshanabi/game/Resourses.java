@@ -25,7 +25,8 @@ public final class Resourses {
 
     //------------------PLAYER -----------------------
     public static String Player1 = "players/alienYellow_square.png";
-
+    public static String PlayerSheet = "players/spritesheet_aliens.png";
+    public static String PlayerSheetXML = "players/spritesheet_aliens.xml";
 
 
 
@@ -49,8 +50,8 @@ public final class Resourses {
 
     //----------------MENU SCREEN---------------------
     public static String MenuScreenBackground = "images/BlueBackground.png";
-    public static String SinglePlayButton = "images/playbutton.png";
-    public static String MultiPlayButton = "images/multiplaybutton.png";
+    public static String SinglePlayButton = "images/singleplayer.png";
+    public static String MultiPlayButton = "images/massiveMultiplayer.png";
 
 
 
