@@ -157,6 +157,8 @@ public class PlayScreen implements Screen{
 
         server.setMainPlayer(player);
 
+        server.setWorld(world);
+
     }
 
     public Stage getGameStage()
@@ -266,7 +268,7 @@ public class PlayScreen implements Screen{
             mapCreator.getGroundEnemies().setReviewing(true);
         }
 
-        if(gameFinishedUI.isReplayButtonPressed())
+        if(gameFinishedUI.isReplayButtonPressed() || inGameUI.isReplayButtonPressed())
         {
             resetGame();
         }
@@ -326,6 +328,8 @@ public class PlayScreen implements Screen{
             //review if necessary
             player.reviewing(); // reviewing if isReviewing == true
             mapCreator.getGroundEnemies().reviewing();
+
+
         }
 
         handleInput(delta);
@@ -337,24 +341,22 @@ public class PlayScreen implements Screen{
         player.update(delta);
 
         //update enemy
-        if(worldListener.isPlayerDead())
-        {
-            backgroundMusic.setPosition(playbackPosition);
-            mapCreator.getGroundEnemies().onPlayerDead();
-            deadTime =0.5f;
-        }
+        if(!gameEnded) {
+            if (worldListener.isPlayerDead()) {
+                backgroundMusic.setPosition(playbackPosition);
+                mapCreator.getGroundEnemies().onPlayerDead();
+                deadTime = 0.5f;
+            }
 
-        if(worldListener.isPlayerHitCheckPoint())
-        {
-            playbackPosition = backgroundMusic.getPosition();
-            mapCreator.getGroundEnemies().onPlayerHitCheckPoint();
-        }
+            if (worldListener.isPlayerHitCheckPoint()) {
+                playbackPosition = backgroundMusic.getPosition();
+                mapCreator.getGroundEnemies().onPlayerHitCheckPoint();
+            }
 
-        if(worldListener.isPlayerHitFinishPoint())
-        {
-            mapCreator.getGroundEnemies().onPlayerHitFinishPoint();
+            if (worldListener.isPlayerHitFinishPoint()) {
+                mapCreator.getGroundEnemies().onPlayerHitFinishPoint();
+            }
         }
-
 
         if (server != null) {
             //update server
@@ -507,6 +509,7 @@ public class PlayScreen implements Screen{
         {
             backgroundMusic.dispose();
         }
+
 
         Gdx.app.log("DISPOSE","Play Screen");
 

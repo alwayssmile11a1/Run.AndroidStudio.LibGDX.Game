@@ -33,7 +33,7 @@ public class DeadGround extends Ground{
         bodyShape.setAsBox(this.getWidth()/2,this.getHeight()/2);
         fDef.shape = bodyShape;
         fDef.filter.categoryBits = DEAD_BIT;
-        fDef.filter.maskBits = Player.PLAYER_BIT;
+        fDef.filter.maskBits = Player.PLAYER_BIT|FriendPlayer.FRIENDPLAYER_BIT;
         body.createFixture(fDef).setUserData(this);
     }
 

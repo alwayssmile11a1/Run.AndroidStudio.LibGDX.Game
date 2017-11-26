@@ -95,17 +95,17 @@ public class Player extends Sprite {
 
         //load effect
         checkpointEffect = gameManager.getAssetManager().get(Resourses.ExplosionEffect1);
-        checkpointEffect.scaleEffect(1/Resourses.PPM);
+        //checkpointEffect.scaleEffect(1/Resourses.PPM);
         checkpointEffect.setPosition(-10,-10);
         checkpointEffect.start();
 
         deadEffect = gameManager.getAssetManager().get(Resourses.ExplosionEffect2);
-        deadEffect.scaleEffect(1/Resourses.PPM);
+        //deadEffect.scaleEffect(1/Resourses.PPM);
         deadEffect.setPosition(-10,-10);
         deadEffect.start();
 
         finishEffect = gameManager.getAssetManager().get(Resourses.ExplosionEffect3);
-        finishEffect.scaleEffect(1/Resourses.PPM);
+        //finishEffect.scaleEffect(1/Resourses.PPM);
         finishEffect.setPosition(-10,-10);
         finishEffect.start();
     }
@@ -118,15 +118,15 @@ public class Player extends Sprite {
             returnToCheckPoint = true;
             positions.removeRange(checkpointIndex, positions.size - 1);
             velocities.removeRange(checkpointIndex, velocities.size - 1);
+
+
+            //play sound
+            explosionSound.play(0.3f);
+
+            //play effect
+            deadEffect.setPosition(body.getPosition().x + this.getWidth() / 2, body.getPosition().y);
+            deadEffect.start();
         }
-
-        //play sound
-        explosionSound.play(0.3f);
-
-        //play effect
-        deadEffect.setPosition(body.getPosition().x + this.getWidth()/2,body.getPosition().y);
-        deadEffect.start();
-
     }
 
     public void onHitCheckPoint(float x, float y)
@@ -334,9 +334,9 @@ public class Player extends Sprite {
 //            getTexture().dispose();
 //        }
 
-        checkpointEffect.reset();
-        deadEffect.reset();
-        finishEffect.reset();
+        //checkpointEffect.reset();
+        //deadEffect.reset();
+        //finishEffect.reset();
     }
 
 }

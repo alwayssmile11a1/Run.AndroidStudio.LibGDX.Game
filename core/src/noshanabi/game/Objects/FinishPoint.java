@@ -45,7 +45,7 @@ public class FinishPoint extends Sprite {
         fDef.shape = bodyShape;
         fDef.isSensor = true;
         fDef.filter.categoryBits = FINISHPOINT_BIT;
-        fDef.filter.maskBits = Player.PLAYER_BIT;
+        fDef.filter.maskBits = Player.PLAYER_BIT|FriendPlayer.FRIENDPLAYER_BIT;
         body.createFixture(fDef).setUserData(this);
     }
 

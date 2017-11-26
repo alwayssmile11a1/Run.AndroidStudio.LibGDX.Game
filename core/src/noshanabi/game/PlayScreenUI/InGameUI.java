@@ -14,6 +14,7 @@ import com.kotcrab.vis.ui.widget.VisTable;
 import noshanabi.game.ButtonPrefabs.ContinueButton;
 import noshanabi.game.ButtonPrefabs.MenuButton;
 import noshanabi.game.ButtonPrefabs.PauseButton;
+import noshanabi.game.ButtonPrefabs.ReplayButton;
 import noshanabi.game.GameManager;
 import noshanabi.game.Resourses;
 
@@ -41,6 +42,11 @@ public class InGameUI {
 
     VisImage gamePausedBackground;
     Texture gamePausedBackgroundTexture;
+
+    //replay button
+    ReplayButton replayButton;
+    boolean replayButtonPressed = false;
+
 
     //menu TouchableImage
     MenuButton menuButton;
@@ -105,6 +111,25 @@ public class InGameUI {
         //add to table
         gamePausedGroup.addActor(continueButton);
 
+        //replay button
+        replayButton = new ReplayButton();
+        replayButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                replayButtonPressed = true;
+                gamePausedGroup.setVisible(false);
+                //drawGameFinishedStageGroup = false;
+                //Gdx.input.setInputProcessor(stage);
+                return true;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                replayButtonPressed = false;
+            }
+        });
+        //add to table
+        gamePausedGroup.addActor(replayButton);
 
         //menu button
         menuButton = new MenuButton();
@@ -164,7 +189,7 @@ public class InGameUI {
         continueButtonPressed = false;
         pauseButtonPressed = false;
         menuButtonPressed = false;
-
+        replayButtonPressed = false;
 
     }
 
@@ -187,6 +212,15 @@ public class InGameUI {
     }
 
 
+    public boolean isReplayButtonPressed() {
+        return replayButtonPressed;
+    }
+
+
+    public boolean isMenuButtonPressed() {
+        return menuButtonPressed;
+    }
+
     public void dispose() {
         if (stage != null)
             stage.dispose();
@@ -203,10 +237,9 @@ public class InGameUI {
         if(menuButton!=null)
             menuButton.dispose();
 
+        if(replayButton!=null)
+            replayButton.dispose();
+
     }
 
-
-    public boolean isMenuButtonPressed() {
-        return menuButtonPressed;
-    }
 }

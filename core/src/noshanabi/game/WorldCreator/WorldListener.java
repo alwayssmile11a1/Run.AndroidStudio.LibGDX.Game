@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import noshanabi.game.Objects.Checkpoint;
 import noshanabi.game.Objects.DeadGround;
 import noshanabi.game.Objects.FinishPoint;
+import noshanabi.game.Objects.FriendPlayer;
 import noshanabi.game.Objects.Ground;
 import noshanabi.game.Objects.GroundEnemies;
 import noshanabi.game.Objects.Player;
@@ -57,6 +58,7 @@ public class WorldListener implements ContactListener {
         }
 
         beginContactPlayerHandler(fixtureA,fixtureB);
+        beginContactFriendPlayerHandler(fixtureA,fixtureB);
 
     }
 
@@ -140,6 +142,46 @@ public class WorldListener implements ContactListener {
 
         }
 
+    }
+
+    public void beginContactFriendPlayerHandler(Fixture fixtureA, Fixture fixtureB)
+    {
+        switch (fixtureA.getFilterData().categoryBits*fixtureB.getFilterData().categoryBits) {
+            //FRIEND PLAYER
+            case FriendPlayer.FRIENDPLAYER_BIT * FinishPoint.FINISHPOINT_BIT:
+                if (fixtureA.getFilterData().categoryBits ==FriendPlayer.FRIENDPLAYER_BIT) {
+                    ((FriendPlayer) fixtureA.getUserData()).onHitFinishPoint();
+                } else {
+                    if (fixtureB.getFilterData().categoryBits == FriendPlayer.FRIENDPLAYER_BIT) {
+
+                        ((FriendPlayer) fixtureB.getUserData()).onHitFinishPoint();
+                    }
+                }
+                break;
+            case FriendPlayer.FRIENDPLAYER_BIT * Checkpoint.CHECKPOINT_BIT:
+                if (fixtureA.getFilterData().categoryBits == FriendPlayer.FRIENDPLAYER_BIT) {
+
+                    ((FriendPlayer) fixtureA.getUserData()).onHitCheckPoint();
+                } else {
+                    if (fixtureB.getFilterData().categoryBits == FriendPlayer.FRIENDPLAYER_BIT) {
+
+                        ((FriendPlayer) fixtureB.getUserData()).onHitCheckPoint();
+                    }
+                }
+                break;
+            case FriendPlayer.FRIENDPLAYER_BIT * DeadGround.DEAD_BIT:
+                Gdx.app.log("FriendPlayerDead","");
+                if (fixtureA.getFilterData().categoryBits == FriendPlayer.FRIENDPLAYER_BIT) {
+
+                    ((FriendPlayer) fixtureA.getUserData()).onDead();
+                } else {
+                    if (fixtureB.getFilterData().categoryBits == FriendPlayer.FRIENDPLAYER_BIT) {
+
+                        ((FriendPlayer) fixtureB.getUserData()).onDead();
+                    }
+                }
+                break;
+        }
     }
 
     @Override

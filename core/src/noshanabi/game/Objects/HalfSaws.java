@@ -60,7 +60,7 @@ public class HalfSaws {
             FixtureDef fDef = new FixtureDef();
             fDef.shape = bodyShape;
             fDef.filter.categoryBits = DeadGround.DEAD_BIT;
-            fDef.filter.maskBits = Player.PLAYER_BIT;
+            fDef.filter.maskBits = Player.PLAYER_BIT|FriendPlayer.FRIENDPLAYER_BIT;
             body.createFixture(fDef).setUserData(this);
 
         }

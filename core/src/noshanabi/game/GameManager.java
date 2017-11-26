@@ -61,6 +61,7 @@ public class GameManager extends Game {
 	//==OTHERS--//
 	private Array<Screen> disposeScreens;
 
+	private boolean needSwitchScreen = true;
 
 
 	public GameManager(PlayerServices playerServices)
@@ -101,10 +102,6 @@ public class GameManager extends Game {
 		assetManager = new AssetManager();
 		loadEssentialAssets();
 
-		//set screen
-		Gdx.input.setInputProcessor(menuScreen.getStage());
-		//setScreen(new PlayScreen(this, "maps/map0/map.tmx"));
-		setScreen(menuScreen);
 
 
 	}
@@ -191,7 +188,20 @@ public class GameManager extends Game {
 	public void render () {
 		super.render();
 
-		assetManager.update();
+		if(assetManager.update() && needSwitchScreen) //true if all loading is finish
+		{
+			needSwitchScreen = false;
+			//scale effect
+			assetManager.get(Resourses.ExplosionEffect1,ParticleEffect.class).scaleEffect(1/Resourses.PPM);
+			assetManager.get(Resourses.ExplosionEffect2,ParticleEffect.class).scaleEffect(1/Resourses.PPM);
+			assetManager.get(Resourses.ExplosionEffect3,ParticleEffect.class).scaleEffect(1/Resourses.PPM);
+
+			//set screen
+			Gdx.input.setInputProcessor(menuScreen.getStage());
+			//setScreen(new PlayScreen(this, "maps/map0/map.tmx"));
+			setScreen(menuScreen);
+		}
+
 
 		if(disposeScreens.size>0)
 		{

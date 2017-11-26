@@ -91,7 +91,7 @@ public class GroundEnemies {
             bodyShape.setAsBox(this.getWidth()/2,this.getHeight()/2);
             fDef.shape = bodyShape;
             fDef.filter.categoryBits = ENEMY_BIT;
-            fDef.filter.maskBits = Player.PLAYER_BIT|Ground.GROUND_BIT;
+            fDef.filter.maskBits = Player.PLAYER_BIT|Ground.GROUND_BIT|FriendPlayer.FRIENDPLAYER_BIT;
             body.createFixture(fDef).setUserData(this);
 
         }

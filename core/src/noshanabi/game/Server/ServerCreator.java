@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
 import org.json.JSONException;
@@ -31,12 +32,15 @@ public class ServerCreator {
     //multiplayer things
     private Socket socket;
     private HashMap<String,FriendPlayer> otherPlayers;
-    private Player mainPlayer;
+
     private Array<FriendPlayer> playersToDispose;
 
     private Array<ServerListener> serverListeners;
 
     private Texture friendPlayerTexture;
+
+    private Player mainPlayer;
+    private World world;
 
     public ServerCreator(GameManager gameManager)
     {
@@ -47,9 +51,10 @@ public class ServerCreator {
         friendPlayerTexture = new Texture(Gdx.files.internal(Resourses.Player1));
     }
 
-    public void SetMainPlayer(Player mainPlayer)
+
+    public void setWorld(World world)
     {
-        this.mainPlayer = mainPlayer;
+        this.world = world;
     }
 
     public void connectSocket()
@@ -484,9 +489,9 @@ public class ServerCreator {
     {
         for(HashMap.Entry<String,FriendPlayer> entry : otherPlayers.entrySet())
         {
-            if(entry.getValue().getTexture()==null)
-            {
-                entry.getValue().SetTexture();
+            if(entry.getValue().getTexture()==null) {
+                if (world != null)
+                    entry.getValue().create(world, gameManager);
             }
 
             entry.getValue().draw(batch);
