@@ -1,6 +1,5 @@
 package noshanabi.game.WorldCreator;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -105,7 +104,7 @@ public class WorldListener implements ContactListener {
             case Player.PLAYER_BIT* DeadGround.DEAD_BIT:
             case Player.PLAYER_BIT* GroundEnemies.ENEMY_BIT:
 
-                Gdx.app.log("Dead","");
+                //Gdx.app.log("Dead","");
 
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
                 {
@@ -170,7 +169,7 @@ public class WorldListener implements ContactListener {
                 }
                 break;
             case FriendPlayer.FRIENDPLAYER_BIT * DeadGround.DEAD_BIT:
-                Gdx.app.log("FriendPlayerDead","");
+                //Gdx.app.log("FriendPlayerDead","");
                 if (fixtureA.getFilterData().categoryBits == FriendPlayer.FRIENDPLAYER_BIT) {
 
                     ((FriendPlayer) fixtureA.getUserData()).onDead();

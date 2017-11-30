@@ -511,7 +511,7 @@ public class PlayScreen implements Screen{
         }
 
 
-        Gdx.app.log("DISPOSE","Play Screen");
+        //Gdx.app.log("DISPOSE","Play Screen");
 
     }
 }

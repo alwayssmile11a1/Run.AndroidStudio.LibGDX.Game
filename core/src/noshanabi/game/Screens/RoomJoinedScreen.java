@@ -663,7 +663,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
             chooseCharacterStage = null;
         }
 
-        Gdx.app.log("dispose","Room joined screen");
+        //Gdx.app.log("dispose","Room joined screen");
 
     }
 

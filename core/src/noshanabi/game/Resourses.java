@@ -38,7 +38,7 @@ public final class Resourses {
 
 
     //----------------SERVER ---------------------------
-    public static boolean UseLocal = true; //if false, use web server
+    public static boolean UseLocal = false; //if false, use web server
     public static String WebServerUri = "https://runandroidstudiolibgdx.herokuapp.com";
     public static String LocalServerUri = "http://localhost:5000";
 
