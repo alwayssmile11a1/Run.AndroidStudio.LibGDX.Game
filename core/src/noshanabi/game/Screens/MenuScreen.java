@@ -105,6 +105,20 @@ public class MenuScreen implements Screen{
         table.setFillParent(true);
 
 
+        //singleplayer TouchableImage
+        singlePlayerButton = new SinglePlayButton(gameManager);
+        table.add(singlePlayerButton).row();
+
+        //multiplayer TouchableImage
+        multiPlayerButton = new MultiPlayButton(gameManager);
+
+        //add to table
+        table.add(multiPlayerButton).padTop(5f).row();
+
+        //add to gameStage
+        stage.addActor(table);
+
+
         //--------CHARACTER SELECT BUTTON --------------
         setupChooseCharacterTable();
 
@@ -118,53 +132,7 @@ public class MenuScreen implements Screen{
             }
 
         });
-        table.add(playerImage).size(52,52);
-
-
-        //singleplayer TouchableImage
-        singlePlayerButton = new SinglePlayButton();
-        singlePlayerButton.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.input.setInputProcessor(gameManager.getMapSelectionScreen().getStage());
-                gameManager.setScreen(gameManager.getMapSelectionScreen());
-                return true;
-            }
-
-        });
-        table.add(singlePlayerButton);
-
-        //multiplayer TouchableImage
-        multiPlayerButton = new MultiPlayButton();
-        multiPlayerButton.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-                if (gameManager.getPlayerServices() == null) //desktop test
-                {
-                    Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
-                    gameManager.setScreen(gameManager.getLoginScreen());
-                    return true;
-                }
-
-                if (gameManager.getPlayerServices().isSignedIn()) {
-                    gameManager.connectToServer();
-                    Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
-                    gameManager.setScreen(gameManager.getModeSelectionScreen());
-                } else {
-                    Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
-                    gameManager.setScreen(gameManager.getLoginScreen());
-                }
-
-                return true;
-            }
-
-        });
-        //add to table
-        table.add(multiPlayerButton);
-
-        //add to gameStage
-        stage.addActor(table);
+        table.add(playerImage).padTop(5f).size(52,52);
 
         //get sample character
         sampleCharacter = new Sprite( characterRegions.get(MathUtils.random(0,characterRegions.size-1)));
@@ -261,6 +229,8 @@ public class MenuScreen implements Screen{
         chooseCharacterStage.draw();
         chooseCharacterStage.act();
 
+        singlePlayerButton.update(delta);
+        multiPlayerButton.update(delta);
 
     }
 

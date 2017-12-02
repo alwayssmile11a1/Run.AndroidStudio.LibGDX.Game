@@ -8,10 +8,15 @@ import noshanabi.game.Resourses;
 
 public class FacebookLoginButton extends TouchableImage {
 
+
     public FacebookLoginButton()
     {
         super(Resourses.FacebookLoginButton);
 
     }
 
+    public void dispose()
+    {
+
+    }
 }

@@ -110,9 +110,9 @@ public class LoginScreen implements Screen {
 
 
         //add to table
-        table.add(facebookLoginButton).size(300,100);
+        table.add(facebookLoginButton);
         table.row();
-        table.add(googleLoginButton).size(300,100);
+        table.add(googleLoginButton);
 
         //add to gameStage
         stage.addActor(table);

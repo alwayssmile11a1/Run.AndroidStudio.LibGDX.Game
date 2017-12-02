@@ -176,6 +176,11 @@ public class GameManager extends Game {
 		assetManager.load(Resourses.ExplosionEffect2, ParticleEffect.class,pep);
 		assetManager.load(Resourses.ExplosionEffect3, ParticleEffect.class,pep);
 
+//		//load json
+//		assetManager.load(Resourses.ButtonSkinTextureAtlas, TextureAtlas.class);
+//		SkinLoader.SkinParameter params = new SkinLoader.SkinParameter(Resourses.ButtonSkinTextureAtlas);
+//		assetManager.load(Resourses.ButtonSkinJSON, Skin.class, params);
+
 
 	}
 
@@ -190,6 +195,7 @@ public class GameManager extends Game {
 
 		if(assetManager.update() && needSwitchScreen) //true if all loading is finish
 		{
+
 			needSwitchScreen = false;
 			//scale effect
 			assetManager.get(Resourses.ExplosionEffect1,ParticleEffect.class).scaleEffect(1/Resourses.PPM);

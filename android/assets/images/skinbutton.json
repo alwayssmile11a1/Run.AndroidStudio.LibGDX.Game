@@ -1,0 +1,77 @@
+{
+"com.badlogic.gdx.graphics.g2d.BitmapFont": {
+	"futureFont": {
+		"file": "futureFont.fnt"
+	}
+},
+"com.badlogic.gdx.graphics.Color": {
+	"RGBA_199_55_55_255": {
+		"r": 0.78333336,
+		"g": 0.21672219,
+		"b": 0.21672219,
+		"a": 1
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle": {
+	"default": {
+		"checkboxOn": "yellow_button05",
+		"checkboxOff": "yellow_button04",
+		"font": "futureFont"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton$ImageTextButtonStyle": {
+	"default": {
+		"font": "futureFont"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
+	"default": {
+		"font": "futureFont"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle": {
+	"default-horizontal": {
+		"background": "yellow_button04"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle": {
+	"default-horizontal": {
+		"background": "yellow_button04"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle": {
+	"default-horizontal": {
+		"handle": "yellow_button04"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+	"default": {
+		"font": "futureFont",
+		"fontColor": "RGBA_199_55_55_255",
+		"up": "yellow_button04",
+		"down": "yellow_button05"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
+	"default": {
+		"font": "futureFont",
+		"fontColor": "RGBA_199_55_55_255"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle": {
+	"default": {
+		"label": "default"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.Tree$TreeStyle": {
+	"default": {
+		"plus": "yellow_button04",
+		"minus": "yellow_button05"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle": {
+	"default": {
+		"titleFont": "futureFont"
+	}
+}
+}

@@ -23,6 +23,13 @@ public final class Resourses {
     public static String ParticleImageDir = "effects";
 
 
+    //--------JSON---------------------------------
+    public static final String ButtonSkinTextureAtlas = "images/skinbutton.atlas";
+    public static String ButtonSkinJSON = "images/skinbutton.json";
+
+
+
+
     //------------------PLAYER -----------------------
     public static String Player1 = "players/alienYellow_square.png";
     public static String PlayerSheet = "players/spritesheet_aliens.png";
