@@ -1,0 +1,23 @@
+{
+"com.badlogic.gdx.graphics.g2d.BitmapFont": {
+	"futureFont": {
+		"file": "futureFont.fnt"
+	}
+},
+"com.badlogic.gdx.graphics.Color": {
+	"RGBA_199_55_55_255": {
+		"r": 0.78333336,
+		"g": 0.21672219,
+		"b": 0.21672219,
+		"a": 1
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+	"default": {
+		"font": "futureFont",
+		"fontColor": "RGBA_199_55_55_255",
+		"up": "yellow_button04",
+		"down": "yellow_button05"
+	}
+}
+}

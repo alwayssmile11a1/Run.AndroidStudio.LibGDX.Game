@@ -25,6 +25,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisTable;
 
+import noshanabi.game.ButtonPrefabs.CreditButton;
 import noshanabi.game.ButtonPrefabs.MultiPlayButton;
 import noshanabi.game.ButtonPrefabs.SinglePlayButton;
 import noshanabi.game.GameManager;
@@ -49,7 +50,7 @@ public class MenuScreen implements Screen{
     //----------------TEXTURE RELATED VARIABLES------------//
     SinglePlayButton singlePlayerButton;
     MultiPlayButton multiPlayerButton;
-
+    CreditButton creditButton;
 
     //choose player table
     private Stage chooseCharacterStage;
@@ -115,9 +116,6 @@ public class MenuScreen implements Screen{
         //add to table
         table.add(multiPlayerButton).padTop(5f).row();
 
-        //add to gameStage
-        stage.addActor(table);
-
 
         //--------CHARACTER SELECT BUTTON --------------
         setupChooseCharacterTable();
@@ -132,13 +130,24 @@ public class MenuScreen implements Screen{
             }
 
         });
-        table.add(playerImage).padTop(5f).size(52,52);
+        playerImage.setPosition(Resourses.WORLDWIDTH/2 - 200,Resourses.WORLDHEIGHT/2);
+
+        table.addActor(playerImage);
 
         //get sample character
         sampleCharacter = new Sprite( characterRegions.get(MathUtils.random(0,characterRegions.size-1)));
         sampleCharacter.setPosition(1000,-10);
         sampleCharacter.setSize(32,32);
         sampleCharacter.setOriginCenter();
+
+
+        //-----------CREDIT BUTTON---------------------
+        creditButton = new CreditButton(gameManager);
+        table.add(creditButton).padTop(20f);
+
+
+        //add to gameStage
+        stage.addActor(table);
     }
 
     public void setupChooseCharacterTable()
@@ -231,12 +240,14 @@ public class MenuScreen implements Screen{
 
         singlePlayerButton.update(delta);
         multiPlayerButton.update(delta);
+        creditButton.update(delta);
 
     }
 
     @Override
     public void resize(int width, int height) {
         menuViewPort.update(width,height);
+        creditButton.resize(width,height);
     }
 
     public Stage getStage() {
@@ -275,8 +286,12 @@ public class MenuScreen implements Screen{
         if (multiPlayerButton != null)
             multiPlayerButton.dispose();
 
+        if(creditButton!=null)
+            creditButton.dispose();
+
         if (chooseCharacterStage != null)
             chooseCharacterStage.dispose();
+
 
         if (mapRenderer != null)
             mapRenderer.dispose();

@@ -24,10 +24,19 @@ public final class Resourses {
 
 
     //--------JSON---------------------------------
-    public static final String ButtonSkinTextureAtlas = "images/skinbutton.atlas";
-    public static String ButtonSkinJSON = "images/skinbutton.json";
+    public static final String ButtonSkinTextureAtlas = "skins/skinbutton.atlas";
+    public static String ButtonSkinJSON = "skins/skinbutton.json";
+    public static final String ButtonSkinTextureAtlas2 = "skins/skinbutton2.atlas";
+    public static String ButtonSkinJSON2 = "skins/skinbutton2.json";
+    public static final String FacebookSkinTextureAtlas = "skins/skinfacebooklogin.atlas";
+    public static String FacebookLoginSkinJSON = "skins/skinfacebooklogin.json";
+    public static final String GoogleSkinTextureAtlas = "skins/skingooglelogin.atlas";
+    public static String GoogleLoginSkinJSON = "skins/skingooglelogin.json";
 
 
+
+    //---------OTHER------------------------------
+    public static final String WhiteRectangle = "images/WhiteRectangle.png";
 
 
     //------------------PLAYER -----------------------

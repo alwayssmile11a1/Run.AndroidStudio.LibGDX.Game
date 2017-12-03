@@ -111,7 +111,6 @@ public class ModeSelectionScreen implements Screen {
         signOutButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
                 if (gameManager.getPlayerServices() != null) {
                     gameManager.getPlayerServices().signOut();
                 }
@@ -149,6 +148,7 @@ public class ModeSelectionScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
+        stage.act();
     }
 
     @Override

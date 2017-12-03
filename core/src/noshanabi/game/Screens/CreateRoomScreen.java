@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -131,12 +130,7 @@ public class CreateRoomScreen implements Screen, ServerListener{
         errorLabel.setColor(Color.RED);
 
 
-        //add to gameStage
-        stage.addActor(roomNameTable);
-
         //------------------RETURN BUTTON ----------------------
-        Group group = new Group();
-
         //the return button
         returnScreenButton = new ReturnScreenButton();
         returnScreenButton.addListener(new InputListener() {
@@ -153,7 +147,7 @@ public class CreateRoomScreen implements Screen, ServerListener{
         });
 
         //add to group
-        group.addActor(returnScreenButton);
+        roomNameTable.addActor(returnScreenButton);
 
         //------------------SIGN OUT BUTTON ------------------------
         signOutButton = new SignOutButton();
@@ -164,6 +158,7 @@ public class CreateRoomScreen implements Screen, ServerListener{
                 if (gameManager.getPlayerServices() != null) {
                     gameManager.getPlayerServices().signOut();
                 }
+
                 gameManager.getServer().getSocket().disconnect();
                 Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
                 gameManager.setScreen(gameManager.getLoginScreen());
@@ -172,7 +167,7 @@ public class CreateRoomScreen implements Screen, ServerListener{
 
         });
 
-        group.addActor(signOutButton);
+        roomNameTable.addActor(signOutButton);
 
         //------------------USER INFORMATION ----------------------
         VisLabel userNameLabel = new VisLabel("USER NAME");
@@ -182,11 +177,11 @@ public class CreateRoomScreen implements Screen, ServerListener{
         }
         userNameLabel.setPosition(Resourses.WORLDWIDTH - userNameLabel.getWidth(), returnScreenButton.getY() + 15);
 
-        group.addActor(userNameLabel);
+        roomNameTable.addActor(userNameLabel);
 
 
         //add to gameStage
-        stage.addActor(group);
+        stage.addActor(roomNameTable);
 
     }
 
@@ -301,7 +296,6 @@ public class CreateRoomScreen implements Screen, ServerListener{
         gameManager.batch.end();
 
         stage.draw();
-
         stage.act();
 
     }

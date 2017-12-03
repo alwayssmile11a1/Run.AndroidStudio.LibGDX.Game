@@ -1,0 +1,14 @@
+{
+"com.badlogic.gdx.graphics.g2d.BitmapFont": {
+	"futureFont": {
+		"file": "futureFont.fnt"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+	"default": {
+		"font": "futureFont",
+		"up": "blue_button04",
+		"down": "blue_button05"
+	}
+}
+}

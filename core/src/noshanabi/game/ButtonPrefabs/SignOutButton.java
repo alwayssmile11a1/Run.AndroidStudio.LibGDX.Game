@@ -18,7 +18,4 @@ public class SignOutButton extends TouchableImage{
         setSize(50, 50);
 
     }
-
-
-
 }

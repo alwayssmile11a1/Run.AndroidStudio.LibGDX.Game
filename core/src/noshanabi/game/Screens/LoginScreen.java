@@ -60,58 +60,15 @@ public class LoginScreen implements Screen {
         table.setFillParent(true);
 
         //---------------- FACEBOOK LOGIN BUTTON ----------------
-        facebookLoginButton = new FacebookLoginButton();
-        facebookLoginButton.addListener(new InputListener()
-        {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-                if(gameManager.getPlayerServices()!=null) {
-
-                    gameManager.getPlayerServices().signInToFacebook();
-                    needSwitchScreen = true;
-                }
-                else //desktop test
-                {
-                    gameManager.connectToServer();
-                    Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
-                    gameManager.setScreen(gameManager.getModeSelectionScreen());
-                }
-
-                return true;
-            }
-
-        });
+        facebookLoginButton = new FacebookLoginButton(gameManager);
 
         //------------------------- GOOGLE LOGIN BUTTON ------------------
-        googleLoginButton = new GoogleLoginButton();
-        googleLoginButton.addListener(new InputListener()
-        {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-                if(gameManager.getPlayerServices()!=null) {
-
-                    gameManager.getPlayerServices().signInToGoogle();
-                    needSwitchScreen = true;
-                }
-                else //desktop test
-                {
-                    gameManager.connectToServer();
-                    Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
-                    gameManager.setScreen(gameManager.getModeSelectionScreen());
-                }
-
-                return true;
-            }
-
-        });
-
+        googleLoginButton = new GoogleLoginButton(gameManager);
 
 
         //add to table
         table.add(facebookLoginButton);
-        table.row();
+        table.row().padTop(20f);
         table.add(googleLoginButton);
 
         //add to gameStage
@@ -152,14 +109,22 @@ public class LoginScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
 
+        if(googleLoginButton.isPressed()||facebookLoginButton.isPressed())
+        {
+            needSwitchScreen = true;
+        }
+
         if(gameManager.getPlayerServices()!=null && gameManager.getPlayerServices().isSignedIn() && needSwitchScreen)
         {
+            needSwitchScreen = false;
             gameManager.connectToServer();
             Gdx.input.setInputProcessor(gameManager.getModeSelectionScreen().getStage());
             gameManager.setScreen(gameManager.getModeSelectionScreen());
-            needSwitchScreen = false;
         }
 
+
+        googleLoginButton.update(delta);
+        facebookLoginButton.update(delta);
     }
 
     @Override
