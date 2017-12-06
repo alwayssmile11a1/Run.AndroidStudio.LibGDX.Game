@@ -239,8 +239,13 @@ public class AndroidLauncher extends FragmentActivity implements AndroidFragment
 	@Override
 	public void signOut()
 	{
-		//Auth.GoogleSignInApi.signOut();
-		LoginManager.getInstance().logOut();
+		//Auth.GoogleSignInApi.signOut(mGoogleSignInClient.get);
+		if(googleLogin) {
+			mGoogleSignInClient.signOut();
+		}
+		else {
+			LoginManager.getInstance().logOut();
+		}
 		mAuth.signOut();
 		isSignedIn = false;
 	}
