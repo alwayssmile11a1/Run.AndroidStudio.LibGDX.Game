@@ -83,9 +83,9 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86_64"
         compile "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
 
-        compile "com.google.firebase:firebase-auth:11.0.4"
-        compile 'com.google.android.gms:play-services-auth:11.0.4'
-        compile 'com.facebook.android:facebook-login:[4,5)'
+        compile "com.google.firebase:firebase-auth:11.6.2"
+        compile 'com.google.android.gms:play-services-auth:11.6.2'
+        compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     }
 }
 
