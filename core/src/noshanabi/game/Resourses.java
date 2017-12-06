@@ -32,7 +32,8 @@ public final class Resourses {
     public static String FacebookLoginSkinJSON = "skins/skinfacebooklogin.json";
     public static final String GoogleSkinTextureAtlas = "skins/skingooglelogin.atlas";
     public static String GoogleLoginSkinJSON = "skins/skingooglelogin.json";
-
+    public static final String SignoutSkinTextureAtlas = "skins/skinsignoutbutton.atlas";
+    public static String SignoutSkinJSON = "skins/skinsignoutbutton.json";
 
 
     //---------OTHER------------------------------

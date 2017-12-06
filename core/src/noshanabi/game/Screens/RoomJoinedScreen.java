@@ -151,24 +151,6 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         //add to group
         group.addActor(returnScreenButton);
 
-        //------------------SIGN OUT BUTTON ------------------------
-        signOutButton = new SignOutButton();
-        signOutButton.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-                if (gameManager.getPlayerServices() != null) {
-                    gameManager.getPlayerServices().signOut();
-                }
-                gameManager.getServer().getSocket().disconnect();
-                Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
-                gameManager.setScreen(gameManager.getLoginScreen());
-                return true;
-            }
-
-        });
-
-        group.addActor(signOutButton);
 
         //------------------USER INFORMATION ----------------------
         Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
@@ -179,6 +161,10 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         userNameLabel.setPosition(Resourses.WORLDWIDTH - userNameLabel.getWidth() - 100, returnScreenButton.getY() + 15);
 
         group.addActor(userNameLabel);
+
+        //------------------SIGN OUT BUTTON ------------------------
+        signOutButton = new SignOutButton(gameManager);
+        group.addActor(signOutButton);
 
         //add to actor
         stage.addActor(group);
@@ -592,6 +578,8 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         backGround.draw(gameManager.batch);
 
         gameManager.batch.end();
+
+        signOutButton.update(delta);
 
         stage.draw();
         stage.act();

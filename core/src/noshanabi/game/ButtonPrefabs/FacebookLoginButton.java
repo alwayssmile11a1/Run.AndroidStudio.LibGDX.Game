@@ -19,7 +19,7 @@ public class FacebookLoginButton extends TextButton {
 
     private boolean isPressed = false;
     private float stateTime = 0;
-    private float maxTime = 0.3f;
+    private float maxTime = 0.2f;
     GameManager gameManager;
 
     public FacebookLoginButton(final GameManager gameManager)
@@ -27,12 +27,12 @@ public class FacebookLoginButton extends TextButton {
         super("FACEBOOK LOGIN",new Skin(Gdx.files.internal(Resourses.FacebookLoginSkinJSON),new TextureAtlas(Resourses.FacebookSkinTextureAtlas)));
         this.gameManager = gameManager;
 
+
         addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
                 isPressed = true;
-
                 return true;
             }
 

@@ -31,7 +31,7 @@ public class MultiPlayButton extends TextButton {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
                 isPressed = true;
-
+                Gdx.input.setInputProcessor(null);
                 return true;
             }
 

@@ -101,23 +101,6 @@ public class FindRoomScreen implements Screen, ServerListener{
         //add to group
         group.addActor(returnScreenButton);
 
-        //------------------SIGN OUT BUTTON ------------------------
-        signOutButton = new SignOutButton();
-        signOutButton.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-                if (gameManager.getPlayerServices() != null) {
-                    gameManager.getPlayerServices().signOut();
-                }
-                Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
-                gameManager.setScreen(gameManager.getLoginScreen());
-                return true;
-            }
-
-        });
-        //add to group
-        group.addActor(signOutButton);
 
         //------------------USER INFORMATION ----------------------
         VisLabel userNameLabel = new VisLabel("USER NAME");
@@ -129,6 +112,10 @@ public class FindRoomScreen implements Screen, ServerListener{
 
         group.addActor(userNameLabel);
 
+        //------------------SIGN OUT BUTTON ------------------------
+        signOutButton = new SignOutButton(gameManager);
+        //add to group
+        group.addActor(signOutButton);
 
         //add to gameStage
         stage.addActor(group);
@@ -411,6 +398,8 @@ public class FindRoomScreen implements Screen, ServerListener{
         backGround.draw(gameManager.batch);
 
         gameManager.batch.end();
+
+        signOutButton.update(delta);
 
         stage.draw();
 

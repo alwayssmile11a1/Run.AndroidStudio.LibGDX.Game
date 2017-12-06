@@ -44,7 +44,7 @@ public class CreditButton extends TextButton{
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
                 isPressed = true;
-                Gdx.app.log("ads","");
+                Gdx.input.setInputProcessor(null);
                 return true;
             }
 

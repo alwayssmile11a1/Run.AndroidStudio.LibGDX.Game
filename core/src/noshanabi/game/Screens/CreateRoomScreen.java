@@ -149,26 +149,6 @@ public class CreateRoomScreen implements Screen, ServerListener{
         //add to group
         roomNameTable.addActor(returnScreenButton);
 
-        //------------------SIGN OUT BUTTON ------------------------
-        signOutButton = new SignOutButton();
-        signOutButton.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
-                if (gameManager.getPlayerServices() != null) {
-                    gameManager.getPlayerServices().signOut();
-                }
-
-                gameManager.getServer().getSocket().disconnect();
-                Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
-                gameManager.setScreen(gameManager.getLoginScreen());
-                return true;
-            }
-
-        });
-
-        roomNameTable.addActor(signOutButton);
-
         //------------------USER INFORMATION ----------------------
         VisLabel userNameLabel = new VisLabel("USER NAME");
         userNameLabel.setFontScale(0.5f);
@@ -178,6 +158,11 @@ public class CreateRoomScreen implements Screen, ServerListener{
         userNameLabel.setPosition(Resourses.WORLDWIDTH - userNameLabel.getWidth(), returnScreenButton.getY() + 15);
 
         roomNameTable.addActor(userNameLabel);
+
+
+        //------------------SIGN OUT BUTTON ------------------------
+        signOutButton = new SignOutButton(gameManager);
+        roomNameTable.addActor(signOutButton);
 
 
         //add to gameStage
@@ -294,6 +279,8 @@ public class CreateRoomScreen implements Screen, ServerListener{
         backGround.draw(gameManager.batch);
 
         gameManager.batch.end();
+
+        signOutButton.update(delta);
 
         stage.draw();
         stage.act();

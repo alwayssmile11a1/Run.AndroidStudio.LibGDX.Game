@@ -105,27 +105,6 @@ public class ModeSelectionScreen implements Screen {
 
         group.addActor(returnScreenButton);
 
-
-        //------------------SIGN OUT BUTTON ------------------------
-        signOutButton = new SignOutButton();
-        signOutButton.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                if (gameManager.getPlayerServices() != null) {
-                    gameManager.getPlayerServices().signOut();
-                }
-                gameManager.getServer().getSocket().disconnect();
-                Gdx.input.setInputProcessor(gameManager.getLoginScreen().getStage());
-                gameManager.setScreen(gameManager.getLoginScreen());
-                return true;
-            }
-
-        });
-
-        //add to group
-        group.addActor(signOutButton);
-
-
         //------------------USER INFORMATION ----------------------
         VisLabel userNameLabel = new VisLabel("USER NAME");
         userNameLabel.setFontScale(0.5f);
@@ -135,6 +114,13 @@ public class ModeSelectionScreen implements Screen {
         userNameLabel.setPosition(Resourses.WORLDWIDTH - userNameLabel.getWidth(), returnScreenButton.getY() + 15);
 
         group.addActor(userNameLabel);
+
+        //------------------SIGN OUT BUTTON ------------------------
+
+        signOutButton = new SignOutButton(gameManager);
+
+        //add to group
+        group.addActor(signOutButton);
 
 
         //add to gameStage
@@ -147,8 +133,11 @@ public class ModeSelectionScreen implements Screen {
         //color to clear this screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         stage.draw();
         stage.act();
+
+        signOutButton.update(delta);
     }
 
     @Override
