@@ -452,7 +452,7 @@ public class PlayScreen implements Screen{
         worldListener.update();
 
         //render box2DDebug
-        b2DebugRenderer.render(world,mainCamera.combined);
+        //b2DebugRenderer.render(world,mainCamera.combined);
 
         //rayHandler.setCombinedMatrix(mainCamera);
         //rayHandler.updateAndRender();
