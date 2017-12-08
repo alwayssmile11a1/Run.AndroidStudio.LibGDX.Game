@@ -6,14 +6,13 @@ var io = require('socket.io')(server);
 var rooms = {};
 var maxPlayersInRoom = 4;
 
+app.get('/', (req, res) => res.send('Welcome to Run Game Hosting!!!'));
+
 app.set('port',(process.env.PORT||5000));
 
 server.listen(app.get('port'), function(){
 	console.log("Server is now running...");
 });
-
-
-
 
 io.on('connection',function(socket){
 
