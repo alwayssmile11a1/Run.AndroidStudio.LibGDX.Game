@@ -345,7 +345,7 @@ public class PlayScreen implements Screen{
             if (worldListener.isPlayerDead()) {
                 backgroundMusic.setPosition(playbackPosition);
                 mapCreator.getGroundEnemies().onPlayerDead();
-                deadTime = 0.5f;
+                deadTime = 0.3f;
             }
 
             if (worldListener.isPlayerHitCheckPoint()) {

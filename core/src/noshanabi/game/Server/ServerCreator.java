@@ -49,6 +49,7 @@ public class ServerCreator {
         serverListeners = new Array<ServerListener>();
         playersToDispose = new Array<FriendPlayer>();
         friendPlayerTexture = new Texture(Gdx.files.internal(Resourses.Player1));
+
     }
 
 
@@ -68,6 +69,8 @@ public class ServerCreator {
             else {
                 socket = IO.socket(Resourses.WebServerUri);
             }
+
+
             socket.connect();
 
         }

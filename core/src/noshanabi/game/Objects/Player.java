@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -44,7 +45,7 @@ public class Player extends Sprite {
     public boolean isGrounded = false;
     public boolean isDoubleJumped = false;
 
-    private Vector2 checkPoint;
+    private Vector3 checkPoint;
     private Vector2 instantiatePoint;
     private Vector2 deadPoint;
 
@@ -72,7 +73,7 @@ public class Player extends Sprite {
         set(new Sprite(gameManager.getCurrentCharacter()));
         //setColor(0f,0.4f,1f,1f);
 
-        checkPoint = new Vector2();
+        checkPoint = new Vector3();
         instantiatePoint = new Vector2();
         deadPoint = new Vector2();
 
@@ -129,9 +130,9 @@ public class Player extends Sprite {
         }
     }
 
-    public void onHitCheckPoint(float x, float y)
+    public void onHitCheckPoint(float x, float y, float rotation)
     {
-        checkPoint.set(x, y);
+        checkPoint.set(x, y, rotation);
         checkpointIndex = positions.size-1;
 
         //play sound
@@ -146,7 +147,7 @@ public class Player extends Sprite {
     public void setInstantiatePoint(float x, float y)
     {
         instantiatePoint.set(x, y);
-        checkPoint.set(x, y);
+        checkPoint.set(x, y,0);
     }
 
     public void onHitFinishPoint()
@@ -213,7 +214,8 @@ public class Player extends Sprite {
 
 
         if (returnToCheckPoint) {
-            body.setTransform(checkPoint, 0);
+            body.setLinearVelocity(0,0);
+            body.setTransform(checkPoint.x,checkPoint.y,checkPoint.z);
             setRotation(0);
             returnToCheckPoint = false;
 
@@ -238,7 +240,7 @@ public class Player extends Sprite {
         deadEffect.update(dt);
     }
 
-    public Vector2 getCheckpoint()
+    public Vector3 getCheckpoint()
     {
         return checkPoint;
     }
@@ -318,7 +320,7 @@ public class Player extends Sprite {
         velocities.clear();
         reviewingIndex = 0;
         checkpointIndex = 0;
-        checkPoint.set(instantiatePoint.x,instantiatePoint.y);
+        checkPoint.set(instantiatePoint.x,instantiatePoint.y,0);
         body.setTransform(instantiatePoint,0);
     }
 

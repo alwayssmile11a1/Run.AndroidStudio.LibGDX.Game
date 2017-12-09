@@ -87,7 +87,7 @@ public class WorldListener implements ContactListener {
                 if(fixtureA.getFilterData().categoryBits == Player.PLAYER_BIT)
                 {
                     Player player = ((Player)fixtureA.getUserData());
-                    player.onHitCheckPoint(player.getBody().getPosition().x, player.getBody().getPosition().y);
+                    player.onHitCheckPoint(player.getBody().getPosition().x, player.getBody().getPosition().y, player.getBody().getAngle());
                     playerHitCheckPoint = true;
                 }
                 else
@@ -95,7 +95,7 @@ public class WorldListener implements ContactListener {
                     if (fixtureB.getFilterData().categoryBits == Player.PLAYER_BIT)
                     {
                         Player player = ((Player)fixtureB.getUserData());
-                        player.onHitCheckPoint(player.getBody().getPosition().x, player.getBody().getPosition().y);
+                        player.onHitCheckPoint(player.getBody().getPosition().x, player.getBody().getPosition().y, player.getBody().getAngle());
                         playerHitCheckPoint = true;
                     }
                 }
