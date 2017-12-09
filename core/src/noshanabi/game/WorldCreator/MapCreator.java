@@ -145,12 +145,12 @@ public class MapCreator {
 
                 if (object.getProperties().get("angularVelocity") != null) {
                     angularVelocity = Float.parseFloat(object.getProperties().get("angularVelocity").toString());
-
-
-                    saws.addSaw(world, ellipse.x / Resourses.PPM, ellipse.y / Resourses.PPM,
-                            ellipse.width / Resourses.PPM, ellipse.height / Resourses.PPM, angularVelocity);
-
                 }
+
+                saws.addSaw(world, ellipse.x / Resourses.PPM, ellipse.y / Resourses.PPM,
+                        ellipse.width / Resourses.PPM, ellipse.height / Resourses.PPM, angularVelocity);
+
+
             }
         }
 
@@ -167,11 +167,11 @@ public class MapCreator {
 
                 if (object.getProperties().get("angularVelocity") != null) {
                     angularVelocity = Float.parseFloat(object.getProperties().get("angularVelocity").toString());
-
-                    halfSaws.addSaw(world, ellipse.x / Resourses.PPM, (ellipse.y + ellipse.height / 2) / Resourses.PPM,
-                            ellipse.width / Resourses.PPM, ellipse.height / Resourses.PPM,
-                            angularVelocity);
                 }
+                halfSaws.addSaw(world, ellipse.x / Resourses.PPM, (ellipse.y + ellipse.height / 2) / Resourses.PPM,
+                        ellipse.width / Resourses.PPM, ellipse.height / Resourses.PPM,
+                        angularVelocity);
+
             }
         }
 
