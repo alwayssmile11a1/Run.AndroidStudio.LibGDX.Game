@@ -510,6 +510,8 @@ public class PlayScreen implements Screen{
             backgroundMusic.dispose();
         }
 
+        if(world!=null)
+            world.dispose();
 
         //Gdx.app.log("DISPOSE","Play Screen");
 
