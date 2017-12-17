@@ -15,6 +15,7 @@ public final class Resourses {
     //-------------SOUND ------------------------------
     public static String ExplosionSound = "audios/explosion1.wav";
     public static String CheckpointSound = "audios/checkpoint.wav";
+    public static String ClickSound = "audios/click.ogg";
 
     //----------EFFECT----------------------------------
     public static String ExplosionEffect1 = "effects/explosion.p";
@@ -55,7 +56,7 @@ public final class Resourses {
 
 
     //----------------SERVER ---------------------------
-    public static boolean UseLocal = true; //if false, use web server
+    public static boolean UseLocal = false; //if false, use web server
     public static String WebServerUri = "https://runandroidstudiolibgdx.herokuapp.com";
     public static String LocalServerUri = "http://localhost:5000";
 

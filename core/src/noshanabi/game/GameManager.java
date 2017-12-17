@@ -168,6 +168,7 @@ public class GameManager extends Game {
 		//load sound
 		assetManager.load(Resourses.ExplosionSound, Sound.class);
 		assetManager.load(Resourses.CheckpointSound, Sound.class);
+		assetManager.load(Resourses.ClickSound, Sound.class);
 
 		//load effect
 		ParticleEffectLoader.ParticleEffectParameter pep = new ParticleEffectLoader.ParticleEffectParameter();

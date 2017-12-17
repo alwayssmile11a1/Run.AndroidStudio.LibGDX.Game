@@ -1,6 +1,7 @@
 package noshanabi.game.ButtonPrefabs;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -21,7 +22,7 @@ public class MultiPlayButton extends TextButton {
     private float maxTime = 0.3f;
     GameManager gameManager;
 
-    public MultiPlayButton(GameManager gameManager)
+    public MultiPlayButton(final GameManager gameManager)
     {
         super("MultiPlayer",new Skin(Gdx.files.internal(Resourses.ButtonSkinJSON),new TextureAtlas(Resourses.ButtonSkinTextureAtlas)));
         this.gameManager = gameManager;
@@ -29,7 +30,7 @@ public class MultiPlayButton extends TextButton {
         addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
+                gameManager.getAssetManager().get(Resourses.ClickSound, Sound.class).play();
                 isPressed = true;
                 Gdx.input.setInputProcessor(null);
                 return true;

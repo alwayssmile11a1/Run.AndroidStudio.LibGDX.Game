@@ -174,17 +174,32 @@ public class PlayScreen implements Screen{
                     gameViewPort.getWorldWidth() / 2,
                     mapCreator.getFinishPosition().x);
 
-            mainCamera.position.y = MathUtils.clamp(player.getBody().getPosition().y, gameViewPort.getWorldHeight() / 2, gameViewPort.getWorldHeight() / 2 + 3f);
+            if(player.getBody().getPosition().y> mainCamera.position.y + gameViewPort.getWorldHeight()/4f)
+            {
+                mainCamera.position.y = player.getBody().getPosition().y - gameViewPort.getWorldHeight()/4f;
+            }
+            else
+            {
+                if(player.getBody().getPosition().y < mainCamera.position.y - gameViewPort.getWorldHeight()/4f)
+                {
+                    mainCamera.position.y = player.getBody().getPosition().y + gameViewPort.getWorldHeight()/4f;
+                }
+            }
+
+            //mainCamera.position.y = MathUtils.clamp(player.getBody().getPosition().y, gameViewPort.getWorldHeight() / 2, gameViewPort.getWorldHeight() / 2 + 3f);
 
         } else {
             if (deadTime > 0) {
                 deadTime -= 1 / 60f;
-                //update camera to follow this player
-                mainCamera.position.x = MathUtils.clamp(player.getDeadPoint().x + 1,
-                        gameViewPort.getWorldWidth() / 2,
-                        mapCreator.getFinishPosition().x);
+//                //update camera to follow this player
+//                mainCamera.position.x = MathUtils.clamp(player.getDeadPoint().x + 1,
+//                        gameViewPort.getWorldWidth() / 2,
+//                        mapCreator.getFinishPosition().x);
 
-                mainCamera.position.y = MathUtils.clamp(player.getDeadPoint().y, gameViewPort.getWorldHeight() / 2, gameViewPort.getWorldHeight() / 2 + 3f);
+                //mainCamera.position.y = MathUtils.clamp(player.getDeadPoint().y, gameViewPort.getWorldHeight() / 2, gameViewPort.getWorldHeight() / 2 + 3f);
+
+
+
             } else {
                 deadTime = -1;
             }

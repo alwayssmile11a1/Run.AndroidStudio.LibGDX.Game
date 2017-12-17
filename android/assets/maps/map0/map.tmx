@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" tiledversion="2017.09.13" orientation="orthogonal" renderorder="right-down" width="500" height="50" tilewidth="16" tileheight="16" infinite="0" nextobjectid="225">
  <tileset firstgid="1" name="set1_background" tilewidth="16" tileheight="16" tilecount="1200" columns="40">
-  <image source="set1_background.png" width="640" height="480"/>
+  <image source="../mapresources/set1_background.png" width="640" height="480"/>
  </tileset>
  <tileset firstgid="1201" name="set1_hills" tilewidth="16" tileheight="16" tilecount="1200" columns="40">
-  <image source="set1_hills.png" width="640" height="480"/>
+  <image source="../mapresources/set1_hills.png" width="640" height="480"/>
  </tileset>
  <tileset firstgid="2401" name="set1_tiles" tilewidth="16" tileheight="16" tilecount="1200" columns="40">
-  <image source="set1_tiles.png" width="640" height="480"/>
+  <image source="../mapresources/set1_tiles.png" width="640" height="480"/>
  </tileset>
  <tileset firstgid="3601" name="tilesheet_complete" tilewidth="16" tileheight="16" tilecount="4224" columns="88">
-  <image source="tilesheet_complete.png" width="1408" height="768"/>
+  <image source="../mapresources/tilesheet_complete.png" width="1408" height="768"/>
  </tileset>
  <layer name="BackGround" width="500" height="50">
   <data encoding="base64" compression="zlib">

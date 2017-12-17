@@ -2,6 +2,7 @@ package noshanabi.game.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -131,6 +132,7 @@ public class MapSelectionScreen implements Screen {
 
                 if(transitionDistance==0 && transitionCount < mapCount -1 )
                 {
+                    gameManager.getAssetManager().get(Resourses.ClickSound, Sound.class).play();
                     transitionLeft = 1;
                     transitionCount++;
                 }
@@ -155,6 +157,7 @@ public class MapSelectionScreen implements Screen {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 if(transitionDistance==0 && transitionCount >0) {
+                    gameManager.getAssetManager().get(Resourses.ClickSound, Sound.class).play();
                     transitionLeft = 0;
                     transitionCount--;
                 }

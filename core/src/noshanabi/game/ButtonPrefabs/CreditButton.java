@@ -1,6 +1,7 @@
 package noshanabi.game.ButtonPrefabs;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -42,7 +43,7 @@ public class CreditButton extends TextButton{
         addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
+                gameManager.getAssetManager().get(Resourses.ClickSound, Sound.class).play();
                 isPressed = true;
                 Gdx.input.setInputProcessor(null);
                 return true;
@@ -77,10 +78,11 @@ public class CreditButton extends TextButton{
         table.addActor(backGround);
 
 
-        table.add(new Label("THANK YOU FOR:",getSkin())).row();
-        table.add(new Label("LIBGDX AND ANDROID STUDIO",getSkin())).padTop(30f).row();
-        table.add(new Label("SKIN COMPOSER - HIERO - PARTICAL EDITOR",getSkin())).padTop(15f).row();
+        table.add(new Label("THANKS FOR:",getSkin())).row();
+        table.add(new Label("LibGDX and Android Studio",getSkin())).padTop(30f).row();
+        table.add(new Label("Skin Composer - Hiero - Partical Editor",getSkin())).padTop(15f).row();
         table.add(new Label("ART: Kenney Vleugels (www.kenney.nl)",getSkin())).padTop(20f).row();
+        table.add(new Label("SOUNDTRACK: TheFatRat",getSkin())).padTop(20f).row();
 
         stage.addActor(table);
         table.setVisible(false);
