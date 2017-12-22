@@ -93,6 +93,7 @@ public class MenuScreen implements Screen{
         for(MapLayer mapLayer:map.getLayers())
         {
             mapLayer.setOffsetY(75f);
+
         }
 
         //get movable layer
