@@ -209,7 +209,9 @@ public class RoomJoinedScreen implements Screen, ServerListener {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                     Gdx.app.log("SwitchToMap","");
-                    PlayScreen playScreen = new PlayScreen(gameManager, mapName, backgroundMusicName);
+                    MapSelectionScreen.MapInfo mapInfo = new MapSelectionScreen.MapInfo();
+                    mapInfo.mapName = mapName;
+                    PlayScreen playScreen = new PlayScreen(gameManager, mapInfo, backgroundMusicName);
                     playScreen.setServer(gameManager.getServer());
                     //Gdx.input.setInputProcessor(playScreen.getGameStage());
                     if(ownRoom) {

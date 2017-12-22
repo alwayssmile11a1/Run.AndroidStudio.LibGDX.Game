@@ -1,6 +1,7 @@
 package noshanabi.game.PlayScreenUI;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -187,9 +188,10 @@ public class GameFinishedUI {
         replayButtonPressed = false;
     }
 
-    public void setPlayTimeText(String text)
+    public void setPlayTimeText(String text, Color color)
     {
         playTimeLabel.setText(text);
+        playTimeLabel.setColor(color);
     }
 
     public void draw()

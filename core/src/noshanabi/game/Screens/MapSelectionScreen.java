@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kotcrab.vis.ui.widget.VisLabel;
 
 import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
 import noshanabi.game.GameManager;
@@ -42,8 +43,24 @@ public class MapSelectionScreen implements Screen {
 
     private Sprite backGround;
 
+
+
+    public static class MapInfo
+    {
+        public String mapName;
+        public Image image;
+        public VisLabel highScoreLabel;
+
+        public void addToGroup(Group group)
+        {
+            group.addActor(image);
+            group.addActor(highScoreLabel);
+        }
+
+    }
+
     //
-    Array<Image> mapImages;
+    Array<MapInfo> mapInfos;
     Array<Texture> mapTextures;
 
     private ReturnScreenButton returnScreenButton;
@@ -78,9 +95,8 @@ public class MapSelectionScreen implements Screen {
         //Table help us to easily arrange UI, such as labels, texts, etc.
         Group mapGroup = new Group();
 
-
         mapTextures = new Array<Texture>();
-        mapImages = new Array<Image>();
+        mapInfos = new Array<MapInfo>();
 
         //map texture
         while (true) {
@@ -95,27 +111,36 @@ public class MapSelectionScreen implements Screen {
             }
         }
 
-
         //load map images
         for(int i=0;i<mapCount;i++) {
-            Image mapImage = new Image(mapTextures.get(i));
-            final String mapName = "maps/map" + i + "/map.tmx";
+            final MapInfo mapInfo = new MapInfo();
+            mapInfo.image = new Image(mapTextures.get(i));
+            mapInfo.mapName = "maps/map" + i + "/map.tmx";
             final String backgroundMusicName = "maps/map" + i + "/backgroundmusic.mp3";
-            mapImages.add(mapImage);
-            mapImage.setBounds(0, 0, mapTextures.get(i).getWidth(), mapTextures.get(i).getHeight());
-            mapImage.setTouchable(Touchable.enabled);
-            mapImage.addListener(new InputListener() {
+
+
+            mapInfo.image.setBounds(0, 0, mapTextures.get(i).getWidth(), mapTextures.get(i).getHeight());
+            mapInfo.image.setTouchable(Touchable.enabled);
+            mapInfo.image.addListener(new InputListener() {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                    gameManager.setScreen(new PlayScreen(gameManager, mapName, backgroundMusicName));
+                    gameManager.setScreen(new PlayScreen(gameManager, mapInfo, backgroundMusicName));
                     return true;
                 }
 
             });
-            mapImage.setPosition(100 + i * Resourses.WORLDWIDTH, 50);
-            mapImage.setSize(Resourses.WORLDWIDTH - 200, Resourses.WORLDHEIGHT - 100);
-            mapGroup.addActor(mapImages.get(i));
 
+            mapInfo.image.setSize(Resourses.WORLDWIDTH - 200, Resourses.WORLDHEIGHT - 100);
+            mapInfo.image.setPosition(100 + i * Resourses.WORLDWIDTH, 55);
+
+
+            //highscore
+            mapInfo.highScoreLabel = new VisLabel(""+ gameManager.getPreferences().getFloat(mapInfo.mapName, 0));
+            mapInfo.highScoreLabel.setPosition(i * Resourses.WORLDWIDTH + Resourses.WORLDWIDTH/2-30, 20);
+
+            mapInfos.add(mapInfo);
+
+            mapInfo.addToGroup(mapGroup);
         }
 
 
@@ -142,7 +167,7 @@ public class MapSelectionScreen implements Screen {
         });
 
         nextMapButton.setSize(50,50);
-        nextMapButton.setPosition(Resourses.WORLDWIDTH-80,mapImages.first().getY() + mapImages.first().getHeight()/2- nextMapButton.getHeight()/2);
+        nextMapButton.setPosition(Resourses.WORLDWIDTH-80, mapInfos.first().image.getY() + mapInfos.first().image.getHeight()/2- nextMapButton.getHeight()/2);
 
         //add to table
         mapGroup.addActor(nextMapButton);
@@ -212,15 +237,16 @@ public class MapSelectionScreen implements Screen {
         //transition map
         if (transitionLeft !=-1) {
             if (transitionLeft == 0) {
-                for (Image map : mapImages) {
-                    map.setPosition(map.getX() + transitionSpeed, map.getY());
+                for (MapInfo map : mapInfos) {
+                    map.image.setPosition(map.image.getX() + transitionSpeed, map.image.getY());
+                    map.highScoreLabel.setPosition(map.highScoreLabel.getX() + transitionSpeed, map.highScoreLabel.getY());
                 }
 
             } else {
 
-                for (Image map : mapImages) {
-                    map.setPosition(map.getX() - transitionSpeed, map.getY());
-
+                for (MapInfo map : mapInfos) {
+                    map.image.setPosition(map.image.getX() - transitionSpeed, map.image.getY());
+                    map.highScoreLabel.setPosition(map.highScoreLabel.getX() - transitionSpeed, map.highScoreLabel.getY());
                 }
             }
             transitionDistance += transitionSpeed;

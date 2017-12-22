@@ -2,6 +2,7 @@ package noshanabi.game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ParticleEffectLoader;
@@ -63,6 +64,7 @@ public class GameManager extends Game {
 
 	private boolean needSwitchScreen = true;
 
+	private Preferences prefs;
 
 	public GameManager(PlayerServices playerServices)
 	{
@@ -75,6 +77,11 @@ public class GameManager extends Game {
 
 		batch = new SpriteBatch();
 		disposeScreens = new Array<Screen>();
+
+
+
+		//Get Preferences to save our score
+		prefs = Gdx.app.getPreferences("My Preferences");
 
 		VisUI.load(VisUI.SkinScale.X2);
 
@@ -104,6 +111,11 @@ public class GameManager extends Game {
 
 
 
+	}
+
+	public Preferences getPreferences()
+	{
+		return prefs;
 	}
 
 	private void setupCharacters()
@@ -224,6 +236,9 @@ public class GameManager extends Game {
 
 	@Override
 	public void dispose () {
+		prefs.flush();
+
+
 		if(batch!=null) {
 			batch.dispose();
 		}

@@ -12,6 +12,8 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kotcrab.vis.ui.widget.VisLabel;
 
+import noshanabi.game.ButtonPrefabs.CommonButton;
+import noshanabi.game.ButtonPrefabs.CommonButtonListener;
 import noshanabi.game.ButtonPrefabs.ReturnScreenButton;
 import noshanabi.game.ButtonPrefabs.SignOutButton;
 import noshanabi.game.GameManager;
@@ -39,6 +41,10 @@ public class ModeSelectionScreen implements Screen {
 
     private SignOutButton signOutButton;
 
+    private CommonButton findRoomButton;
+    private CommonButton createRoomButton;
+
+
     public ModeSelectionScreen(GameManager _gameManager) {
         //set up constructor variables
         this.gameManager = _gameManager;
@@ -55,34 +61,32 @@ public class ModeSelectionScreen implements Screen {
 
 
         //---------------FIND ROOM AND CREATE ROOM LABEL --------------
-        VisLabel findRoomLabel = new VisLabel("FIND ROOM");
-        VisLabel createRoomLabel = new VisLabel("CREATE ROOM");
+        findRoomButton = new CommonButton(gameManager);
+        findRoomButton.setText("FIND ROOM");
+        createRoomButton = new CommonButton(gameManager);
+        createRoomButton.setText("CREATE ROOM");
 
         //add listener
-        findRoomLabel.addListener(new InputListener() {
+        findRoomButton.setListener(new CommonButtonListener() {
             @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            public void OnClick() {
                 Gdx.input.setInputProcessor(gameManager.getFindRoomScreen().getStage());
                 gameManager.setScreen(gameManager.getFindRoomScreen());
-                return true;
             }
 
         });
 
-        createRoomLabel.addListener(new InputListener() {
+        createRoomButton.setListener(new CommonButtonListener() {
             @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            public void OnClick() {
                 Gdx.input.setInputProcessor(gameManager.getCreateRoomScreen().getStage());
                 gameManager.setScreen(gameManager.getCreateRoomScreen());
-
-                return true;
             }
-
         });
 
-        table.add(findRoomLabel).expandX();
+        table.add(findRoomButton).expandX();
         table.row();
-        table.add(createRoomLabel).expandX().padTop(20);
+        table.add(createRoomButton).expandX().padTop(20);
 
         //add to gameStage
         stage.addActor(table);
@@ -138,6 +142,9 @@ public class ModeSelectionScreen implements Screen {
         stage.act();
 
         signOutButton.update(delta);
+        findRoomButton.update(delta);
+        createRoomButton.update(delta);
+
     }
 
     @Override
@@ -181,6 +188,11 @@ public class ModeSelectionScreen implements Screen {
         if (signOutButton != null)
             signOutButton.dispose();
 
+        if (findRoomButton != null)
+            findRoomButton.dispose();
+
+        if (createRoomButton != null)
+            createRoomButton.dispose();
     }
 
 }

@@ -3,6 +3,7 @@ package noshanabi.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
@@ -83,7 +84,7 @@ public class PlayScreen implements Screen{
 
 
     //-------------------OTHERS------------------------
-    //just for holding count down label
+    //just for holding count down highScoreLabel
     //private boolean isGameStarting = true; //if game is staring, don't move anything
     private float playTime;
     private boolean gameEnded = false;
@@ -94,12 +95,14 @@ public class PlayScreen implements Screen{
 
     float deadTime = -1;
 
+    MapSelectionScreen.MapInfo mapInfo;
 
-    public PlayScreen(GameManager gameManager, String mapName, String backgroundMusicName) {
+    public PlayScreen(GameManager gameManager, MapSelectionScreen.MapInfo mapInfo, String backgroundMusicName) {
         //set up constructor variables
         this.gameManager = gameManager;
         this.worldWidth = Resourses.WORLDWIDTH / Resourses.PPM;
         this.worldHeight = Resourses.WORLDHEIGHT / Resourses.PPM;
+        this.mapInfo = mapInfo;
 
         //-----------------VIEW RELATED VARIABLES-----------------//
         //initialize a new camera
@@ -123,7 +126,7 @@ public class PlayScreen implements Screen{
 
         //----------------MAP RELATED VARIABLES------------//
         //create map
-        mapCreator = new MapCreator(world, mapName);
+        mapCreator = new MapCreator(world, mapInfo.mapName);
 
         //rayHandler = new RayHandler(world);
         //pointLight1 = new PointLight(rayHandler, 500, Color.GRAY, 100, 4f, 4f);
@@ -307,7 +310,36 @@ public class PlayScreen implements Screen{
 
         if (player.isHitFinishPoint()) {
             gameEnded = true;
-            gameFinishedUI.setPlayTimeText("" + ((int) (playTime * 1000)) / 1000f);
+
+            float score = ((int) (playTime * 1000)) / 1000f;
+            float currentHighScore = Float.parseFloat(mapInfo.highScoreLabel.getText().toString());
+
+            if(currentHighScore!=0) {
+                if (score < currentHighScore) {
+                    gameFinishedUI.setPlayTimeText("HIGH SCORE: " + score, Color.GOLD);
+                    if (mapInfo.highScoreLabel != null)
+                    {
+                        mapInfo.highScoreLabel.setText("" + score);
+                        gameManager.getPreferences().putFloat(mapInfo.mapName, score);
+
+                    }
+
+                } else {
+                    if(score>currentHighScore) {
+                        gameFinishedUI.setPlayTimeText("" + score, Color.WHITE);
+                    }
+                }
+
+            }
+            else
+            {
+                gameFinishedUI.setPlayTimeText("HIGH SCORE: " + score, Color.GOLD);
+
+                if (mapInfo.highScoreLabel != null) {
+                    mapInfo.highScoreLabel.setText("" + score);
+                    gameManager.getPreferences().putFloat(mapInfo.mapName, score);
+                }
+            }
         }
 
         //if game isn't finished, continue to handle input

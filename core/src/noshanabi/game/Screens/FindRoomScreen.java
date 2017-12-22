@@ -2,6 +2,7 @@ package noshanabi.game.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -125,9 +126,9 @@ public class FindRoomScreen implements Screen, ServerListener{
         roomList = new HashMap<String, Array<Label>>();
         roomTable = new Table();
         roomTable.align(Align.top);
-        roomTable.add(new VisLabel("Room name")).expandX();
-        roomTable.add(new VisLabel("State")).expandX();
-        roomTable.add(new VisLabel("Players")).expandX();
+        roomTable.add(new VisLabel("Room name", Color.GOLD)).expandX();
+        roomTable.add(new VisLabel("State", Color.GOLD)).expandX();
+        roomTable.add(new VisLabel("Players", Color.GOLD)).expandX();
         roomTable.row();
 
         VisScrollPane scrollPane = new VisScrollPane(roomTable);
