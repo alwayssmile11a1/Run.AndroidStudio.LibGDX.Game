@@ -194,6 +194,12 @@ public class GameFinishedUI {
         playTimeLabel.setColor(color);
     }
 
+    public void setToMultiplayerMode()
+    {
+        replayButton.setVisible(false);
+        reviewButton.setVisible(false);
+    }
+
     public void draw()
     {
         if(needSetInputProcessor) {

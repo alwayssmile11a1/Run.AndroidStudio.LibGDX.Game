@@ -162,6 +162,12 @@ public class InGameUI {
 
     }
 
+    public void setToMultiplayerMode()
+    {
+        replayButton.setVisible(false);
+
+    }
+
     public float getCountDownTime()
     {
         return countDownTime;

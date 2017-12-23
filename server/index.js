@@ -43,13 +43,13 @@ io.on('connection',function(socket){
             //send the client the this room
             socket.join(data.roomName);
 
-            socket.emit('socketRoomJoined',{roomName: data.roomName});
-
             //a room contain a hash table of players in that room
-            rooms[data.roomName] = new room({},"Waiting");
+            rooms[data.roomName] = new room({},"Waiting", 0);
+
+            socket.emit('socketRoomJoined',{roomName: data.roomName, mapPosition: "0"});
 
             //push socket client player to players hash table, so other new connected players know about socket client player
-            rooms[data.roomName].players[socket.id] = new player(socket.id,2,2,0);
+            rooms[data.roomName].players[socket.id] = new player(socket.id,-10,-10,0);
 
 
         }
@@ -78,7 +78,7 @@ io.on('connection',function(socket){
             //send the client the this room
             socket.join(data.roomName);
 
-            socket.emit('socketRoomJoined',{roomName: data.roomName});
+            socket.emit('socketRoomJoined',{roomName: data.roomName, mapPosition: room.mapPosition});
 
             socket.broadcast.to(data.roomName).emit('roomJoined',{id: socket.id});
 
@@ -146,6 +146,15 @@ io.on('connection',function(socket){
     socket.on('transitionMap', function(data){
         if(rooms.hasOwnProperty(socket.room))
         {
+            if(data==1)
+            {
+                rooms[socket.room].mapPosition--;
+            }
+            else
+            {
+                rooms[socket.room].mapPosition++;
+            }
+
             socket.broadcast.to(socket.room).emit('mapTransitioned', {transitionUp: data});
         }
     });
@@ -242,7 +251,8 @@ function player(id,x,y,rotation){
 }
 
 //room struct
-function room(players, state){
+function room(players, state, mapPosition){
     this.players = players;
     this.state = state;
+    this.mapPosition = mapPosition;
 }

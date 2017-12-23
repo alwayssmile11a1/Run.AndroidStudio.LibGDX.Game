@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -55,7 +54,7 @@ public class PlayScreen implements Screen{
 
     //this variable helps us to see the virtual shape of our world (virtual shape of all objects for example)
     //this variable should be eliminated when public the game
-    private Box2DDebugRenderer b2DebugRenderer;
+    //private Box2DDebugRenderer b2DebugRenderer;
 
 
     //----------------WORLD RELATED VARIABLES------------//
@@ -121,7 +120,7 @@ public class PlayScreen implements Screen{
         world.setContactListener(worldListener);
 
         //initialize box2DDebugRenderer
-        b2DebugRenderer = new Box2DDebugRenderer();
+        //b2DebugRenderer = new Box2DDebugRenderer();
 
 
         //----------------MAP RELATED VARIABLES------------//
@@ -160,6 +159,12 @@ public class PlayScreen implements Screen{
         server.setMainPlayer(player);
 
         server.setWorld(world);
+
+        if(server!=null)
+        {
+            gameFinishedUI.setToMultiplayerMode();
+            inGameUI.setToMultiplayerMode();
+        }
 
     }
 
@@ -311,7 +316,11 @@ public class PlayScreen implements Screen{
             gameEnded = true;
 
             float score = ((int) (playTime * 1000)) / 1000f;
-            float currentHighScore = Float.parseFloat(mapInfo.highScoreLabel.getText().toString());
+            float currentHighScore = 0.1f;
+            if(mapInfo.highScoreLabel != null)
+            {
+                Float.parseFloat(mapInfo.highScoreLabel.getText().toString());
+            }
 
             if(currentHighScore!=0) {
                 if (score < currentHighScore) {
@@ -478,7 +487,7 @@ public class PlayScreen implements Screen{
         gameManager.batch.end();
 
         //render box2DDebug
-        b2DebugRenderer.render(world,mainCamera.combined);
+        //b2DebugRenderer.render(world,mainCamera.combined);
 
 //        rayHandler.setCombinedMatrix(mainCamera);
 //        rayHandler.updateAndRender();

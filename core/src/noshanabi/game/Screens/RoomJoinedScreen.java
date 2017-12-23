@@ -3,10 +3,8 @@ package noshanabi.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -15,13 +13,13 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kotcrab.vis.ui.widget.VisImage;
+import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 
 import org.json.JSONException;
@@ -69,8 +67,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
     private Image nextMapButton;
     private Image previousMapButton;
 
-    private int transitionUp;
-    private int transitionDistance;
+    private int yMapPosition;
     private int transitionPosition;
     private int transitionSpeed;
 
@@ -94,6 +91,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
     private Texture chooseCharacterBackgroundTexture;
     private Image chooseCharacterBackground;
 
+    VisLabel roomNameLabel;
 
     public RoomJoinedScreen(GameManager _gameManager) {
         //set up constructor variables
@@ -102,10 +100,9 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         playersToAdd = new Array<String>();
         playersToRemove = new Array<String>();
 
-        transitionUp = -1;
-        transitionDistance = 0;
         transitionPosition = 0;
         transitionSpeed = 20;
+        yMapPosition = 75;
 
         backGround = new Sprite(new Texture(Resourses.RoomJoinedBackground));
         backGround.setSize(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
@@ -154,14 +151,11 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
 
         //------------------USER INFORMATION ----------------------
-        Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
-        Label userNameLabel = new Label("USER NAME", labelStyle);
-        if (gameManager.getPlayerServices() != null && gameManager.getPlayerServices().isSignedIn()) {
-            userNameLabel.setText(gameManager.getPlayerServices().getUserName());
-        }
-        userNameLabel.setPosition(Resourses.WORLDWIDTH - userNameLabel.getWidth() - 100, returnScreenButton.getY() + 15);
 
-        group.addActor(userNameLabel);
+        roomNameLabel = new VisLabel("");
+        roomNameLabel.setPosition(Resourses.WORLDWIDTH - roomNameLabel.getWidth() - 250, returnScreenButton.getY() + 20);
+
+        group.addActor(roomNameLabel);
 
         //------------------SIGN OUT BUTTON ------------------------
         signOutButton = new SignOutButton(gameManager);
@@ -203,7 +197,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
             mapImages.add(mapImage);
             mapImage.setBounds(0, 0, mapTextures.get(i).getWidth(), mapTextures.get(i).getHeight());
             mapImage.setTouchable(Touchable.enabled);
-            mapImage.setPosition(250, 75 - Resourses.WORLDHEIGHT * i);
+            mapImage.setPosition(250, yMapPosition - Resourses.WORLDHEIGHT * i);
             mapImage.setSize(Resourses.WORLDWIDTH - 300, Resourses.WORLDHEIGHT - 150);
             mapImage.addListener(new InputListener() {
                 @Override
@@ -237,9 +231,8 @@ public class RoomJoinedScreen implements Screen, ServerListener {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                if (transitionDistance == 0 && transitionPosition > 0) {
+                if (transitionPosition > 0 && mapImages.get(transitionPosition).getY()==yMapPosition) {
                     gameManager.getAssetManager().get(Resourses.ClickSound, Sound.class).play();
-                    transitionUp = 1;
                     transitionPosition--;
                     gameManager.getServer().getSocket().emit("transitionMap",1);
                 }
@@ -264,9 +257,8 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         previousMapButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                if (transitionDistance == 0 && transitionPosition < mapCount - 1) {
+                if (transitionPosition < mapCount - 1 && mapImages.get(transitionPosition).getY()==yMapPosition) {
                     gameManager.getAssetManager().get(Resourses.ClickSound, Sound.class).play();
-                    transitionUp = 0;
                     transitionPosition++;
                     gameManager.getServer().getSocket().emit("transitionMap",0);
                 }
@@ -446,7 +438,19 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
     @Override
     public void OnSocketRoomJoined(Object... args) {
-        playersToAdd.add("main");
+
+        try {
+            JSONObject data = (JSONObject) args[0];
+            transitionPosition = Integer.parseInt(data.getString("mapPosition"));
+            playersToAdd.add("main");
+            roomNameLabel.setText("Room: " + data.getString("roomName"));
+
+
+        } catch (JSONException e) {
+            Gdx.app.log("SocketIO", "Error on joining room");
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -494,7 +498,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
     {
         try {
             JSONObject data = (JSONObject) args[0];
-            transitionUp = data.getInt("transitionUp");
+            int transitionUp = data.getInt("transitionUp");
 
             if(transitionUp==0) {
                 transitionPosition++;
@@ -553,6 +557,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
             playersToRemove.clear();
         }
 
+        //switch screen if necessary
         if(needSwitchScreen==true) {
             needSwitchScreen = false;
             //perform touch down event
@@ -563,27 +568,50 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
 
         //transition map
-        if (transitionUp !=-1) {
-            if (transitionUp == 0) {
+        Image targetMapImage = mapImages.get(transitionPosition);
+
+        if(targetMapImage.getY()!=yMapPosition)
+        {
+            if(targetMapImage.getY() < yMapPosition) {
                 for (Image map : mapImages) {
                     map.setPosition(map.getX(), map.getY() + transitionSpeed);
                 }
+            }
 
-            } else {
-
+            if(targetMapImage.getY()> yMapPosition) {
                 for (Image map : mapImages) {
                     map.setPosition(map.getX(), map.getY() - transitionSpeed);
-
                 }
             }
-            transitionDistance += transitionSpeed;
-
-            if (transitionDistance >= Resourses.WORLDHEIGHT) {
-                transitionDistance = 0;
-                transitionUp = -1;
-            }
-
         }
+
+
+
+
+//            if (transitionUp !=-1) {
+//                if (transitionUp == 0) {
+//                    for (Image map : mapImages) {
+//                        map.setPosition(map.getX(), map.getY() + transitionSpeed);
+//                    }
+//
+//                } else {
+//
+//                    for (Image map : mapImages) {
+//                        map.setPosition(map.getX(), map.getY() - transitionSpeed);
+//
+//                    }
+//                }
+//                transitionDistance += transitionSpeed;
+//
+//                if (transitionDistance >= Resourses.WORLDHEIGHT) {
+//                    transitionDistance = 0;
+//                    transitionUp = -1;
+//                }
+//
+//            }
+
+
+
 
         //draw sprite
         gameManager.batch.begin();

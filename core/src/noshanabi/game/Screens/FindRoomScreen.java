@@ -66,6 +66,8 @@ public class FindRoomScreen implements Screen, ServerListener{
 
     private int maxPlayersInRoom;
 
+    private VisLabel userNameLabel;
+
     public FindRoomScreen(GameManager _gameManager) {
         //set up constructor variables
         this.gameManager = _gameManager;
@@ -104,11 +106,8 @@ public class FindRoomScreen implements Screen, ServerListener{
 
 
         //------------------USER INFORMATION ----------------------
-        VisLabel userNameLabel = new VisLabel("USER NAME");
+        userNameLabel = new VisLabel("USER NAME");
         userNameLabel.setFontScale(0.5f);
-        if (gameManager.getPlayerServices() != null) {
-            userNameLabel.setText(gameManager.getPlayerServices().getUserName());
-        }
         userNameLabel.setPosition(Resourses.WORLDWIDTH - userNameLabel.getWidth(), returnScreenButton.getY() + 15);
 
         group.addActor(userNameLabel);
@@ -353,6 +352,7 @@ public class FindRoomScreen implements Screen, ServerListener{
 
     private void removeRoom(String roomName)
     {
+        Gdx.app.log("removeRoom","");
         Array<Label> roomLabel = roomList.get(roomName);
         if(roomLabel!=null) {
             for (Label label : roomLabel) {
@@ -367,6 +367,10 @@ public class FindRoomScreen implements Screen, ServerListener{
         //color to clear this screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        if (gameManager.getPlayerServices() != null && gameManager.getPlayerServices().isSignedIn()) {
+            userNameLabel.setText(gameManager.getPlayerServices().getUserName());
+        }
 
         if(roomsToAdd.size > 0)
         {
