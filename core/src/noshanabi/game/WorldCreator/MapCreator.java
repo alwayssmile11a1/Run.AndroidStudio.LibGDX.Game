@@ -45,6 +45,8 @@ public class MapCreator {
 
     private MapLayer movableLayer;
 
+    //RayHandler rayHandler;
+    //PointLight pointLight;
 
     public MapCreator(World world, String fileName) {
         grounds = new Array<Ground>();
@@ -190,6 +192,28 @@ public class MapCreator {
                         1, 1);
             }
         }
+
+
+
+//        //--------------------POINT LIGHT------------------------------------------------
+//        rayHandler = new RayHandler(world);
+//
+//        if (map.getLayers().get("PointLights") != null) {
+//            Array<RectangleMapObject> mapObjects = map.getLayers().get("PointLights").getObjects().getByType(RectangleMapObject.class);
+//
+//            for (RectangleMapObject object : mapObjects) {
+//
+//                Rectangle rectangle = object.getRectangle();
+//
+//                PointLight pointLight = new PointLight(rayHandler, 250, null, 10,
+//                        rectangle.getX() / Resourses.PPM,rectangle.getY() / Resourses.PPM);
+//                pointLight.setSoft(true);
+//                pointLight.setSoftnessLength(20f);
+//            }
+//        }
+
+
+
     }
 
 
@@ -236,6 +260,10 @@ public class MapCreator {
         halfSaws.draw(batch);
 
         groundEnemies.draw(batch);
+
+
+//        rayHandler.updateAndRender();
+
     }
 
 
@@ -247,6 +275,8 @@ public class MapCreator {
         halfSaws.update(dt);
 
         groundEnemies.update(dt);
+
+//        rayHandler.setCombinedMatrix(camera);
     }
 
     public GroundEnemies getGroundEnemies()
@@ -267,12 +297,16 @@ public class MapCreator {
             ground.dispose();
         }
 
+//        if (rayHandler != null) {
+//            rayHandler.dispose();
+//        }
 
         saws.dispose();
 
         halfSaws.dispose();
 
         groundEnemies.dispose();
+
 
     }
 

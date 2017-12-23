@@ -18,7 +18,7 @@ io.on('connection',function(socket){
 
     //player connected
 	console.log("Player Connected!");
-    setInterval(() => io.emit('time', new Date().toTimeString()), 100);
+    //setInterval(() => io.emit('time', new Date().toTimeString()), 100);
 
     //emit the id to the client's socket only
     socket.emit('connected',{id: socket.id });

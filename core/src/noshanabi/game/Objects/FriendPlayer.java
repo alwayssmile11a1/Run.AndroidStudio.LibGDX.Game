@@ -1,11 +1,8 @@
 package noshanabi.game.Objects;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -32,10 +29,10 @@ public class FriendPlayer extends Sprite {
     private float tempRotation;
 
 
-    //effect
-    private ParticleEffect checkpointEffect;
-    private ParticleEffect deadEffect;
-    private ParticleEffect finishEffect;
+//    //effect
+//    private ParticleEffect checkpointEffect;
+//    private ParticleEffect deadEffect;
+//    private ParticleEffect finishEffect;
 
     public FriendPlayer()
     {
@@ -44,9 +41,8 @@ public class FriendPlayer extends Sprite {
 
     }
 
-    public void create(World world, GameManager gameManager) {
+    public void create(World world, Texture texture, GameManager gameManager) {
 
-        Texture texture = new Texture(Resourses.Player1);
 
         set(new Sprite(texture));
 
@@ -55,23 +51,15 @@ public class FriendPlayer extends Sprite {
         //set this to rotate object in the center
         setOriginCenter();
 
-        defineObject(world);
+        //defineObject(world);
 
-        //load effect
-        checkpointEffect = gameManager.getAssetManager().get(Resourses.ExplosionEffect1);
-        //checkpointEffect.scaleEffect(1/Resourses.PPM);
-        checkpointEffect.setPosition(-10,-10);
-        checkpointEffect.start();
+//        //load effect
+//        checkpointEffect = gameManager.getAssetManager().get(Resourses.ExplosionEffect1);
+//
+//        deadEffect = gameManager.getAssetManager().get(Resourses.ExplosionEffect2);
+//
+//        finishEffect = gameManager.getAssetManager().get(Resourses.ExplosionEffect3);
 
-        deadEffect = gameManager.getAssetManager().get(Resourses.ExplosionEffect2);
-        //deadEffect.scaleEffect(1/Resourses.PPM);
-        deadEffect.setPosition(-10,-10);
-        deadEffect.start();
-
-        finishEffect = gameManager.getAssetManager().get(Resourses.ExplosionEffect3);
-        //finishEffect.scaleEffect(1/Resourses.PPM);
-        finishEffect.setPosition(-10,-10);
-        finishEffect.start();
     }
 
 
@@ -84,7 +72,7 @@ public class FriendPlayer extends Sprite {
         //body definition
         BodyDef bDef = new BodyDef();
         bDef.position.set(this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2);
-        bDef.type = BodyDef.BodyType.DynamicBody;
+        bDef.type = BodyDef.BodyType.KinematicBody;
         body = world.createBody(bDef);
         body.setGravityScale(0f);
 
@@ -99,27 +87,26 @@ public class FriendPlayer extends Sprite {
 
     }
 
-    public void onHitCheckPoint()
-    {
-        ///play effect
-        checkpointEffect.setPosition(body.getPosition().x+this.getWidth()/2,body.getPosition().y);
-        checkpointEffect.start();
-    }
-
-    public void onDead()
-    {
-        Gdx.app.log("Friend Player Dead","");
-        //play effect
-        deadEffect.setPosition(body.getPosition().x + this.getWidth() / 2, body.getPosition().y);
-        deadEffect.start();
-    }
-
-    public void onHitFinishPoint()
-    {
-        //play effect
-        finishEffect.setPosition(body.getPosition().x+this.getWidth()/2,body.getPosition().y);
-        finishEffect.start();
-    }
+//    public void onHitCheckPoint()
+//    {
+//        ///play effect
+//        checkpointEffect.setPosition(body.getPosition().x+this.getWidth()/2,body.getPosition().y);
+//        checkpointEffect.start();
+//    }
+//
+//    public void onDead()
+//    {
+//        //play effect
+//        deadEffect.setPosition(body.getPosition().x + this.getWidth() / 2, body.getPosition().y);
+//        deadEffect.start();
+//    }
+//
+//    public void onHitFinishPoint()
+//    {
+//        //play effect
+//        finishEffect.setPosition(body.getPosition().x+this.getWidth()/2,body.getPosition().y);
+//        finishEffect.start();
+//    }
 
     public void setTempPosition(float x, float y)
     {
@@ -134,25 +121,25 @@ public class FriendPlayer extends Sprite {
 
     public void update(float dt) {
 
-        if(body==null) return;
+//        if(body==null) return;
 //
 //        //update texture position
         setRotation(tempRotation);
         setPosition(tempPosition.x,tempPosition.y);
 
-        body.setTransform(this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2,this.getRotation()/ MathUtils.radiansToDegrees);
-
-        checkpointEffect.update(dt);
-        deadEffect.update(dt);
-        finishEffect.update(dt);
+//        body.setTransform(this.getX()+this.getWidth()/2,this.getY()+this.getHeight()/2,this.getRotation()/ MathUtils.radiansToDegrees);
+//
+//        checkpointEffect.update(dt);
+//        deadEffect.update(dt);
+//        finishEffect.update(dt);
     }
 
     @Override
     public void draw(Batch batch) {
         super.draw(batch);
-        checkpointEffect.draw(batch);
-        finishEffect.draw(batch);
-        deadEffect.draw(batch);
+//        checkpointEffect.draw(batch);
+//        finishEffect.draw(batch);
+//        deadEffect.draw(batch);
     }
 
     public Body getBody()
@@ -161,11 +148,9 @@ public class FriendPlayer extends Sprite {
     }
 
     public void dispose() {
-        if (this.getTexture() != null) {
-            this.getTexture().dispose();
-        }
-        if (body != null && world!=null)
-            world.destroyBody(body);
+//        if (body != null && world!=null) {
+//            world.destroyBody(body);
+//        }
 
     }
 

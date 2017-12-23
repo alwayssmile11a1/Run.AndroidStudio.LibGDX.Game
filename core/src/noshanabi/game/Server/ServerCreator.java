@@ -436,6 +436,7 @@ public class ServerCreator {
         for(HashMap.Entry<String,FriendPlayer> entry: otherPlayers.entrySet()) {
             playersToDispose.addAll(entry.getValue());
         }
+
         otherPlayers.clear();
 
     }
@@ -444,9 +445,10 @@ public class ServerCreator {
     public void updateServer(float dt) {
 
         //dispose player
-        for(FriendPlayer player:playersToDispose) {
-            player.dispose();
+        for(FriendPlayer friendPlayer:playersToDispose) {
+            friendPlayer.dispose();
         }
+        playersToDispose.clear();
 
         if(mainPlayer==null) return;
 
@@ -496,7 +498,7 @@ public class ServerCreator {
         {
             if(entry.getValue().getTexture()==null) {
                 if (world != null)
-                    entry.getValue().create(world, gameManager);
+                    entry.getValue().create(world, friendPlayerTexture, gameManager);
             }
 
             entry.getValue().draw(batch);

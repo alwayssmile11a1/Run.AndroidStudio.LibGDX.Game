@@ -14,8 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import noshanabi.game.Box2DLightExtension.PointLight;
-import noshanabi.game.Box2DLightExtension.RayHandler;
 import noshanabi.game.GameManager;
 import noshanabi.game.Objects.Player;
 import noshanabi.game.PlayScreenUI.GameFinishedUI;
@@ -68,8 +66,8 @@ public class PlayScreen implements Screen{
 
     //map related variables
     private MapCreator mapCreator;
-    RayHandler rayHandler;
-    PointLight pointLight;
+//    RayHandler rayHandler;
+//    PointLight pointLight;
 
 
 
@@ -130,9 +128,9 @@ public class PlayScreen implements Screen{
         //create map
         mapCreator = new MapCreator(world, mapInfo.mapName);
 
-        rayHandler = new RayHandler(world);
-        pointLight = new PointLight(rayHandler, 500, Color.GRAY, 100,4,4);
-        pointLight.setSoftnessLength(100f);
+//        rayHandler = new RayHandler(world);
+//        pointLight = new PointLight(rayHandler, 500, Color.GRAY, 100,4,4);
+//        pointLight.setSoftnessLength(100f);
 
 
         //initialize player
@@ -479,6 +477,11 @@ public class PlayScreen implements Screen{
         //end of draw
         gameManager.batch.end();
 
+        //render box2DDebug
+        b2DebugRenderer.render(world,mainCamera.combined);
+
+//        rayHandler.setCombinedMatrix(mainCamera);
+//        rayHandler.updateAndRender();
 
         //----------------------------------------
 
@@ -499,11 +502,7 @@ public class PlayScreen implements Screen{
 
         worldListener.update();
 
-        //render box2DDebug
-        //b2DebugRenderer.render(world,mainCamera.combined);
 
-        rayHandler.setCombinedMatrix(mainCamera);
-        rayHandler.updateAndRender();
     }
 
     @Override
@@ -544,9 +543,9 @@ public class PlayScreen implements Screen{
             mapCreator.dispose();
         }
 
-        if(rayHandler!=null) {
-            rayHandler.dispose();
-        }
+//        if(rayHandler!=null) {
+//            rayHandler.dispose();
+//        }
 
         if(inGameUI !=null)
             inGameUI.dispose();

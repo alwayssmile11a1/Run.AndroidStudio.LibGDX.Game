@@ -71,7 +71,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
     private int transitionUp;
     private int transitionDistance;
-    private int transitionCount;
+    private int transitionPosition;
     private int transitionSpeed;
 
     private VisTable playersTable;
@@ -104,7 +104,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
 
         transitionUp = -1;
         transitionDistance = 0;
-        transitionCount = 0;
+        transitionPosition = 0;
         transitionSpeed = 20;
 
         backGround = new Sprite(new Texture(Resourses.RoomJoinedBackground));
@@ -237,10 +237,10 @@ public class RoomJoinedScreen implements Screen, ServerListener {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                if (transitionDistance == 0 && transitionCount > 0) {
+                if (transitionDistance == 0 && transitionPosition > 0) {
                     gameManager.getAssetManager().get(Resourses.ClickSound, Sound.class).play();
                     transitionUp = 1;
-                    transitionCount--;
+                    transitionPosition--;
                     gameManager.getServer().getSocket().emit("transitionMap",1);
                 }
                 return true;
@@ -264,10 +264,10 @@ public class RoomJoinedScreen implements Screen, ServerListener {
         previousMapButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                if (transitionDistance == 0 && transitionCount < mapCount - 1) {
+                if (transitionDistance == 0 && transitionPosition < mapCount - 1) {
                     gameManager.getAssetManager().get(Resourses.ClickSound, Sound.class).play();
                     transitionUp = 0;
-                    transitionCount++;
+                    transitionPosition++;
                     gameManager.getServer().getSocket().emit("transitionMap",0);
                 }
                 return true;
@@ -496,6 +496,14 @@ public class RoomJoinedScreen implements Screen, ServerListener {
             JSONObject data = (JSONObject) args[0];
             transitionUp = data.getInt("transitionUp");
 
+            if(transitionUp==0) {
+                transitionPosition++;
+            }
+            else
+            {
+                transitionPosition--;
+            }
+
         } catch (JSONException e) {
             Gdx.app.log("SocketIO", "Error transitioning map");
             e.printStackTrace();
@@ -550,7 +558,7 @@ public class RoomJoinedScreen implements Screen, ServerListener {
             //perform touch down event
             InputEvent event = new InputEvent();
             event.setType(InputEvent.Type.touchDown);
-            mapImages.get(transitionCount).fire(event);
+            mapImages.get(transitionPosition).fire(event);
         }
 
 
