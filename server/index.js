@@ -78,7 +78,7 @@ io.on('connection',function(socket){
             //send the client the this room
             socket.join(data.roomName);
 
-            socket.emit('socketRoomJoined',{roomName: data.roomName, mapPosition: room.mapPosition});
+            socket.emit('socketRoomJoined',{roomName: data.roomName, mapPosition: room.mapIndex});
 
             socket.broadcast.to(data.roomName).emit('roomJoined',{id: socket.id});
 
@@ -139,8 +139,19 @@ io.on('connection',function(socket){
        {
             socket.broadcast.to(socket.room).emit('gameJoined');
             rooms[socket.room].state = "InGame";
+            rooms[socket.room].rank = 0; //reset rank
             io.sockets.emit('roomStateChanged', {roomName: socket.room, state: "InGame"});
        }
+    });
+
+    socket.on('socketGetRank',function(){
+
+           if(rooms.hasOwnProperty(socket.room))
+           {
+                var socketRank = ++rooms[socket.room].rank;
+
+                socket.emit('getRank', {rank: socketRank});
+           }
     });
 
     socket.on('transitionMap', function(data){
@@ -148,11 +159,11 @@ io.on('connection',function(socket){
         {
             if(data==1)
             {
-                rooms[socket.room].mapPosition--;
+                rooms[socket.room].mapIndex--;
             }
             else
             {
-                rooms[socket.room].mapPosition++;
+                rooms[socket.room].mapIndex++;
             }
 
             socket.broadcast.to(socket.room).emit('mapTransitioned', {transitionUp: data});
@@ -251,8 +262,9 @@ function player(id,x,y,rotation){
 }
 
 //room struct
-function room(players, state, mapPosition){
+function room(players, state, mapIndex){
     this.players = players;
-    this.state = state;
-    this.mapPosition = mapPosition;
+    this.state = state; //in-game or in the lobby
+    this.mapIndex = mapIndex; //what map you want to play?
+    this.rank = 0; //if a player hit finish point, what rank are they currently at?
 }

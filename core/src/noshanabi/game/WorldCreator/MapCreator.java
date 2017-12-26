@@ -33,7 +33,7 @@ public class MapCreator {
 
     private TiledMap map;
     private OrthogonalTiledMapRenderer mapRenderer;
-    private float mapWidth;
+    private Vector2 mapSize;
 
     private Array<Ground> grounds;
     private Array<DeadGround> deadGrounds;
@@ -56,8 +56,13 @@ public class MapCreator {
         map = new TmxMapLoader().load(fileName);
         mapRenderer = new OrthogonalTiledMapRenderer(map, 1 / Resourses.PPM);
 
+        mapSize = new Vector2();
+
         float tileWidth = Float.parseFloat(map.getProperties().get("tilewidth").toString()) / Resourses.PPM;
-        mapWidth = Float.parseFloat(map.getProperties().get("width").toString()) * tileWidth;
+        mapSize.x = Float.parseFloat(map.getProperties().get("width").toString()) * tileWidth;
+
+        float tileHeight = Float.parseFloat(map.getProperties().get("tileheight").toString()) / Resourses.PPM;
+        mapSize.y = Float.parseFloat(map.getProperties().get("height").toString()) * tileWidth;
 
         //get movable layer
         movableLayer = map.getLayers().get("MovableBackGround");
@@ -216,6 +221,7 @@ public class MapCreator {
 
     }
 
+    public Vector2 getMapSize() { return mapSize; }
 
     public Vector2 getInstantiatePosition()
     {
@@ -241,7 +247,7 @@ public class MapCreator {
     public void renderMap(OrthographicCamera camera)
     {
         if(movableLayer!=null) {
-            if ((movableLayer.getOffsetX() / Resourses.PPM + mapWidth - 5f) > (camera.position.x - camera.viewportWidth / 2)) {
+            if ((movableLayer.getOffsetX() / Resourses.PPM + mapSize.x - 5f) > (camera.position.x - camera.viewportWidth / 2)) {
                 movableLayer.setOffsetX(movableLayer.getOffsetX() - movableLayerSpeed);
             } else {
 

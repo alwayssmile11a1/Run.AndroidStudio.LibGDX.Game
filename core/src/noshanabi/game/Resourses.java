@@ -56,7 +56,7 @@ public final class Resourses {
 
 
     //----------------SERVER ---------------------------
-    public static boolean UseLocal = false; //if false, use web server
+    public static boolean UseLocal = true; //if false, use web server
     public static String WebServerUri = "https://runandroidstudiolibgdx.herokuapp.com";
     public static String LocalServerUri = "http://localhost:5000";
 
@@ -105,7 +105,7 @@ public final class Resourses {
     public static String ReviewButton = "images/youtube.png";
     public static String MenuButton = "images/menubutton.png";
     public static String ReplayButton = "images/replaybutton.png";
-
+    public static String InspectButton = "images/search.png";
 
 
     //-----------IN GAME UI -------------------------

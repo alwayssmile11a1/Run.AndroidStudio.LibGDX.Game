@@ -13,7 +13,10 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.HashMap;
+
 import noshanabi.game.GameManager;
+import noshanabi.game.Objects.FriendPlayer;
 import noshanabi.game.Objects.Player;
 import noshanabi.game.PlayScreenUI.GameFinishedUI;
 import noshanabi.game.PlayScreenUI.InGameUI;
@@ -87,14 +90,14 @@ public class PlayScreen implements Screen{
     //private boolean isGameStarting = true; //if game is staring, don't move anything
     private float playTime;
     private boolean gameEnded = false;
-
+    float playbackPosition=0;
+    float deadTime = -1;
+    MapSelectionScreen.MapInfo mapInfo;
+    private boolean inspectMode = false;
+    private FriendPlayer inspectedPlayer;
+    private int currentInspectedPlayerIndex;
 
     private Music backgroundMusic;
-    float playbackPosition=0;
-
-    float deadTime = -1;
-
-    MapSelectionScreen.MapInfo mapInfo;
 
     public PlayScreen(GameManager gameManager, MapSelectionScreen.MapInfo mapInfo, String backgroundMusicName) {
         //set up constructor variables
@@ -150,6 +153,9 @@ public class PlayScreen implements Screen{
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(backgroundMusicName));
         backgroundMusic.setLooping(true);
         backgroundMusic.setVolume(0.4f);
+
+        currentInspectedPlayerIndex = 0;
+
     }
 
     public void setServer(ServerCreator server)
@@ -175,46 +181,59 @@ public class PlayScreen implements Screen{
 
 
     private void updateCamera() {
-        if (deadTime == -1) {
-            //update camera to follow this player
-            mainCamera.position.x = MathUtils.clamp(player.getBody().getPosition().x + 1,
-                    gameViewPort.getWorldWidth() / 2,
-                    mapCreator.getFinishPosition().x);
 
-            if(player.getBody().getPosition().y> mainCamera.position.y + gameViewPort.getWorldHeight()/4f)
-            {
-                mainCamera.position.y = player.getBody().getPosition().y - gameViewPort.getWorldHeight()/4f;
-            }
-            else
-            {
-                if(player.getBody().getPosition().y < mainCamera.position.y - gameViewPort.getWorldHeight()/4f)
-                {
-                    mainCamera.position.y = player.getBody().getPosition().y + gameViewPort.getWorldHeight()/4f;
+        if (!inspectMode) {
+            if (deadTime == -1) {
+                //update camera to follow this player
+                mainCamera.position.x = MathUtils.clamp(player.getBody().getPosition().x + 1,
+                        gameViewPort.getWorldWidth() / 2,
+                        mapCreator.getFinishPosition().x);
+
+                float yCamOffset = gameViewPort.getWorldHeight() / 4f;
+
+                if (player.getBody().getPosition().y > mainCamera.position.y + yCamOffset) {
+                    mainCamera.position.y = player.getBody().getPosition().y - yCamOffset;
+                } else {
+                    if (player.getBody().getPosition().y < mainCamera.position.y - yCamOffset) {
+                        mainCamera.position.y = player.getBody().getPosition().y + yCamOffset;
+                    }
+                }
+
+                mainCamera.position.y = MathUtils.clamp(mainCamera.position.y, gameViewPort.getWorldHeight() / 2, mapCreator.getMapSize().y - gameViewPort.getWorldHeight() / 2);
+
+            } else {
+                if (deadTime > 0) {
+                    deadTime -= 1 / 60f;
+                } else {
+                    deadTime = -1;
                 }
             }
 
-            //mainCamera.position.y = MathUtils.clamp(player.getBody().getPosition().y, gameViewPort.getWorldHeight() / 2, gameViewPort.getWorldHeight() / 2 + 3f);
 
         } else {
-            if (deadTime > 0) {
-                deadTime -= 1 / 60f;
-//                //update camera to follow this player
-//                mainCamera.position.x = MathUtils.clamp(player.getDeadPoint().x + 1,
-//                        gameViewPort.getWorldWidth() / 2,
-//                        mapCreator.getFinishPosition().x);
 
-                //mainCamera.position.y = MathUtils.clamp(player.getDeadPoint().y, gameViewPort.getWorldHeight() / 2, gameViewPort.getWorldHeight() / 2 + 3f);
+            mainCamera.position.x = MathUtils.clamp(inspectedPlayer.getX() + 1,
+                    gameViewPort.getWorldWidth() / 2,
+                    mapCreator.getFinishPosition().x);
 
+            float yCamOffset = gameViewPort.getWorldHeight() / 4f;
 
-
+            if (inspectedPlayer.getY() > mainCamera.position.y + yCamOffset) {
+                mainCamera.position.y = inspectedPlayer.getY() - yCamOffset;
             } else {
-                deadTime = -1;
+                if (inspectedPlayer.getY() < mainCamera.position.y - yCamOffset) {
+                    mainCamera.position.y = inspectedPlayer.getY() + yCamOffset;
+                }
             }
+
+            mainCamera.position.y = MathUtils.clamp(mainCamera.position.y, gameViewPort.getWorldHeight() / 2, mapCreator.getMapSize().y - gameViewPort.getWorldHeight() / 2);
+
+
         }
 
         mainCamera.update();
-    }
 
+    }
 
     private void handleInput(float delta) {
 
@@ -295,6 +314,26 @@ public class PlayScreen implements Screen{
             resetGame();
         }
 
+        if(gameFinishedUI.isInspectButtonPressed())
+        {
+            Gdx.app.log("","inspecting");
+            inspectMode = true;
+            int i = 0;
+            for(HashMap.Entry<String,FriendPlayer> entry : server.getPlayers().entrySet())
+            {
+                if(i==currentInspectedPlayerIndex)
+                {
+                    inspectedPlayer = entry.getValue();
+                    break;
+                }
+
+                i++;
+            }
+
+            currentInspectedPlayerIndex = (currentInspectedPlayerIndex+1)%server.getPlayers().size();
+
+        }
+
     }
 
     private void resetGame()
@@ -312,8 +351,15 @@ public class PlayScreen implements Screen{
 
     private void update(float delta) {
 
-        if (player.isHitFinishPoint()) {
+        if (player.isHitFinishPoint() && !gameEnded) {
             gameEnded = true;
+
+            gameFinishedUI.setVisiable(true);
+
+            if(server!=null)
+            {
+                server.onPlayerHitFinishPoint();
+            }
 
             float score = ((int) (playTime * 1000)) / 1000f;
             float currentHighScore = 0.1f;
@@ -498,11 +544,14 @@ public class PlayScreen implements Screen{
 
         if(gameEnded)
         {
-            gameFinishedUI.draw();
-            if(!player.isReviewing())
+            if(server!=null)
             {
-                gameFinishedUI.setVisiable(true);
+                gameFinishedUI.setRankLabelText("YOU GOT RANK "+server.getPlayerRank(),Color.GOLD);
             }
+
+            gameFinishedUI.draw();
+
+
         }
         else
         {

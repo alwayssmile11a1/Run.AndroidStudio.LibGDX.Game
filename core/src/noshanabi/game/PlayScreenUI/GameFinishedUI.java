@@ -13,6 +13,7 @@ import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 
+import noshanabi.game.ButtonPrefabs.InspectButton;
 import noshanabi.game.ButtonPrefabs.MenuButton;
 import noshanabi.game.ButtonPrefabs.PauseButton;
 import noshanabi.game.ButtonPrefabs.ReplayButton;
@@ -52,6 +53,10 @@ public class GameFinishedUI {
     ReplayButton replayButton;
     boolean replayButtonPressed = false;
 
+    //inspect button (used for inspecting other player in multiplayer mode)
+    InspectButton inspectButton;
+    boolean inspectButtonPressed = false;
+
     //menu button
     MenuButton menuButton;
     private boolean menuButtonPressed =false;
@@ -60,15 +65,14 @@ public class GameFinishedUI {
     //display playing time
     VisTable table;
     VisLabel playTimeLabel;
+    VisLabel rankLabel;
 
 
     private boolean needSetInputProcessor = true;
-//    private boolean drawGameFinishedStageGroup = false;
 
     public GameFinishedUI(GameManager gameManager) {
         //set up
         viewPort = new StretchViewport(Resourses.WORLDWIDTH, Resourses.WORLDHEIGHT);
-        //stage = new Stage(viewPort, gameManager.batch);
         stage = new Stage(viewPort, gameManager.batch);
 
         //--------------PAUSE BUTTON ------------------------
@@ -79,8 +83,6 @@ public class GameFinishedUI {
                 pauseButtonPressed = true;
                 gameFinishedGroup.setVisible(true);
                 table.setVisible(true);
-                //drawGameFinishedStageGroup = true;
-                //Gdx.input.setInputProcessor(stage);
                 return true;
             }
 
@@ -111,8 +113,6 @@ public class GameFinishedUI {
                 replayButtonPressed = true;
                 gameFinishedGroup.setVisible(false);
                 table.setVisible(false);
-                //drawGameFinishedStageGroup = false;
-                //Gdx.input.setInputProcessor(stage);
                 return true;
             }
 
@@ -132,8 +132,6 @@ public class GameFinishedUI {
                 reviewButtonPressed = true;
                 gameFinishedGroup.setVisible(false);
                 table.setVisible(false);
-                //drawGameFinishedStageGroup = false;
-                //Gdx.input.setInputProcessor(stage);
                 return true;
             }
 
@@ -145,6 +143,25 @@ public class GameFinishedUI {
         //add to table
         gameFinishedGroup.addActor(reviewButton);
 
+        //inspect button
+        inspectButton = new InspectButton();
+        inspectButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                inspectButtonPressed = true;
+                gameFinishedGroup.setVisible(false);
+                table.setVisible(false);
+                return true;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                inspectButtonPressed = false;
+            }
+        });
+        inspectButton.setVisible(false);
+        //add to table
+        gameFinishedGroup.addActor(inspectButton);
 
         //menu button
         menuButton = new MenuButton();
@@ -171,8 +188,13 @@ public class GameFinishedUI {
         table.setFillParent(true);
         table.top();
 
+        rankLabel = new VisLabel();
+        table.add(rankLabel).padTop(50f).row();
+
         playTimeLabel = new VisLabel();
-        table.add(playTimeLabel).padTop(100f);
+        table.add(playTimeLabel).padTop(20f);
+
+
         stage.addActor(table);
 
     }
@@ -194,10 +216,17 @@ public class GameFinishedUI {
         playTimeLabel.setColor(color);
     }
 
+    public void setRankLabelText(String text, Color color)
+    {
+        rankLabel.setText(text);
+        rankLabel.setColor(color);
+    }
+
     public void setToMultiplayerMode()
     {
         replayButton.setVisible(false);
         reviewButton.setVisible(false);
+        inspectButton.setVisible(true);
     }
 
     public void draw()
@@ -211,12 +240,12 @@ public class GameFinishedUI {
         stage.act();
 
         //since the frame is so fast that the reviewButtonPressed and pauseButtonPressed is not returned to false in 2-3 frames
-        //and furthermore, we want the result to be justTouched-like event, setting these variable to false after one frame is necessary
+        //and furthermore, we want the result to be justTouched-like event, setting these variables to false after one frame is necessary
         reviewButtonPressed = false;
         menuButtonPressed = false;
         pauseButtonPressed = false;
         replayButtonPressed = false;
-
+        inspectButtonPressed = false;
     }
 
     public void setVisiable(boolean visible)
@@ -261,6 +290,9 @@ public class GameFinishedUI {
         if(replayButton!=null)
             replayButton.dispose();
 
+        if(inspectButton!=null)
+            inspectButton.dispose();
+
     }
 
 
@@ -274,5 +306,9 @@ public class GameFinishedUI {
 
     public boolean isReplayButtonPressed() {
         return replayButtonPressed;
+    }
+
+    public boolean isInspectButtonPressed() {
+        return inspectButtonPressed;
     }
 }

@@ -42,6 +42,10 @@ public class ServerCreator {
     private Player mainPlayer;
     private World world;
 
+
+    //the rank of player if they finished the map
+    private int playerRank;
+
     public ServerCreator(GameManager gameManager)
     {
         this.gameManager = gameManager;
@@ -303,9 +307,31 @@ public class ServerCreator {
             }
         });
 
+        socket.on("getRank", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                try {
+                    JSONObject data = (JSONObject) args[0];
+                     playerRank = Integer.parseInt( data.getString("rank"));
+
+                } catch (JSONException e) {
+                    Gdx.app.log("SocketIO", "Error on player finishing map");
+                    e.printStackTrace();
+                }
+            }
+        });
 
     }
 
+    public int getPlayerRank()
+    {
+        return playerRank;
+    }
+
+    public void onPlayerHitFinishPoint()
+    {
+        socket.emit("socketGetRank");
+    }
 
 
     public void handlePlayerMovedEvent(Object... args) {
