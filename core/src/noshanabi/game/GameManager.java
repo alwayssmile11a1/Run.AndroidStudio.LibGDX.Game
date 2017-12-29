@@ -78,8 +78,6 @@ public class GameManager extends Game {
 		batch = new SpriteBatch();
 		disposeScreens = new Array<Screen>();
 
-
-
 		//Get Preferences to save our score
 		prefs = Gdx.app.getPreferences("My Preferences");
 

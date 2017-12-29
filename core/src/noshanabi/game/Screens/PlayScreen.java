@@ -361,13 +361,17 @@ public class PlayScreen implements Screen{
                 server.onPlayerHitFinishPoint();
             }
 
+            //get current game score
             float score = ((int) (playTime * 1000)) / 1000f;
+
+            //get current high score
             float currentHighScore = 0.1f;
-            if(mapInfo.highScoreLabel != null)
+            if(server == null) //get current high score only in single player mode
             {
-                Float.parseFloat(mapInfo.highScoreLabel.getText().toString());
+                currentHighScore = Float.parseFloat(mapInfo.highScoreLabel.getText().toString());
             }
 
+            //calculate and display high score if necessary
             if(currentHighScore!=0) {
                 if (score < currentHighScore) {
                     gameFinishedUI.setPlayTimeText("HIGH SCORE: " + score, Color.GOLD);
